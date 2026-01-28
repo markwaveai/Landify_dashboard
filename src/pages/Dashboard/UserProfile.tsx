@@ -6,6 +6,7 @@ import Badge from "../../components/ui/badge/Badge";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProfile } from "../../services/authService";
 import { setCredentials } from "../../store/slices/authSlice";
+import FodderProcurement from "../../components/dashboard/FodderProcurement";
 
 const ProfileField = ({ label, value, icon }: { label: string; value: string | undefined; icon?: React.ReactNode }) => (
     <div className="flex items-center gap-3 p-4 border border-gray-100 rounded-xl dark:border-gray-800">
@@ -165,6 +166,8 @@ const UserProfile: React.FC = () => {
                     </div>
                 </div>
             </div>
+            {/* Fodder Procurement Dashboard for Admin */}
+            {user.role === 'ADMIN' && <FodderProcurement />}
         </div>
     );
 };

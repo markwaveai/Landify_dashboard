@@ -9,6 +9,7 @@ import {
   UserCircleIcon,
   GroupIcon,
   UserIcon,
+  BoxCubeIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 
@@ -48,6 +49,12 @@ const navItems: NavItem[] = [
     icon: <UserCircleIcon />,
     name: "Profile",
     path: "/profile",
+  },
+  {
+    icon: <BoxCubeIcon />,
+    name: "Fodder Ops",
+    path: "/fodder-procurement",
+    roles: ["ADMIN"], // Assuming only Admin per original request "Admin login"
   },
 ];
 
