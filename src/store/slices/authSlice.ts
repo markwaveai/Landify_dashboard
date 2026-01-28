@@ -18,19 +18,19 @@ interface User {
   officer_count?: number;
   agent_count?: number;
   farmer_count?: number;
+  land_count?: number;
+  total_acres?: number;
 }
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
 }
 
 const storedUser = localStorage.getItem('user');
 const initialState: AuthState = {
   user: storedUser ? JSON.parse(storedUser) : null,
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  isAuthenticated: !!localStorage.getItem('user_phone'),
 };
 
 const authSlice = createSlice({
@@ -39,19 +39,17 @@ const authSlice = createSlice({
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ user: User; token: string }>
+      action: PayloadAction<{ user: User }>
     ) => {
       state.user = action.payload.user;
-      state.token = action.payload.token;
       state.isAuthenticated = true;
-      localStorage.setItem('token', action.payload.token);
+      localStorage.setItem('user_phone', action.payload.user.phone_number);
       localStorage.setItem('user', JSON.stringify(action.payload.user));
     },
     logout: (state) => {
       state.user = null;
-      state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('token');
+      localStorage.removeItem('user_phone');
       localStorage.removeItem('user');
     },
   },

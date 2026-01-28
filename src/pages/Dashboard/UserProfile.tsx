@@ -1,8 +1,11 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
 import { UserCircleIcon, GroupIcon, UserIcon, EnvelopeIcon, CalenderIcon } from "../../icons";
 import Badge from "../../components/ui/badge/Badge";
+import { useQuery } from "@tanstack/react-query";
+import { fetchProfile } from "../../services/authService";
+import { setCredentials } from "../../store/slices/authSlice";
 
 const ProfileField = ({ label, value, icon }: { label: string; value: string | undefined; icon?: React.ReactNode }) => (
     <div className="flex items-center gap-3 p-4 border border-gray-100 rounded-xl dark:border-gray-800">
@@ -15,21 +18,36 @@ const ProfileField = ({ label, value, icon }: { label: string; value: string | u
 );
 
 const UserProfile: React.FC = () => {
+    const dispatch = useDispatch();
     const { user } = useSelector((state: RootState) => state.auth);
+
+    const { data: updatedUser } = useQuery({
+        queryKey: ['profile', user?.phone_number],
+        queryFn: () => fetchProfile(user?.phone_number || ''),
+        enabled: !!user?.phone_number,
+    });
+
+    useEffect(() => {
+        if (updatedUser) {
+            dispatch(setCredentials({ user: updatedUser }));
+        }
+    }, [updatedUser, dispatch]);
 
     if (!user) return null;
 
     const renderStats = () => {
         if (user.role === "ADMIN") {
             return (
-                <div className="p-6 bg-brand-500 rounded-2xl text-white">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm opacity-80">Total Agriculture Officers Added</p>
-                            <h4 className="text-3xl font-bold mt-1">{user.officer_count ?? 0}</h4>
-                        </div>
-                        <div className="p-3 bg-white/20 rounded-xl">
-                            <UserCircleIcon className="size-8" />
+                <div className="grid grid-cols-1 gap-4">
+                    <div className="p-6 bg-brand-500 rounded-2xl text-white">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm opacity-80">Total Agriculture Officers</p>
+                                <h4 className="text-3xl font-bold mt-1">{user.officer_count ?? 0}</h4>
+                            </div>
+                            <div className="p-3 bg-white/20 rounded-xl">
+                                <UserCircleIcon className="size-8" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -37,14 +55,35 @@ const UserProfile: React.FC = () => {
         }
         if (user.role === "AGRICULTURE_OFFICER") {
             return (
-                <div className="p-6 bg-blue-500 rounded-2xl text-white">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm opacity-80">Total Agents Added</p>
-                            <h4 className="text-3xl font-bold mt-1">{user.agent_count ?? 0}</h4>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="p-6 bg-blue-500 rounded-2xl text-white col-span-2">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm opacity-80">Total Agents</p>
+                                <h4 className="text-3xl font-bold mt-1">{user.agent_count ?? 0}</h4>
+                            </div>
+                            <div className="p-3 bg-white/20 rounded-xl">
+                                <GroupIcon className="size-8" />
+                            </div>
                         </div>
-                        <div className="p-3 bg-white/20 rounded-xl">
-                            <GroupIcon className="size-8" />
+                    </div>
+                    <div className="p-4 bg-purple-500 rounded-2xl text-white">
+                        <p className="text-xs opacity-80">Total Farmers</p>
+                        <h4 className="text-2xl font-bold mt-1">{user.farmer_count ?? 0}</h4>
+                    </div>
+                    <div className="p-4 bg-emerald-500 rounded-2xl text-white">
+                        <p className="text-xs opacity-80">Total Farms</p>
+                        <h4 className="text-2xl font-bold mt-1">{user.land_count ?? 0}</h4>
+                    </div>
+                    <div className="p-4 bg-orange-500 rounded-2xl text-white col-span-2">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm opacity-80">Total Acres</p>
+                                <h4 className="text-3xl font-bold mt-1">{user.total_acres ?? 0}</h4>
+                            </div>
+                            <div className="p-3 bg-white/20 rounded-xl">
+                                <span className="text-xl font-bold">Ac</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -52,15 +91,25 @@ const UserProfile: React.FC = () => {
         }
         if (user.role === "AGENT") {
             return (
-                <div className="p-6 bg-orange-500 rounded-2xl text-white">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm opacity-80">Total Farmers Added</p>
-                            <h4 className="text-3xl font-bold mt-1">{user.farmer_count ?? 0}</h4>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="p-6 bg-orange-500 rounded-2xl text-white col-span-2">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm opacity-80">Total Farmers</p>
+                                <h4 className="text-3xl font-bold mt-1">{user.farmer_count ?? 0}</h4>
+                            </div>
+                            <div className="p-3 bg-white/20 rounded-xl">
+                                <UserIcon className="size-8" />
+                            </div>
                         </div>
-                        <div className="p-3 bg-white/20 rounded-xl">
-                            <UserIcon className="size-8" />
-                        </div>
+                    </div>
+                    <div className="p-4 bg-emerald-500 rounded-2xl text-white">
+                        <p className="text-xs opacity-80">Total Farms</p>
+                        <h4 className="text-2xl font-bold mt-1">{user.land_count ?? 0}</h4>
+                    </div>
+                    <div className="p-4 bg-blue-500 rounded-2xl text-white">
+                        <p className="text-xs opacity-80">Total Acres</p>
+                        <h4 className="text-2xl font-bold mt-1">{user.total_acres ?? 0}</h4>
                     </div>
                 </div>
             );

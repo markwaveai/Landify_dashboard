@@ -61,3 +61,8 @@ export const getFarmerFullDetails = async (phoneNumber: string) => {
     const response = await api.get(`/users/farmer/full/${phoneNumber}`);
     return response.data;
 };
+
+export const getAgentFarmers = async (phoneNumber: string) => {
+    const response = await api.get(`/users/agent/${phoneNumber}/farmers`);
+    return response.data;
+};

@@ -133,7 +133,10 @@ export default function UserTable({ title, users, onAddClick, onAddLand, addLabe
                                     <div className="flex items-center gap-3">
                                         {onAddLand && (
                                             <button
-                                                onClick={() => onAddLand(user)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onAddLand(user);
+                                                }}
                                                 className="text-primary-600 hover:text-primary-700 font-medium"
                                             >
                                                 + Land
