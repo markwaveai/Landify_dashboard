@@ -1,41 +1,41 @@
-import EcommerceMetrics from "../../components/ecommerce/EcommerceMetrics";
-import MonthlySalesChart from "../../components/ecommerce/MonthlySalesChart";
-import StatisticsChart from "../../components/ecommerce/StatisticsChart";
-import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
-import RecentOrders from "../../components/ecommerce/RecentOrders";
-import DemographicCard from "../../components/ecommerce/DemographicCard";
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { useQuery } from "@tanstack/react-query";
+import { getAgents, getAOs, getFarmers } from "../../services/userService";
+import UserTable from "../../components/dashboard/UserTable";
 import PageMeta from "../../components/common/PageMeta";
+import EcommerceMetrics from "../../components/ecommerce/EcommerceMetrics";
+import AddOfficerModal from "../../components/dashboard/AddOfficerModal";
+import AddAgentModal from "../../components/dashboard/AddAgentModal";
+import AddFarmerModal from "../../components/dashboard/AddFarmerModal";
 
 export default function Home() {
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  const [showOfficerModal, setShowOfficerModal] = useState(false);
+  const [showAgentModal, setShowAgentModal] = useState(false);
+  const [showFarmerModal, setShowFarmerModal] = useState(false);
+
+  const { data: aos } = useQuery({ queryKey: ['aos'], queryFn: getAOs, enabled: user?.role === 'ADMIN' });
+  const { data: agents } = useQuery({ queryKey: ['agents'], queryFn: getAgents, enabled: user?.role === 'ADMIN' || user?.role === 'AGRICULTURE_OFFICER' });
+  const { data: farmers } = useQuery({ queryKey: ['farmers'], queryFn: getFarmers, enabled: user?.role === 'ADMIN' || user?.role === 'AGENT' || user?.role === 'AGRICULTURE_OFFICER' });
+
   return (
     <>
       <PageMeta
-        title="React.js Ecommerce Dashboard | TailAdmin - React.js Admin Dashboard Template"
-        description="This is React.js Ecommerce Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+        title="Landify Dashboard"
+        description="Landify Dashboard for Agricultural Management"
       />
-      <div className="grid grid-cols-12 gap-4 md:gap-6">
-        <div className="col-span-12 space-y-6 xl:col-span-7">
-          <EcommerceMetrics />
 
-          <MonthlySalesChart />
-        </div>
-
-        <div className="col-span-12 xl:col-span-5">
-          <MonthlyTarget />
-        </div>
-
-        <div className="col-span-12">
-          <StatisticsChart />
-        </div>
-
-        <div className="col-span-12 xl:col-span-5">
-          <DemographicCard />
-        </div>
-
-        <div className="col-span-12 xl:col-span-7">
-          <RecentOrders />
-        </div>
+      <div className="space-y-6">
+        <EcommerceMetrics />
       </div>
+
+      {/* MODALS */}
+      <AddOfficerModal isOpen={showOfficerModal} onClose={() => setShowOfficerModal(false)} />
+      <AddAgentModal isOpen={showAgentModal} onClose={() => setShowAgentModal(false)} />
+      <AddFarmerModal isOpen={showFarmerModal} onClose={() => setShowFarmerModal(false)} />
     </>
   );
 }
