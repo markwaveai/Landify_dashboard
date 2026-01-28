@@ -32,7 +32,32 @@ export const createFarmerStep1 = async (data: any) => {
     return response.data;
 };
 
-export const updateFarmerStep2 = async (uniqueId: string, data: any) => {
-    const response = await api.put(`/users/farmer/step2/${uniqueId}`, data);
+export const getFarmerStep1 = async (phoneNumber: string) => {
+    const response = await api.get(`/users/farmer/step1/${phoneNumber}`);
+    return response.data;
+};
+
+export const updateFarmerStep2 = async (phoneNumber: string, data: any) => {
+    const response = await api.put(`/users/farmer/step2/${phoneNumber}`, data);
+    return response.data;
+};
+
+export const getFarmerStep2 = async (phoneNumber: string) => {
+    const response = await api.get(`/users/farmer/step2/${phoneNumber}`);
+    return response.data;
+};
+
+export const updateFarmerStep3 = async (phoneNumber: string, data: any) => {
+    const response = await api.put(`/users/farmer/step3/${phoneNumber}`, data);
+    return response.data;
+};
+
+export const getFarmerStep3 = async (phoneNumber: string) => {
+    const response = await api.get(`/users/farmer/step3/${phoneNumber}`);
+    return response.data;
+};
+
+export const getFarmerFullDetails = async (phoneNumber: string) => {
+    const response = await api.get(`/users/farmer/full/${phoneNumber}`);
     return response.data;
 };

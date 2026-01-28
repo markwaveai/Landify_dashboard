@@ -21,7 +21,8 @@ export default function SignInForm() {
     setError("");
     setLoading(true);
     try {
-      const { access_token } = await login(phoneNumber, otp);
+      const sanitizedPhone = phoneNumber.trim().replace(/[\u200B-\u200D\u2028\u2029\uFEFF]/g, "");
+      const { access_token } = await login(sanitizedPhone, otp);
       // Store token first
       localStorage.setItem('token', access_token);
       // Fetch user details

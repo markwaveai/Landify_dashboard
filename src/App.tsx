@@ -20,6 +20,7 @@ import Home from "./pages/Dashboard/Home";
 import AosPage from "./pages/Dashboard/AosPage";
 import AgentsPage from "./pages/Dashboard/AgentsPage";
 import FarmersPage from "./pages/Dashboard/FarmersPage";
+import FarmerDetailsPage from "./pages/Dashboard/FarmerDetailsPage";
 import UserProfile from "./pages/Dashboard/UserProfile";
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/aos" element={<AosPage />} />
             <Route path="/agents" element={<AgentsPage />} />
             <Route path="/farmers" element={<FarmersPage />} />
+            <Route path="/farmers/:phoneNumber" element={<FarmerDetailsPage />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfile />} />
