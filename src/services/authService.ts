@@ -5,10 +5,7 @@ export const sendOTP = async (phoneNumber: string) => {
     return response.data;
 };
 
-export const login = async (phoneNumber: string, otp: string) => {
-    const response = await api.post('/auth/login', { phone_number: phoneNumber, otp });
-    return response.data;
-};
+
 
 
 export const fetchMe = async () => {

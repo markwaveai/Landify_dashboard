@@ -4,7 +4,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
 import { useDispatch } from "react-redux";
-import { login, sendOTP, fetchProfile } from "../../services/authService";
+import { sendOTP, fetchProfile } from "../../services/authService";
 import { setCredentials } from "../../store/slices/authSlice";
 
 export default function SignInForm() {
@@ -58,7 +58,8 @@ export default function SignInForm() {
       const sanitizedPhone = phoneNumber.trim().replace(/[\u200B-\u200D\u2028\u2029\uFEFF]/g, "");
 
       // Verification - just to confirm user exists and for backend logging
-      await login(sanitizedPhone, otp);
+      // Verification handled purely on frontend via OTP match above
+      // await login(sanitizedPhone, otp); - Removed per request
 
 
       // Store phone number first (so subsequent requests have the header)

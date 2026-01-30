@@ -41,6 +41,7 @@ export default function App() {
             {/* Others Page */}
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/fodder-procurement" element={<FodderProcurementPage />} />
+            <Route path="/fodder" element={<FodderProcurementPage />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />
 

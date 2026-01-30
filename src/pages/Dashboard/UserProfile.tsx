@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router"; // Added import
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
 import { UserCircleIcon, GroupIcon, UserIcon, EnvelopeIcon, CalenderIcon } from "../../icons";
@@ -6,7 +7,7 @@ import Badge from "../../components/ui/badge/Badge";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProfile } from "../../services/authService";
 import { setCredentials } from "../../store/slices/authSlice";
-import FodderProcurement from "../../components/dashboard/FodderProcurement";
+import Button from "../../components/ui/button/Button"; // Added import
 
 const ProfileField = ({ label, value, icon }: { label: string; value: string | undefined; icon?: React.ReactNode }) => (
     <div className="flex items-center gap-3 p-4 border border-gray-100 rounded-xl dark:border-gray-800">
@@ -20,6 +21,7 @@ const ProfileField = ({ label, value, icon }: { label: string; value: string | u
 
 const UserProfile: React.FC = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate(); // Added hook
     const { user } = useSelector((state: RootState) => state.auth);
 
     const { data: updatedUser } = useQuery({
@@ -167,7 +169,16 @@ const UserProfile: React.FC = () => {
                 </div>
             </div>
             {/* Fodder Procurement Dashboard for Admin */}
-            {user.role === 'ADMIN' && <FodderProcurement />}
+            {/* Fodder Procurement Link */}
+            <div className="mt-6">
+                <Button
+                    className="w-full"
+                    onClick={() => navigate('/fodder')}
+                >
+                    Fodder Procurement
+                </Button>
+            </div>
+            {/* user.role === 'ADMIN' && <FodderProcurement /> - Replaced with link */}
         </div>
     );
 };
