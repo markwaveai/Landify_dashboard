@@ -23,6 +23,7 @@ import FarmersPage from "./pages/Dashboard/FarmersPage";
 import FarmerDetailsPage from "./pages/Dashboard/FarmerDetailsPage";
 import UserProfile from "./pages/Dashboard/UserProfile";
 import FodderProcurementPage from "./pages/Dashboard/FodderProcurementPage";
+import LandApprovalsPage from "./pages/Dashboard/LandApprovalsPage";
 
 export default function App() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="/agents" element={<AgentsPage />} />
             <Route path="/farmers" element={<FarmersPage />} />
             <Route path="/farmers/:phoneNumber" element={<FarmerDetailsPage />} />
+            <Route path="/approvals" element={<LandApprovalsPage />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfile />} />

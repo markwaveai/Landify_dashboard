@@ -10,6 +10,7 @@ import {
   GroupIcon,
   UserIcon,
   BoxCubeIcon,
+  CheckCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 
@@ -38,6 +39,12 @@ const navItems: NavItem[] = [
     name: "Agents",
     path: "/agents",
     roles: ["ADMIN", "AGRICULTURE_OFFICER"],
+  },
+  {
+    icon: <CheckCircleIcon />,
+    name: "Approvals",
+    path: "/approvals",
+    roles: ["ADMIN", "AGRICULTURE_OFFICER", "AGENT"],
   },
   {
     icon: <UserIcon />,

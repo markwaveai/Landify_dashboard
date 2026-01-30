@@ -4,7 +4,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
 import { useDispatch } from "react-redux";
-import { sendOTP, fetchProfile } from "../../services/authService";
+import { sendOTP, fetchProfile, verifyOTP } from "../../services/authService";
 import { setCredentials } from "../../store/slices/authSlice";
 
 export default function SignInForm() {
@@ -13,7 +13,6 @@ export default function SignInForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [receivedOtp, setReceivedOtp] = useState("");
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -24,17 +23,24 @@ export default function SignInForm() {
     setLoading(true);
     try {
       const sanitizedPhone = phoneNumber.trim().replace(/[\u200B-\u200D\u2028\u2029\uFEFF]/g, "");
-      const data = await sendOTP(sanitizedPhone);
-      setReceivedOtp(data.otp);
-      setOtpSent(true);
+
+      // Admin bypass for sendOTP to avoid validator issues
       if (sanitizedPhone === "9999999999") {
+        setOtpSent(true);
         setOtp("123456");
+        setLoading(false);
+        return;
       }
+
+      await sendOTP(sanitizedPhone);
+      setOtpSent(true);
     } catch (err: any) {
       console.error(err);
       setError("Failed to send OTP. Check phone number.");
     } finally {
-      setLoading(false);
+      if (phoneNumber !== "9999999999") {
+        setLoading(false);
+      }
     }
   };
 
@@ -42,24 +48,12 @@ export default function SignInForm() {
     e.preventDefault();
     setError("");
 
-    if (otp !== receivedOtp && phoneNumber !== "9999999999") {
-      setError("Invalid OTP. Please try again.");
-      return;
-    }
-
-    // Admin bypass for static login
-    if (phoneNumber === "9999999999" && otp !== "123456") {
-      setError("Invalid OTP for Admin.");
-      return;
-    }
-
     setLoading(true);
     try {
       const sanitizedPhone = phoneNumber.trim().replace(/[\u200B-\u200D\u2028\u2029\uFEFF]/g, "");
 
-      // Verification - just to confirm user exists and for backend logging
-      // Verification handled purely on frontend via OTP match above
-      // await login(sanitizedPhone, otp); - Removed per request
+      // Verify OTP with backend
+      await verifyOTP(sanitizedPhone, otp);
 
 
       // Store phone number first (so subsequent requests have the header)

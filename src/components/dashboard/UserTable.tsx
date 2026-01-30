@@ -7,6 +7,7 @@ import {
 } from "../ui/table";
 import { Link, useNavigate } from "react-router";
 import Badge from "../ui/badge/Badge";
+import Button from "../ui/button/Button";
 import { EyeIcon } from "../../icons";
 
 interface User {
@@ -45,12 +46,13 @@ export default function UserTable({ title, users, onAddClick, onAddLand, addLabe
 
                 <div className="flex items-center gap-3">
                     {onAddClick && (
-                        <button
+                        <Button
                             onClick={onAddClick}
-                            className="inline-flex items-center gap-2 rounded-lg border border-primary-600 bg-primary-600 px-4 py-2.5 text-theme-sm font-medium text-white shadow-theme-xs hover:bg-primary-700 disabled:opacity-50"
+                            size="sm"
+                            startIcon={<span className="text-xl">+</span>}
                         >
                             {addLabel || "Add New"}
-                        </button>
+                        </Button>
                     )}
                 </div>
             </div>

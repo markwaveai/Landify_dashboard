@@ -9,6 +9,7 @@ import { UserIcon, EnvelopeIcon, GridIcon, CalenderIcon, AngleLeftIcon } from ".
 import Badge from "../../components/ui/badge/Badge";
 import PageMeta from "../../components/common/PageMeta";
 import UserTable from "../../components/dashboard/UserTable"; // Re-use UserTable for agent's farmers
+import LandDetailsModal from "../../components/dashboard/LandDetailsModal";
 
 // Alias available icons to names used in the component
 const PhoneIcon = UserIcon;
@@ -38,6 +39,7 @@ const DetailCard = ({ title, children }: { title: string; children: React.ReactN
 const FarmerDetailsPage: React.FC = () => {
     const { phoneNumber } = useParams<{ phoneNumber: string }>();
     const navigate = useNavigate();
+    const [viewLand, setViewLand] = React.useState<any>(null);
 
     const { data: user, isLoading: isUserLoading } = useQuery({
         queryKey: ["user", phoneNumber],
@@ -89,8 +91,8 @@ const FarmerDetailsPage: React.FC = () => {
 
             {/* Profile Overview */}
             <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
-                <div className="h-32 bg-linear-to-r from-brand-500 to-brand-700 relative"></div>
-                <div className="px-8 pb-8">
+                <div className="h-12 bg-gray-100 dark:bg-gray-800 relative"></div>
+                <div className="px-8 pb-1">
                     <div className="flex flex-col md:flex-row gap-6 items-end -mt-12 mb-6">
                         <div className="size-32 rounded-3xl border-4 border-white dark:border-gray-900 overflow-hidden bg-white shadow-xl">
                             <img
@@ -178,7 +180,11 @@ const FarmerDetailsPage: React.FC = () => {
                     ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {lands?.map((land: any) => (
-                                <div key={land.id} className="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-xl transition-all duration-300">
+                                <div
+                                    key={land.id}
+                                    onClick={() => setViewLand(land)}
+                                    className="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-xl transition-all duration-300 cursor-pointer"
+                                >
                                     <div className="p-5 flex flex-col h-full">
                                         <div className="flex justify-between items-start mb-4">
                                             <div>
@@ -189,9 +195,20 @@ const FarmerDetailsPage: React.FC = () => {
                                                     Survey No: {land.survey_no}
                                                 </h4>
                                             </div>
-                                            <Badge color={land.land_type === "Wet Land" ? "success" : "warning"}>
-                                                {land.land_type}
-                                            </Badge>
+                                            <div className="flex flex-col gap-2 items-end">
+                                                <Badge color={land.land_type === "Wet Land" ? "success" : "warning"}>
+                                                    {land.land_type}
+                                                </Badge>
+                                                <Badge
+                                                    size="sm"
+                                                    color={
+                                                        land.status === 'PENDING' ? 'warning' :
+                                                            land.status.includes('APPROVED') ? 'success' : 'error'
+                                                    }
+                                                >
+                                                    {land.status}
+                                                </Badge>
+                                            </div>
                                         </div>
 
                                         <div className="grid grid-cols-3 gap-4 mb-6">
@@ -235,6 +252,12 @@ const FarmerDetailsPage: React.FC = () => {
                     )}
                 </div>
             )}
+
+            <LandDetailsModal
+                isOpen={!!viewLand}
+                onClose={() => setViewLand(null)}
+                land={viewLand}
+            />
         </div>
     );
 };

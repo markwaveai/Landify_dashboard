@@ -24,17 +24,19 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
         email: "",
         gender: "Male",
         date_of_birth: "",
+        district: "",
+        mandal: "",
+        village: "",
+        pincode: "",
+        // state not supported by backend schema for FarmerStep1Create, so ignoring
     });
 
     const [step2Data, setStep2Data] = useState({
         aadhar_card_number: "",
         aadhar_front_url: "http://example.com",
         aadhar_back_url: "http://example.com",
-        pincode: "",
-        district: "",
-        mandal: "",
-        village: "",
-        state: "",
+        passbook_number: "",
+        passbook_url: "http://example.com",
     });
 
     const [step3Data, setStep3Data] = useState({
@@ -149,6 +151,12 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
                         </div>
                         <div><Label>DOB *</Label><Input name="date_of_birth" type="date" value={step1Data.date_of_birth} onChange={handleInput1} required /></div>
                     </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div><Label>District *</Label><Input name="district" value={step1Data.district} onChange={handleInput1} required /></div>
+                        <div><Label>Mandal *</Label><Input name="mandal" value={step1Data.mandal} onChange={handleInput1} required /></div>
+                        <div><Label>Village *</Label><Input name="village" value={step1Data.village} onChange={handleInput1} required /></div>
+                        <div><Label>Pincode *</Label><Input name="pincode" value={step1Data.pincode} onChange={handleInput1} required /></div>
+                    </div>
                     <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
                         <Button variant="outline" onClick={onClose} type="button">Cancel</Button>
                         <Button disabled={mutationStep1.isPending}>{mutationStep1.isPending ? "Saving..." : "Next"}</Button>
@@ -160,15 +168,12 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
                 <form onSubmit={handleStep2Submit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
                     <div className="grid grid-cols-2 gap-4">
                         <div><Label>Aadhar Number *</Label><Input name="aadhar_card_number" value={step2Data.aadhar_card_number} onChange={handleInput2} required /></div>
+                        <div><Label>Passbook Number</Label><Input name="passbook_number" value={step2Data.passbook_number} onChange={handleInput2} /></div>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4">
                         <div><Label>Aadhar Front URL *</Label><Input name="aadhar_front_url" value={step2Data.aadhar_front_url} onChange={handleInput2} required /></div>
                         <div><Label>Aadhar Back URL *</Label><Input name="aadhar_back_url" value={step2Data.aadhar_back_url} onChange={handleInput2} required /></div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div><Label>Pincode *</Label><Input name="pincode" value={step2Data.pincode} onChange={handleInput2} required /></div>
-                        <div><Label>District *</Label><Input name="district" value={step2Data.district} onChange={handleInput2} required /></div>
-                        <div><Label>Mandal *</Label><Input name="mandal" value={step2Data.mandal} onChange={handleInput2} required /></div>
-                        <div><Label>Village *</Label><Input name="village" value={step2Data.village} onChange={handleInput2} required /></div>
-                        <div><Label>State *</Label><Input name="state" value={step2Data.state} onChange={handleInput2} required /></div>
+                        <div><Label>Passbook URL</Label><Input name="passbook_url" value={step2Data.passbook_url} onChange={handleInput2} /></div>
                     </div>
                     <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
                         <Button disabled={mutationStep2.isPending}>{mutationStep2.isPending ? "Saving..." : "Next"}</Button>
@@ -188,12 +193,13 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div><Label>Account Holder *</Label><Input name="account_holder_name" value={step3Data.account_holder_name} onChange={handleInput3} required /></div>
-                        <div><Label>PAN Card Number *</Label><Input name="pan_card_number" value={step3Data.pan_card_number} onChange={handleInput3} required /></div>
+                        {/* PAN Card Number is not in backend schema for update, but kept for UI completeness if backend is fixed later */}
+                        <div><Label>PAN Card Number</Label><Input name="pan_card_number" value={step3Data.pan_card_number} onChange={handleInput3} /></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div><Label>PAN Image URL *</Label><Input name="pancard_url" value={step3Data.pancard_url} onChange={handleInput3} required /></div>
-                        <div><Label>Agreement URL *</Label><Input name="agreement_form_url" value={step3Data.agreement_form_url} onChange={handleInput3} required /></div>
-                        <div><Label>Photo URL *</Label><Input name="user_photo_url" value={step3Data.user_photo_url} onChange={handleInput3} required /></div>
+                        <div><Label>PAN Image URL</Label><Input name="pancard_url" value={step3Data.pancard_url} onChange={handleInput3} /></div>
+                        <div><Label>Agreement URL</Label><Input name="agreement_form_url" value={step3Data.agreement_form_url} onChange={handleInput3} /></div>
+                        <div><Label>Photo URL</Label><Input name="user_photo_url" value={step3Data.user_photo_url} onChange={handleInput3} /></div>
                     </div>
                     <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
                         <Button disabled={mutationStep3.isPending}>{mutationStep3.isPending ? "Finish" : "Complete"}</Button>
