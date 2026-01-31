@@ -1,11 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowDownIcon,
-  ArrowUpIcon,
   BoxIconLine,
   GroupIcon,
 } from "../../icons";
-import Badge from "../ui/badge/Badge";
 import { getDashboardStats } from "../../services/dashboardService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";

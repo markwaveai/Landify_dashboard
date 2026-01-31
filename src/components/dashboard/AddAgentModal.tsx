@@ -3,7 +3,7 @@ import { Modal } from "../ui/modal";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Button from "../ui/button/Button";
-import { createAgent, createAgentStep1, updateAgentStep2 } from "../../services/userService";
+import { createAgentStep1, updateAgentStep2 } from "../../services/userService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface AddAgentModalProps {

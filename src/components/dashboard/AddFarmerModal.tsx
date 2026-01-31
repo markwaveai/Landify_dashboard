@@ -14,7 +14,7 @@ interface AddFarmerModalProps {
 export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps) {
     const [step, setStep] = useState(1);
     const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
-    const [uniqueId, setUniqueId] = useState<string | null>(null);
+
 
     const [step1Data, setStep1Data] = useState({
         first_name: "",
@@ -57,7 +57,6 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
     const mutationStep1 = useMutation({
         mutationFn: createFarmerStep1,
         onSuccess: (data) => {
-            setUniqueId(data.unique_id);
             setPhoneNumber(data.phone_number);
             setStep(2);
         },
@@ -87,7 +86,6 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
             onClose();
             // Reset
             setStep(1);
-            setUniqueId(null);
             setPhoneNumber(null);
         },
         onError: (error) => {
