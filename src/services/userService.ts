@@ -66,3 +66,13 @@ export const getAgentFarmers = async (phoneNumber: string) => {
     const response = await api.get(`/users/agent/${phoneNumber}/farmers`);
     return response.data;
 };
+
+export const createAgentStep1 = async (data: any) => {
+    const response = await api.post('/users/agent/step1', data);
+    return response.data;
+};
+
+export const updateAgentStep2 = async (uniqueId: string, data: any) => {
+    const response = await api.put(`/users/agent/step2/${uniqueId}`, data);
+    return response.data;
+};

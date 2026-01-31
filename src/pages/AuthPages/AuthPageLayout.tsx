@@ -17,16 +17,18 @@ export default function AuthLayout({
             {/* <!-- ===== Common Grid Shape Start ===== --> */}
             <GridShape />
             <div className="flex flex-col items-center max-w-xs">
-              <Link to="/" className="block mb-4">
+              <Link to="/" className="block mb-4 flex flex-col items-center gap-4">
                 <img
-                  width={231}
-                  height={48}
-                  src="/images/logo/auth-logo.svg"
-                  alt="Logo"
+                  className="w-24 h-24 rounded-2xl object-cover"
+                  src="/landify_logo.jpeg"
+                  alt="Landify Logo"
                 />
+                <h1 className="text-3xl font-bold text-white font-satoshi">
+                  Landify
+                </h1>
               </Link>
-              <p className="text-center text-gray-400 dark:text-white/60">
-                Free and Open-Source Tailwind CSS Admin Dashboard Template
+              <p className="text-center text-gray-400 dark:text-white/60 text-lg">
+                Agricultural Management Dashboard
               </p>
             </div>
           </div>

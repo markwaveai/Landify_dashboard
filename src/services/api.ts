@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8000', // Adjust if backend runs on different port
+    baseURL: 'https://landify-backend-services-612299373064.asia-south2.run.app/', // Live backend URL
     headers: {
         'Content-Type': 'application/json',
         'X-Api-Key': 'lanidfy-testting-apikey'
