@@ -22,6 +22,9 @@ interface User {
     mandal?: string;
     state?: string;
     pincode?: string;
+    is_step1_completed?: boolean;
+    is_step2_completed?: boolean;
+    is_active?: boolean;
 }
 
 interface UserTableProps {
@@ -29,12 +32,28 @@ interface UserTableProps {
     users: User[];
     onAddClick?: () => void;
     onAddLand?: (user: User) => void;
+    onRowClick?: (user: User) => void; // Added
     addLabel?: string;
     isLoading?: boolean;
 }
 
-export default function UserTable({ title, users, onAddClick, onAddLand, addLabel, isLoading }: UserTableProps) {
+export default function UserTable({ title, users, onAddClick, onAddLand, onRowClick, addLabel, isLoading }: UserTableProps) {
     const navigate = useNavigate();
+
+    const getStatusBadge = (user: User) => {
+        if (user.role === 'AGENT' || user.role === 'FARMER') {
+            if (user.is_step1_completed && user.is_step2_completed) {
+                return <Badge size="sm" color="success">Active</Badge>;
+            } else if (user.is_step1_completed && !user.is_step2_completed) {
+                return <Badge size="sm" color="warning">Pending Step 2</Badge>;
+            } else {
+                // Pending Step 1 or inactive
+                return <Badge size="sm" color="warning">Pending Step 1</Badge>;
+            }
+        }
+        return <Badge size="sm" color="success">Active</Badge>;
+    };
+
     return (
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -88,6 +107,9 @@ export default function UserTable({ title, users, onAddClick, onAddLand, addLabe
                                 Pincode
                             </TableCell>
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                Status
+                            </TableCell>
+                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 Actions
                             </TableCell>
                         </TableRow>
@@ -97,7 +119,13 @@ export default function UserTable({ title, users, onAddClick, onAddLand, addLabe
                         {users.map((user, index) => (
                             <TableRow
                                 key={index}
-                                onClick={() => navigate(`/farmers/${user.phone_number}`)}
+                                onClick={() => {
+                                    if (onRowClick) {
+                                        onRowClick(user);
+                                    } else {
+                                        navigate(`/farmers/${user.phone_number}`);
+                                    }
+                                }}
                                 className="cursor-pointer hover:bg-gray-50/50 dark:hover:bg-white/[0.02]"
                             >
                                 <TableCell className="py-3">
@@ -130,6 +158,9 @@ export default function UserTable({ title, users, onAddClick, onAddLand, addLabe
                                 </TableCell>
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     {user.pincode || "-"}
+                                </TableCell>
+                                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    {getStatusBadge(user)}
                                 </TableCell>
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     <div className="flex items-center gap-3">

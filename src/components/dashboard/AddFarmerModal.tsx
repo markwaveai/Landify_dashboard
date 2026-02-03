@@ -13,8 +13,7 @@ interface AddFarmerModalProps {
 
 export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps) {
     const [step, setStep] = useState(1);
-    const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
-
+    const [uniqueId, setUniqueId] = useState<string | null>(null);
 
     const [step1Data, setStep1Data] = useState({
         first_name: "",
@@ -57,7 +56,7 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
     const mutationStep1 = useMutation({
         mutationFn: createFarmerStep1,
         onSuccess: (data) => {
-            setPhoneNumber(data.phone_number);
+            setUniqueId(data.unique_id);
             setStep(2);
         },
         onError: (error) => {
@@ -68,7 +67,7 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
 
     // Mutation for Step 2
     const mutationStep2 = useMutation({
-        mutationFn: (data: any) => updateFarmerStep2(phoneNumber!, data),
+        mutationFn: (data: any) => updateFarmerStep2(uniqueId!, data),
         onSuccess: () => {
             setStep(3);
         },
@@ -80,13 +79,13 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
 
     // Mutation for Step 3
     const mutationStep3 = useMutation({
-        mutationFn: (data: any) => updateFarmerStep3(phoneNumber!, data),
+        mutationFn: (data: any) => updateFarmerStep3(uniqueId!, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["farmers"] });
             onClose();
             // Reset
             setStep(1);
-            setPhoneNumber(null);
+            setUniqueId(null);
         },
         onError: (error) => {
             console.error("Failed Step 3", error);

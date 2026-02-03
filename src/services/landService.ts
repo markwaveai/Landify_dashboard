@@ -1,22 +1,23 @@
 import api from './api';
 
 export const addLandStep1 = async (phoneNumber: string, data: any) => {
-    const response = await api.post(`/lands/step1/${phoneNumber}`, data);
+    const response = await api.post(`/lands/process_workflow?step=step1&phone_number=${phoneNumber}`, data);
     return response.data;
 };
 
-export const getLandStep1 = async (landId: number) => {
-    const response = await api.get(`/lands/step1/${landId}`);
+export const getLandDetails = async (landId: number) => {
+    const response = await api.get(`/lands/details/${landId}`);
     return response.data;
 };
 
 export const addLandStep2 = async (landId: number, data: any) => {
-    const response = await api.post(`/lands/step2/${landId}`, data);
+    const response = await api.post(`/lands/process_workflow?step=step2&land_id=${landId}`, data);
     return response.data;
 };
 
+// Replaced by getLandDetails
 export const getLandStep2 = async (landId: number) => {
-    const response = await api.get(`/lands/step2/${landId}`);
+    const response = await api.get(`/lands/details/${landId}`);
     return response.data;
 };
 

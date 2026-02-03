@@ -12,6 +12,7 @@ import AddAgentModal from "../../components/dashboard/AddAgentModal";
 export default function AgentsPage() {
     const { user } = useSelector((state: RootState) => state.auth);
     const [showModal, setShowModal] = useState(false);
+    const [selectedAgent, setSelectedAgent] = useState<any>(null);
 
     const { data: agents, isLoading: isLoadingAgents } = useQuery({
         queryKey: ['agents'],
@@ -27,6 +28,12 @@ export default function AgentsPage() {
 
     const canAdd = user?.role === 'AGRICULTURE_OFFICER';
 
+    const handleAgentClick = (agent: any) => {
+        // If we want to allow editing/continuing the workflow:
+        setSelectedAgent(agent);
+        setShowModal(true);
+    };
+
     return (
         <>
             <PageMeta title={user?.role === 'AGENT' ? "Lands Status | Landify" : "Agents | Landify"} description="Manage Agents" />
@@ -37,7 +44,8 @@ export default function AgentsPage() {
                         users={agents || []}
                         isLoading={isLoadingAgents}
                         addLabel={canAdd ? "Add Agent" : undefined}
-                        onAddClick={canAdd ? () => setShowModal(true) : undefined}
+                        onAddClick={canAdd ? () => { setSelectedAgent(null); setShowModal(true); } : undefined}
+                        onRowClick={handleAgentClick}
                     />
                 )}
 
@@ -49,7 +57,11 @@ export default function AgentsPage() {
                     />
                 )}
             </div>
-            <AddAgentModal isOpen={showModal} onClose={() => setShowModal(false)} />
+            <AddAgentModal
+                isOpen={showModal}
+                onClose={() => { setShowModal(false); setSelectedAgent(null); }}
+                agent={selectedAgent}
+            />
         </>
     );
 }

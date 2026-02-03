@@ -28,32 +28,35 @@ export const createAgent = async (data: any) => {
 };
 
 export const createFarmerStep1 = async (data: any) => {
-    const response = await api.post('/users/farmer/step1', data);
+    const response = await api.post('/users/farmer/process?step=step1', data);
     return response.data;
 };
 
-export const getFarmerStep1 = async (phoneNumber: string) => {
-    const response = await api.get(`/users/farmer/step1/${phoneNumber}`);
+export const getFarmerStep1 = async (uniqueId: string) => {
+    const response = await api.get(`/users/farmer/details/${uniqueId}`);
     return response.data;
 };
 
-export const updateFarmerStep2 = async (phoneNumber: string, data: any) => {
-    const response = await api.put(`/users/farmer/step2/${phoneNumber}`, data);
+export const updateFarmerStep2 = async (uniqueId: string, data: any) => {
+    // Backend expects unique_id in body or as query. We can pass as query for safety if body doesn't have it initially, but payload should usually have it.
+    // Adding it to data if not present? Or passing as query param 'unique_id'? 
+    // Backend: unique_id = getattr(data, 'unique_id', None) or unique_id argument
+    const response = await api.post(`/users/farmer/process?step=step2&unique_id=${uniqueId}`, { ...data, unique_id: uniqueId });
     return response.data;
 };
 
-export const getFarmerStep2 = async (phoneNumber: string) => {
-    const response = await api.get(`/users/farmer/step2/${phoneNumber}`);
+export const getFarmerStep2 = async (uniqueId: string) => {
+    const response = await api.get(`/users/farmer/details/${uniqueId}`);
     return response.data;
 };
 
-export const updateFarmerStep3 = async (phoneNumber: string, data: any) => {
-    const response = await api.put(`/users/farmer/step3/${phoneNumber}`, data);
+export const updateFarmerStep3 = async (uniqueId: string, data: any) => {
+    const response = await api.post(`/users/farmer/process?step=step3&unique_id=${uniqueId}`, { ...data, unique_id: uniqueId });
     return response.data;
 };
 
-export const getFarmerStep3 = async (phoneNumber: string) => {
-    const response = await api.get(`/users/farmer/step3/${phoneNumber}`);
+export const getFarmerStep3 = async (uniqueId: string) => {
+    const response = await api.get(`/users/farmer/details/${uniqueId}`);
     return response.data;
 };
 
@@ -68,11 +71,11 @@ export const getAgentFarmers = async (phoneNumber: string) => {
 };
 
 export const createAgentStep1 = async (data: any) => {
-    const response = await api.post('/users/agent/step1', data);
+    const response = await api.post('/users/agent/process?step=step1', data);
     return response.data;
 };
 
 export const updateAgentStep2 = async (uniqueId: string, data: any) => {
-    const response = await api.put(`/users/agent/step2/${uniqueId}`, data);
+    const response = await api.post(`/users/agent/process?step=step2&unique_id=${uniqueId}`, { ...data, unique_id: uniqueId });
     return response.data;
 };
