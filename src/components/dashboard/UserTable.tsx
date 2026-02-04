@@ -45,7 +45,7 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
     const navigate = useNavigate();
 
     const getStatusBadge = (user: User) => {
-        if (user.role === 'AGENT' || user.role === 'FARMER') {
+        if (user.role === 'FARMER') {
             if (user.is_step1_completed && user.is_step2_completed && user.is_step3_completed) {
                 return <Badge size="sm" color="success">Active</Badge>;
             } else if (user.is_step1_completed && user.is_step2_completed && !user.is_step3_completed) {
@@ -54,6 +54,15 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                 return <Badge size="sm" color="warning">Pending Step 2</Badge>;
             } else {
                 // Pending Step 1 or inactive
+                return <Badge size="sm" color="warning">Pending Step 1</Badge>;
+            }
+        }
+        if (user.role === 'AGENT') {
+            if (user.is_step1_completed && user.is_step2_completed) {
+                return <Badge size="sm" color="success">Active</Badge>;
+            } else if (user.is_step1_completed && !user.is_step2_completed) {
+                return <Badge size="sm" color="warning">Pending Step 2</Badge>;
+            } else {
                 return <Badge size="sm" color="warning">Pending Step 1</Badge>;
             }
         }

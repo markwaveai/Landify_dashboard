@@ -103,10 +103,10 @@ const FodderProcurement: React.FC = () => {
 
   // Mock Farms
   const FARM_OPTIONS = [
-    "Vikarabad Cluster",
-    "Moinabad Farm",
-    "Chevella Zone 1",
-    "Hyderabad Shed 4"
+    "Kurnool shed 1",
+    "Kurnool shed 2",
+    "Hyderabad shed 1",
+    "Hyderabad shed 2"
   ];
 
   // 2. Data State

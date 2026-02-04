@@ -32,14 +32,7 @@ export default function AgentsPage() {
     const navigate = useNavigate();
 
     const handleAgentClick = (agent: any) => {
-        // If agent is active (Step 2 completed), open profile details
-        if (agent.is_step2_completed) {
-            navigate(`/agents/${agent.phone_number}`);
-            return;
-        }
-
-        setSelectedAgent(agent);
-        setShowModal(true);
+        navigate(`/agents/${agent.phone_number}`);
     };
 
     return (
