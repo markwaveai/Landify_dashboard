@@ -161,7 +161,7 @@ const FodderProcurement: React.FC = () => {
     if (!formBuffaloes || parseInt(formBuffaloes) === 0 || !formFarm) return;
 
     const newRequest: FodderRequest = {
-      id: crypto.randomUUID(),
+      id: Date.now().toString(),
       buffaloes: parseInt(formBuffaloes),
       startDate: formStartDate,
       farm: formFarm,
