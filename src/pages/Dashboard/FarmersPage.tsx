@@ -59,10 +59,7 @@ export default function FarmersPage() {
                         setModalStep(1);
                         setShowModal(true);
                     } : undefined}
-                    onAddLand={canAdd ? (farmer) => {
-                        setSelectedFarmer(farmer);
-                        setShowLandModal(true);
-                    } : undefined}
+
                     onRowClick={handleRowClick}
                 />
             </div>

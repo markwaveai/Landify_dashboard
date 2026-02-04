@@ -137,14 +137,14 @@ export default function AgentDetailsPage() {
 
 
                         {/* Section 3: Bank Details */}
-                        {/* <DetailCard title="Bank Information">
+                        <DetailCard title="Bank Information">
                             <div className="grid grid-cols-1 gap-3">
                                 <InfoItem label="Account Holder" value={profile.account_holder} />
                                 <InfoItem label="Account Number" value={profile.account_number} />
                                 <InfoItem label="IFSC Code" value={profile.ifsc_code} />
                                 <InfoItem label="Bank Name" value={profile.bank_name} />
                             </div>
-                        </DetailCard> */}
+                        </DetailCard>
                     </div>
                 </div>
             </div>

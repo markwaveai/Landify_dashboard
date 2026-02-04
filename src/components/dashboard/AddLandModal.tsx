@@ -4,7 +4,8 @@ import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Button from "../ui/button/Button";
 import { addLandStep1, addLandStep2 } from "../../services/landService";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 interface AddLandModalProps {
     isOpen: boolean;
@@ -14,16 +15,20 @@ interface AddLandModalProps {
         first_name: string;
         last_name: string;
     } | null;
+    initialStep?: number;
+    initialLandId?: number | null;
 }
 
-export default function AddLandModal({ isOpen, onClose, farmer }: AddLandModalProps) {
-    const [step, setStep] = useState(1);
-    const [landId, setLandId] = useState<number | null>(null);
+export default function AddLandModal({ isOpen, onClose, farmer, initialStep = 1, initialLandId = null }: AddLandModalProps) {
+    const queryClient = useQueryClient();
+    const { showSnackbar } = useSnackbar();
+    const [step, setStep] = useState(initialStep);
+    const [landId, setLandId] = useState<number | null>(initialLandId);
 
     const [step1Data, setStep1Data] = useState({
         survey_no: "",
         area_in_acres: 2.0,
-        land_urls: ["http://ex.com/1", "http://ex.com/2", "http://ex.com/3"],
+        land_urls: ["", "", "", ""],
         tf_latlng: "",
         tr_latlng: "",
         br_latlng: "",
@@ -34,25 +39,19 @@ export default function AddLandModal({ isOpen, onClose, farmer }: AddLandModalPr
         land_type: "Wet Land",
         water_source: "Borewell",
         ownership_details: "OWNER",
-        // Lease/Assigned Common
-        relation: "",
-        // Lease Specific
-        number: "",
-        date_of_birth: "",
-        owner_first_name: "",
-        owner_middle_name: "",
-        surname: "",
-        owner_noc_image_url: "http://example.com/noc",
-        // Assigned Specific
-        d_form_patta_image_url: "http://example.com/patta",
-        noc_image_url: "http://example.com/noc",
-        apc_image_url: "http://example.com/apc",
-        // Common Proofs
+        district: "",
+        mandal: "",
+        village: "",
+        // Owner/Lease Specific
+        owner_name: "",
+        owner_aadhar_number: "",
+        // Image URLs & Proofs
         passbook_number: "",
         passbook_image_url: "http://example.com/pb",
-        ec_number: "",
         ec_certificate_url: "http://example.com/ec",
         ror_1b_url: "http://example.com/ror",
+        owner_noc_image_url: "http://example.com/noc",
+        apc_image_url: "http://example.com/apc",
     });
 
     // Mutation Step 1
@@ -64,7 +63,7 @@ export default function AddLandModal({ isOpen, onClose, farmer }: AddLandModalPr
         },
         onError: (error: any) => {
             console.error("Land Step 1 Failed", error);
-            alert(error.response?.data?.detail || "Failed to add land details");
+            showSnackbar(error.response?.data?.detail || "Failed to add land details", "error");
         }
     });
 
@@ -72,35 +71,91 @@ export default function AddLandModal({ isOpen, onClose, farmer }: AddLandModalPr
     const mutationStep2 = useMutation({
         mutationFn: (data: any) => addLandStep2(landId!, data),
         onSuccess: () => {
-            alert("Land added successfully!");
+            showSnackbar("Land added successfully!", "success");
+            queryClient.invalidateQueries({ queryKey: ['lands'] });
             onClose();
             setStep(1);
             setLandId(null);
         },
         onError: (error: any) => {
             console.error("Land Step 2 Failed", error);
-            alert("Failed to add ownership proofs");
+            showSnackbar("Failed to add ownership proofs", "error");
         }
     });
 
     const handleStep1Submit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!farmer) return;
-        mutationStep1.mutate(step1Data);
+
+        // Filter out empty URLs
+        const validUrls = step1Data.land_urls.filter(url => url.trim() !== "");
+
+        if (validUrls.length < 4) {
+            showSnackbar("Please provide at least 4 valid land image URLs.", "warning");
+            return;
+        }
+
+        mutationStep1.mutate({
+            ...step1Data,
+            land_urls: validUrls,
+            is_step1_completed: false
+        });
     };
 
     const handleStep2Submit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Clean data: convert empty strings to null for optional fields
-        const cleanedData = Object.fromEntries(
-            Object.entries(step2Data).map(([key, value]) => [key, value === "" ? null : value])
+
+        const commonData = {
+            land_type: step2Data.land_type,
+            water_source: step2Data.water_source,
+            ownership_details: step2Data.ownership_details,
+            district: step2Data.district,
+            mandal: step2Data.mandal,
+            village: step2Data.village,
+            passbook_number: step2Data.passbook_number,
+            passbook_image_url: step2Data.passbook_image_url || null,
+            ec_certificate_url: step2Data.ec_certificate_url || null,
+            ror_1b_url: step2Data.ror_1b_url || null,
+            is_step2_completed: true
+        };
+
+        let payload: any = { ...commonData };
+
+        if (step2Data.ownership_details === "LEASE") {
+            payload = {
+                ...payload,
+                owner_name: step2Data.owner_name,
+                owner_aadhar_number: step2Data.owner_aadhar_number,
+                owner_noc_image_url: step2Data.owner_noc_image_url || null,
+            };
+        } else if (step2Data.ownership_details === "ASSIGNED") {
+            // Note: User prompt showed "Assigned" in payload example, but generally we use uppercase values for selection; checking consistency
+            // If backend needs "Assigned" specifically, we might need to map it, but staying safe with what matches the Select option value for now.
+            // Actually, let's trust the select values are uppercase "ASSIGNED".
+            payload = {
+                ...payload,
+                owner_noc_image_url: step2Data.owner_noc_image_url || null,
+                apc_image_url: step2Data.apc_image_url || null,
+            };
+        }
+
+        // Clean empty strings to null just in case, though usually state is string
+        const cleanedPayload = Object.fromEntries(
+            Object.entries(payload).map(([key, value]) => [key, value === "" ? null : value])
         );
-        mutationStep2.mutate(cleanedData);
+
+        mutationStep2.mutate(cleanedPayload);
     };
 
     const handleInput1 = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.type === "number" ? parseFloat(e.target.value) : e.target.value;
         setStep1Data({ ...step1Data, [e.target.name]: val });
+    };
+
+    const handleUrlChange = (index: number, value: string) => {
+        const newUrls = [...step1Data.land_urls];
+        newUrls[index] = value;
+        setStep1Data({ ...step1Data, land_urls: newUrls });
     };
 
     const handleInput2 = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -122,6 +177,21 @@ export default function AddLandModal({ isOpen, onClose, farmer }: AddLandModalPr
                     <div className="grid grid-cols-2 gap-4">
                         <div><Label>Survey No *</Label><Input name="survey_no" value={step1Data.survey_no} onChange={handleInput1} required /></div>
                         <div><Label>Area (Acres) *</Label><Input name="area_in_acres" type="number" step={0.1} value={step1Data.area_in_acres} onChange={handleInput1} required /></div>
+                    </div>
+
+                    <h4 className="font-medium text-gray-700 mt-2">Land Images (4) *</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                        {step1Data.land_urls.map((url, index) => (
+                            <div key={index}>
+                                <Label>Land URL {index + 1}</Label>
+                                <Input
+                                    placeholder={`Land URL ${index + 1}`}
+                                    value={url}
+                                    onChange={(e) => handleUrlChange(index, e.target.value)}
+                                    required
+                                />
+                            </div>
+                        ))}
                     </div>
 
                     <h4 className="font-medium text-gray-700 mt-2">Coordinates (LatLng)</h4>
@@ -167,37 +237,36 @@ export default function AddLandModal({ isOpen, onClose, farmer }: AddLandModalPr
                         </div>
                     </div>
 
+                    <h4 className="font-medium text-gray-700 mt-2">Location Details</h4>
+                    <div className="grid grid-cols-3 gap-4">
+                        <div><Label>District</Label><Input name="district" value={step2Data.district} onChange={handleInput2} /></div>
+                        <div><Label>Mandal</Label><Input name="mandal" value={step2Data.mandal} onChange={handleInput2} /></div>
+                        <div><Label>Village</Label><Input name="village" value={step2Data.village} onChange={handleInput2} /></div>
+                    </div>
+
                     <h4 className="font-medium text-gray-700 mt-2">Ownership Details & Proofs</h4>
 
                     {step2Data.ownership_details === "OWNER" && (
                         <div className="grid grid-cols-2 gap-4">
                             <div><Label>Passbook No</Label><Input name="passbook_number" value={step2Data.passbook_number} onChange={handleInput2} /></div>
                             <div><Label>Passbook Image URL</Label><Input name="passbook_image_url" value={step2Data.passbook_image_url} onChange={handleInput2} /></div>
-                            <div><Label>EC Number</Label><Input name="ec_number" value={step2Data.ec_number} onChange={handleInput2} /></div>
                             <div><Label>EC Certificate URL</Label><Input name="ec_certificate_url" value={step2Data.ec_certificate_url} onChange={handleInput2} /></div>
-                            <div className="col-span-2"><Label>ROR-1B URL</Label><Input name="ror_1b_url" value={step2Data.ror_1b_url} onChange={handleInput2} /></div>
+                            <div><Label>ROR-1B URL</Label><Input name="ror_1b_url" value={step2Data.ror_1b_url} onChange={handleInput2} /></div>
                         </div>
                     )}
 
                     {step2Data.ownership_details === "LEASE" && (
                         <div className="space-y-4">
-                            <div className="grid grid-cols-3 gap-4">
-                                <div><Label>Relation</Label><Input name="relation" value={step2Data.relation} onChange={handleInput2} /></div>
-                                <div><Label>Number</Label><Input name="number" value={step2Data.number} onChange={handleInput2} /></div>
-                                <div><Label>DOB</Label><Input name="date_of_birth" type="date" value={step2Data.date_of_birth} onChange={handleInput2} /></div>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4">
-                                <div><Label>First Name</Label><Input name="owner_first_name" value={step2Data.owner_first_name} onChange={handleInput2} /></div>
-                                <div><Label>Middle Name</Label><Input name="owner_middle_name" value={step2Data.owner_middle_name} onChange={handleInput2} /></div>
-                                <div><Label>Surname</Label><Input name="surname" value={step2Data.surname} onChange={handleInput2} /></div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div><Label>Owner Name</Label><Input name="owner_name" value={step2Data.owner_name} onChange={handleInput2} /></div>
+                                <div><Label>Owner Aadhar Number</Label><Input name="owner_aadhar_number" value={step2Data.owner_aadhar_number} onChange={handleInput2} /></div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div><Label>Passbook No</Label><Input name="passbook_number" value={step2Data.passbook_number} onChange={handleInput2} /></div>
                                 <div><Label>Passbook Image URL</Label><Input name="passbook_image_url" value={step2Data.passbook_image_url} onChange={handleInput2} /></div>
-                                <div><Label>EC Number</Label><Input name="ec_number" value={step2Data.ec_number} onChange={handleInput2} /></div>
                                 <div><Label>EC Certificate Image URL</Label><Input name="ec_certificate_url" value={step2Data.ec_certificate_url} onChange={handleInput2} /></div>
-                                <div><Label>Owner NOC Image URL</Label><Input name="owner_noc_image_url" value={step2Data.owner_noc_image_url} onChange={handleInput2} /></div>
                                 <div><Label>ROR-1B Image URL</Label><Input name="ror_1b_url" value={step2Data.ror_1b_url} onChange={handleInput2} /></div>
+                                <div className="col-span-2"><Label>Owner NOC Image URL</Label><Input name="owner_noc_image_url" value={step2Data.owner_noc_image_url} onChange={handleInput2} /></div>
                             </div>
                         </div>
                     )}
@@ -205,11 +274,12 @@ export default function AddLandModal({ isOpen, onClose, farmer }: AddLandModalPr
                     {step2Data.ownership_details === "ASSIGNED" && (
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <div><Label>Relation</Label><Input name="relation" value={step2Data.relation} onChange={handleInput2} /></div>
-                                <div><Label>D-Form Patta Image URL</Label><Input name="d_form_patta_image_url" value={step2Data.d_form_patta_image_url} onChange={handleInput2} /></div>
+                                <div><Label>Passbook No</Label><Input name="passbook_number" value={step2Data.passbook_number} onChange={handleInput2} /></div>
+                                <div><Label>Passbook Image URL</Label><Input name="passbook_image_url" value={step2Data.passbook_image_url} onChange={handleInput2} /></div>
                                 <div><Label>EC Certificate URL</Label><Input name="ec_certificate_url" value={step2Data.ec_certificate_url} onChange={handleInput2} /></div>
-                                <div><Label>NOC Certificate URL</Label><Input name="noc_image_url" value={step2Data.noc_image_url} onChange={handleInput2} /></div>
-                                <div className="col-span-2"><Label>Assignment Proceedings Certificate Image URL</Label><Input name="apc_image_url" value={step2Data.apc_image_url} onChange={handleInput2} /></div>
+                                <div><Label>ROR-1B URL</Label><Input name="ror_1b_url" value={step2Data.ror_1b_url} onChange={handleInput2} /></div>
+                                <div><Label>Owner NOC Image URL</Label><Input name="owner_noc_image_url" value={step2Data.owner_noc_image_url} onChange={handleInput2} /></div>
+                                <div><Label>APC Image URL</Label><Input name="apc_image_url" value={step2Data.apc_image_url} onChange={handleInput2} /></div>
                             </div>
                         </div>
                     )}

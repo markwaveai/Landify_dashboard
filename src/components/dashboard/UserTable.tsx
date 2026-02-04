@@ -27,13 +27,13 @@ interface User {
     is_step3_completed?: boolean;
     is_active?: boolean;
     farmer_count?: number;
+    land_count?: number;
 }
 
 interface UserTableProps {
     title: string;
     users: User[];
     onAddClick?: () => void;
-    onAddLand?: (user: User) => void;
     onRowClick?: (user: User) => void;
     addLabel?: string;
     isLoading?: boolean;
@@ -41,7 +41,7 @@ interface UserTableProps {
     showFarmerCount?: boolean;
 }
 
-export default function UserTable({ title, users, onAddClick, onAddLand, onRowClick, addLabel, isLoading, hideStatus, showFarmerCount }: UserTableProps) {
+export default function UserTable({ title, users, onAddClick, onRowClick, addLabel, isLoading, hideStatus, showFarmerCount }: UserTableProps) {
     const navigate = useNavigate();
 
     const getStatusBadge = (user: User) => {
@@ -123,7 +123,7 @@ export default function UserTable({ title, users, onAddClick, onAddLand, onRowCl
                                 </TableCell>
                             )}
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                Actions
+                                Land
                             </TableCell>
                         </TableRow>
                     </TableHeader>
@@ -184,17 +184,11 @@ export default function UserTable({ title, users, onAddClick, onAddLand, onRowCl
                                 )}
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     <div className="flex items-center gap-3">
-                                        {onAddLand && (
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    onAddLand(user);
-                                                }}
-                                                className="text-primary-600 hover:text-primary-700 font-medium"
-                                            >
-                                                + Land
-                                            </button>
-                                        )}
+                                        <div className="bg-gray-100 dark:bg-white/[0.05] px-2 py-1 rounded-md">
+                                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                                {user.land_count || 0}
+                                            </span>
+                                        </div>
                                         <Link
                                             to={`/farmers/${user.phone_number}`}
                                             className="text-gray-400 hover:text-primary-600 transition-colors"

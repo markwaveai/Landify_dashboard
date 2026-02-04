@@ -5,6 +5,7 @@ import Label from "../form/Label";
 import Button from "../ui/button/Button";
 import { createFarmerStep1, updateFarmerStep2, updateFarmerStep3 } from "../../services/userService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 interface AddFarmerModalProps {
     isOpen: boolean;
@@ -14,6 +15,7 @@ interface AddFarmerModalProps {
 }
 
 export default function AddFarmerModal({ isOpen, onClose, initialStep, initialData }: AddFarmerModalProps) {
+    const { showSnackbar } = useSnackbar();
     const [step, setStep] = useState(initialStep || 1);
     const [uniqueId, setUniqueId] = useState<string | null>(initialData?.unique_id || null);
 
@@ -69,9 +71,9 @@ export default function AddFarmerModal({ isOpen, onClose, initialStep, initialDa
             setUniqueId(data.unique_id);
             setStep(2);
         },
-        onError: (error) => {
+        onError: (error: any) => {
             console.error("Failed Step 1", error);
-            alert("Failed to create Farmer (Step 1)");
+            showSnackbar(error.response?.data?.detail || "Failed to create Farmer (Step 1)", "error");
         }
     });
 
@@ -81,9 +83,9 @@ export default function AddFarmerModal({ isOpen, onClose, initialStep, initialDa
         onSuccess: () => {
             setStep(3);
         },
-        onError: (error) => {
+        onError: (error: any) => {
             console.error("Failed Step 2", error);
-            alert("Failed to update Farmer (Step 2)");
+            showSnackbar(error.response?.data?.detail || "Failed to update Farmer (Step 2)", "error");
         }
     });
 
@@ -91,15 +93,16 @@ export default function AddFarmerModal({ isOpen, onClose, initialStep, initialDa
     const mutationStep3 = useMutation({
         mutationFn: (data: any) => updateFarmerStep3(uniqueId!, data),
         onSuccess: () => {
+            showSnackbar("Farmer added successfully!", "success");
             queryClient.invalidateQueries({ queryKey: ["farmers"] });
             onClose();
             // Reset
             setStep(1);
             setUniqueId(null);
         },
-        onError: (error) => {
+        onError: (error: any) => {
             console.error("Failed Step 3", error);
-            alert("Failed to update Farmer (Step 3)");
+            showSnackbar(error.response?.data?.detail || "Failed to update Farmer (Step 3)", "error");
         }
     });
 

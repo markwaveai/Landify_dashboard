@@ -5,6 +5,7 @@ import Label from "../form/Label";
 import Button from "../ui/button/Button";
 import { createAO } from "../../services/userService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 interface AddOfficerModalProps {
     isOpen: boolean;
@@ -12,6 +13,7 @@ interface AddOfficerModalProps {
 }
 
 export default function AddOfficerModal({ isOpen, onClose }: AddOfficerModalProps) {
+    const { showSnackbar } = useSnackbar();
     const [formData, setFormData] = useState({
         first_name: "",
         last_name: "",
@@ -30,6 +32,7 @@ export default function AddOfficerModal({ isOpen, onClose }: AddOfficerModalProp
     const mutation = useMutation({
         mutationFn: createAO,
         onSuccess: () => {
+            showSnackbar("Officer added successfully!", "success");
             queryClient.invalidateQueries({ queryKey: ["aos"] });
             onClose();
             setFormData({
@@ -45,9 +48,9 @@ export default function AddOfficerModal({ isOpen, onClose }: AddOfficerModalProp
                 date_of_birth: "",
             });
         },
-        onError: (error) => {
+        onError: (error: any) => {
             console.error("Failed to create AO", error);
-            alert("Failed to create Officer");
+            showSnackbar(error.response?.data?.detail || "Failed to create Officer", "error");
         }
     });
 

@@ -12,6 +12,7 @@ import UserTable from "../../components/dashboard/UserTable"; // Re-use UserTabl
 import LandDetailsModal from "../../components/dashboard/LandDetailsModal";
 import DetailCard from "../../components/common/DetailCard";
 import InfoItem from "../../components/common/InfoItem";
+import AddLandModal from "../../components/dashboard/AddLandModal";
 
 // Alias available icons to names used in the component
 const PhoneIcon = UserIcon;
@@ -22,6 +23,8 @@ const FarmerDetailsPage: React.FC = () => {
     const { phoneNumber } = useParams<{ phoneNumber: string }>();
     const navigate = useNavigate();
     const [viewLand, setViewLand] = React.useState<any>(null);
+    const [resumeLand, setResumeLand] = React.useState<any>(null);
+    const [isAddLandOpen, setIsAddLandOpen] = React.useState(false);
 
     const { data: user, isLoading: isUserLoading } = useQuery({
         queryKey: ["user", phoneNumber],
@@ -144,7 +147,7 @@ const FarmerDetailsPage: React.FC = () => {
                         isLoading={isAgentFarmersLoading}
                         // Disable add actions in view mode
                         onAddClick={undefined}
-                        onAddLand={undefined}
+
                     />
                 </div>
             ) : (
@@ -153,6 +156,12 @@ const FarmerDetailsPage: React.FC = () => {
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white px-2">
                             Land Records ({lands?.length || 0})
                         </h3>
+                        <button
+                            onClick={() => setIsAddLandOpen(true)}
+                            className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
+                        >
+                            <span>+</span> Add Land
+                        </button>
                     </div>
 
                     {lands?.length === 0 ? (
@@ -164,7 +173,13 @@ const FarmerDetailsPage: React.FC = () => {
                             {lands?.map((land: any) => (
                                 <div
                                     key={land.id}
-                                    onClick={() => setViewLand(land)}
+                                    onClick={() => {
+                                        if (!land.is_step2_completed) {
+                                            setResumeLand(land);
+                                        } else {
+                                            setViewLand(land);
+                                        }
+                                    }}
                                     className="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-xl transition-all duration-300 cursor-pointer"
                                 >
                                     <div className="p-5 flex flex-col h-full">
@@ -184,11 +199,12 @@ const FarmerDetailsPage: React.FC = () => {
                                                 <Badge
                                                     size="sm"
                                                     color={
-                                                        land.status === 'PENDING' ? 'warning' :
-                                                            land.status.includes('APPROVED') ? 'success' : 'error'
+                                                        !land.is_step2_completed ? 'warning' :
+                                                            land.status === 'PENDING' ? 'warning' :
+                                                                land.status.includes('APPROVED') ? 'success' : 'error'
                                                     }
                                                 >
-                                                    {land.status}
+                                                    {!land.is_step2_completed ? 'Pending Step 2' : land.status}
                                                 </Badge>
                                             </div>
                                         </div>
@@ -239,6 +255,25 @@ const FarmerDetailsPage: React.FC = () => {
                 isOpen={!!viewLand}
                 onClose={() => setViewLand(null)}
                 land={viewLand}
+            />
+
+            {resumeLand && (
+                <AddLandModal
+                    isOpen={!!resumeLand}
+                    onClose={() => {
+                        setResumeLand(null);
+                        // Optional: Refetch lands if needed, or rely on react-query invalidation in modal
+                    }}
+                    farmer={user}
+                    initialStep={2}
+                    initialLandId={resumeLand.id}
+                />
+            )}
+
+            <AddLandModal
+                isOpen={isAddLandOpen}
+                onClose={() => setIsAddLandOpen(false)}
+                farmer={user}
             />
         </div>
     );

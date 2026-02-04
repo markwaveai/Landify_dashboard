@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useSnackbar } from "../../context/SnackbarContext";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
@@ -16,6 +17,7 @@ export default function SignInForm() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,9 +36,11 @@ export default function SignInForm() {
 
       await sendOTP(sanitizedPhone);
       setOtpSent(true);
+      showSnackbar("OTP Sent Successfully", "success");
     } catch (err: any) {
       console.error(err);
       setError("Failed to send OTP. Check phone number.");
+      showSnackbar("Failed to send OTP. Check phone number.", "error");
     } finally {
       if (phoneNumber !== "9999999999") {
         setLoading(false);
@@ -64,10 +68,12 @@ export default function SignInForm() {
 
       dispatch(setCredentials({ user }));
 
+      showSnackbar("Login successful!", "success");
       navigate("/");
     } catch (err: any) {
       console.error(err);
       setError("Login failed. Identity verification failed.");
+      showSnackbar("Login failed. Identity verification failed.", "error");
       localStorage.removeItem('user_phone');
     } finally {
       setLoading(false);

@@ -5,6 +5,7 @@ import Label from "../form/Label";
 import Button from "../ui/button/Button";
 import { createAgentStep1, updateAgentStep2 } from "../../services/userService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 interface AddAgentModalProps {
     isOpen: boolean;
@@ -13,6 +14,7 @@ interface AddAgentModalProps {
 }
 
 export default function AddAgentModal({ isOpen, onClose, agent }: AddAgentModalProps) {
+    const { showSnackbar } = useSnackbar();
     const [step, setStep] = useState(1);
     const [uniqueId, setUniqueId] = useState<string | null>(null);
 
@@ -116,24 +118,25 @@ export default function AddAgentModal({ isOpen, onClose, agent }: AddAgentModalP
             setUniqueId(data.unique_id);
             setStep(2);
         },
-        onError: (error) => {
+        onError: (error: any) => {
             console.error("Failed Step 1", error);
-            alert("Failed to create Agent (Step 1)");
+            showSnackbar(error.response?.data?.detail || "Failed to create Agent (Step 1)", "error");
         }
     });
 
     const mutationStep2 = useMutation({
         mutationFn: (data: any) => updateAgentStep2(uniqueId!, data),
         onSuccess: () => {
+            showSnackbar("Agent added successfully!", "success");
             queryClient.invalidateQueries({ queryKey: ["agents"] });
             onClose();
             // Reset
             setStep(1);
             setUniqueId(null);
         },
-        onError: (error) => {
+        onError: (error: any) => {
             console.error("Failed Step 2", error);
-            alert("Failed to update Agent (Step 2)");
+            showSnackbar(error.response?.data?.detail || "Failed to update Agent (Step 2)", "error");
         }
     });
 
@@ -142,12 +145,12 @@ export default function AddAgentModal({ isOpen, onClose, agent }: AddAgentModalP
 
         // Basic Validation
         if (!step1Data.first_name || !step1Data.phone_number || !step1Data.email || !step1Data.district) {
-            alert("Please fill all required fields");
+            showSnackbar("Please fill all required fields", "warning");
             return;
         }
 
         if (step1Data.phone_number.length !== 10) {
-            alert("Phone number must be 10 digits");
+            showSnackbar("Phone number must be 10 digits", "warning");
             return;
         }
 
@@ -158,7 +161,7 @@ export default function AddAgentModal({ isOpen, onClose, agent }: AddAgentModalP
         e.preventDefault();
 
         if (!step2Data.aadhar_card_number) {
-            alert("Aadhar Card Number is required");
+            showSnackbar("Aadhar Card Number is required", "warning");
             return;
         }
 
