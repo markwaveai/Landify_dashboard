@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { useQuery } from "@tanstack/react-query";
@@ -28,8 +29,15 @@ export default function AgentsPage() {
 
     const canAdd = user?.role === 'AGRICULTURE_OFFICER';
 
+    const navigate = useNavigate();
+
     const handleAgentClick = (agent: any) => {
-        // If we want to allow editing/continuing the workflow:
+        // If agent is active (Step 2 completed), open profile details
+        if (agent.is_step2_completed) {
+            navigate(`/agents/${agent.phone_number}`);
+            return;
+        }
+
         setSelectedAgent(agent);
         setShowModal(true);
     };
@@ -46,6 +54,7 @@ export default function AgentsPage() {
                         addLabel={canAdd ? "Add Agent" : undefined}
                         onAddClick={canAdd ? () => { setSelectedAgent(null); setShowModal(true); } : undefined}
                         onRowClick={handleAgentClick}
+                        showFarmerCount={true}
                     />
                 )}
 

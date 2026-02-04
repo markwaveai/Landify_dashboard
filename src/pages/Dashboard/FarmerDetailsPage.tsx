@@ -10,31 +10,13 @@ import Badge from "../../components/ui/badge/Badge";
 import PageMeta from "../../components/common/PageMeta";
 import UserTable from "../../components/dashboard/UserTable"; // Re-use UserTable for agent's farmers
 import LandDetailsModal from "../../components/dashboard/LandDetailsModal";
+import DetailCard from "../../components/common/DetailCard";
+import InfoItem from "../../components/common/InfoItem";
 
 // Alias available icons to names used in the component
 const PhoneIcon = UserIcon;
 const LocationIcon = GridIcon;
 const ArrowLeftIcon = AngleLeftIcon;
-
-const InfoItem = ({ label, value, icon }: { label: string; value: string | undefined; icon?: React.ReactNode }) => (
-    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/[0.03] rounded-xl">
-        {icon && <div className="text-gray-400">{icon}</div>}
-        <div>
-            <p className="text-sm font-semibold text-gray-800 dark:text-white/90">{value || "N/A"}</p>
-            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">{label}</p>
-        </div>
-    </div>
-);
-
-const DetailCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
-        <h3 className="text-lg font-bold mb-5 text-gray-800 dark:text-white flex items-center gap-2">
-            <span className="w-1.5 h-6 bg-brand-500 rounded-full"></span>
-            {title}
-        </h3>
-        <div className="space-y-4">{children}</div>
-    </div>
-);
 
 const FarmerDetailsPage: React.FC = () => {
     const { phoneNumber } = useParams<{ phoneNumber: string }>();

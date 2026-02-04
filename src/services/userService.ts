@@ -79,3 +79,8 @@ export const updateAgentStep2 = async (uniqueId: string, data: any) => {
     const response = await api.post(`/users/agent/process?step=step2&unique_id=${uniqueId}`, { ...data, unique_id: uniqueId });
     return response.data;
 };
+
+export const getAgentProfile = async (phoneNumber: string) => {
+    const response = await api.get(`/users/profile/${phoneNumber}`);
+    return response.data;
+};

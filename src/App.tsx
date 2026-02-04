@@ -19,6 +19,7 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import AosPage from "./pages/Dashboard/AosPage";
 import AgentsPage from "./pages/Dashboard/AgentsPage";
+import AgentDetailsPage from "./pages/Dashboard/AgentDetailsPage";
 import FarmersPage from "./pages/Dashboard/FarmersPage";
 import FarmerDetailsPage from "./pages/Dashboard/FarmerDetailsPage";
 import UserProfile from "./pages/Dashboard/UserProfile";
@@ -36,6 +37,7 @@ export default function App() {
             <Route index path="/" element={<Home />} />
             <Route path="/aos" element={<AosPage />} />
             <Route path="/agents" element={<AgentsPage />} />
+            <Route path="/agents/:phoneNumber" element={<AgentDetailsPage />} />
             <Route path="/farmers" element={<FarmersPage />} />
             <Route path="/farmers/:phoneNumber" element={<FarmerDetailsPage />} />
             <Route path="/approvals" element={<LandApprovalsPage />} />

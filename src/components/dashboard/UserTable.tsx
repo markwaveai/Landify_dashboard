@@ -24,7 +24,9 @@ interface User {
     pincode?: string;
     is_step1_completed?: boolean;
     is_step2_completed?: boolean;
+    is_step3_completed?: boolean;
     is_active?: boolean;
+    farmer_count?: number;
 }
 
 interface UserTableProps {
@@ -32,18 +34,22 @@ interface UserTableProps {
     users: User[];
     onAddClick?: () => void;
     onAddLand?: (user: User) => void;
-    onRowClick?: (user: User) => void; // Added
+    onRowClick?: (user: User) => void;
     addLabel?: string;
     isLoading?: boolean;
+    hideStatus?: boolean;
+    showFarmerCount?: boolean;
 }
 
-export default function UserTable({ title, users, onAddClick, onAddLand, onRowClick, addLabel, isLoading }: UserTableProps) {
+export default function UserTable({ title, users, onAddClick, onAddLand, onRowClick, addLabel, isLoading, hideStatus, showFarmerCount }: UserTableProps) {
     const navigate = useNavigate();
 
     const getStatusBadge = (user: User) => {
         if (user.role === 'AGENT' || user.role === 'FARMER') {
-            if (user.is_step1_completed && user.is_step2_completed) {
+            if (user.is_step1_completed && user.is_step2_completed && user.is_step3_completed) {
                 return <Badge size="sm" color="success">Active</Badge>;
+            } else if (user.is_step1_completed && user.is_step2_completed && !user.is_step3_completed) {
+                return <Badge size="sm" color="warning">Pending Step 3</Badge>;
             } else if (user.is_step1_completed && !user.is_step2_completed) {
                 return <Badge size="sm" color="warning">Pending Step 2</Badge>;
             } else {
@@ -91,6 +97,11 @@ export default function UserTable({ title, users, onAddClick, onAddLand, onRowCl
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 Role
                             </TableCell>
+                            {showFarmerCount && (
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    Farmers
+                                </TableCell>
+                            )}
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 Village
                             </TableCell>
@@ -106,9 +117,11 @@ export default function UserTable({ title, users, onAddClick, onAddLand, onRowCl
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 Pincode
                             </TableCell>
-                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                Status
-                            </TableCell>
+                            {!hideStatus && (
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    Status
+                                </TableCell>
+                            )}
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 Actions
                             </TableCell>
@@ -144,6 +157,11 @@ export default function UserTable({ title, users, onAddClick, onAddLand, onRowCl
                                         {user.role}
                                     </Badge>
                                 </TableCell>
+                                {showFarmerCount && (
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        {user.farmer_count !== undefined ? user.farmer_count : "-"}
+                                    </TableCell>
+                                )}
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     {user.village || "-"}
                                 </TableCell>
@@ -159,9 +177,11 @@ export default function UserTable({ title, users, onAddClick, onAddLand, onRowCl
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     {user.pincode || "-"}
                                 </TableCell>
-                                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                    {getStatusBadge(user)}
-                                </TableCell>
+                                {!hideStatus && (
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        {getStatusBadge(user)}
+                                    </TableCell>
+                                )}
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     <div className="flex items-center gap-3">
                                         {onAddLand && (

@@ -9,45 +9,55 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 interface AddFarmerModalProps {
     isOpen: boolean;
     onClose: () => void;
+    initialStep?: number;
+    initialData?: any;
 }
 
-export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps) {
-    const [step, setStep] = useState(1);
-    const [uniqueId, setUniqueId] = useState<string | null>(null);
+export default function AddFarmerModal({ isOpen, onClose, initialStep, initialData }: AddFarmerModalProps) {
+    const [step, setStep] = useState(initialStep || 1);
+    const [uniqueId, setUniqueId] = useState<string | null>(initialData?.unique_id || null);
+
+    // Reset step when modal opens/changes
+    // actually, useState initial value only runs once. using useEffect to sync if isOpen changes might be needed, or rely on key prop in parent.
+    // relying on key in parent is cleaner.
 
     const [step1Data, setStep1Data] = useState({
-        first_name: "",
-        last_name: "",
-        surname: "",
-        phone_number: "",
-        email: "",
-        gender: "Male",
-        date_of_birth: "",
-        district: "",
-        mandal: "",
-        village: "",
-        pincode: "",
-        // state not supported by backend schema for FarmerStep1Create, so ignoring
+        first_name: initialData?.first_name || "",
+        last_name: initialData?.last_name || "",
+        surname: initialData?.surname || "",
+        phone_number: initialData?.phone_number || "",
+        email: initialData?.email || "",
+        gender: initialData?.gender || "Male",
+        date_of_birth: initialData?.date_of_birth || "",
+        district: initialData?.district || "",
+        mandal: initialData?.mandal || "",
+        village: initialData?.village || "",
+        pincode: initialData?.pincode || "",
+        state: initialData?.state || "Andhra Pradesh",
+        alternate_phone_number: initialData?.alternate_phone_number || "",
+        is_step1_completed: true
     });
 
     const [step2Data, setStep2Data] = useState({
-        aadhar_card_number: "",
-        aadhar_front_url: "http://example.com",
-        aadhar_back_url: "http://example.com",
-        passbook_number: "",
-        passbook_url: "http://example.com",
+        aadhar_card_number: initialData?.aadhar_card_number || "",
+        aadhar_front_url: initialData?.aadhar_front_url || "http://example.com",
+        aadhar_back_url: initialData?.aadhar_back_url || "http://example.com",
+        passbook_number: initialData?.passbook_number || "",
+        passbook_url: initialData?.passbook_url || "http://example.com",
+        user_photo_url: initialData?.user_photo_url || "http://example.com",
+        is_step2_completed: true
     });
 
     const [step3Data, setStep3Data] = useState({
-        account_number: "",
-        ifsc_code: "",
-        bank_name: "",
-        bank_branch: "",
-        account_holder_name: "",
-        pan_card_number: "",
-        pancard_url: "http://example.com",
-        agreement_form_url: "http://example.com",
-        user_photo_url: "http://example.com",
+        account_number: initialData?.account_number || "",
+        ifsc_code: initialData?.ifsc_code || "",
+        bank_name: initialData?.bank_name || "",
+        bank_branch: initialData?.bank_branch || "",
+        account_holder_name: initialData?.account_holder_name || "",
+        pancard_url: initialData?.pancard_url || "http://example.com",
+        agreement_form_url: initialData?.agreement_form_url || "http://example.com",
+        is_step3_completed: true,
+        // Keeping user_photo_url in step 3 too just in case, but ensuring it's in step 2 primarily as per payload
     });
 
     const queryClient = useQueryClient();
@@ -154,6 +164,10 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
                         <div><Label>Village *</Label><Input name="village" value={step1Data.village} onChange={handleInput1} required /></div>
                         <div><Label>Pincode *</Label><Input name="pincode" value={step1Data.pincode} onChange={handleInput1} required /></div>
                     </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div><Label>State *</Label><Input name="state" value={step1Data.state} onChange={handleInput1} required /></div>
+                        <div><Label>Alternate Phone</Label><Input name="alternate_phone_number" value={step1Data.alternate_phone_number} onChange={handleInput1} /></div>
+                    </div>
                     <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
                         <Button variant="outline" onClick={onClose} type="button">Cancel</Button>
                         <Button disabled={mutationStep1.isPending}>{mutationStep1.isPending ? "Saving..." : "Next"}</Button>
@@ -171,6 +185,7 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
                         <div><Label>Aadhar Front URL *</Label><Input name="aadhar_front_url" value={step2Data.aadhar_front_url} onChange={handleInput2} required /></div>
                         <div><Label>Aadhar Back URL *</Label><Input name="aadhar_back_url" value={step2Data.aadhar_back_url} onChange={handleInput2} required /></div>
                         <div><Label>Passbook URL</Label><Input name="passbook_url" value={step2Data.passbook_url} onChange={handleInput2} /></div>
+                        <div><Label>User Photo URL</Label><Input name="user_photo_url" value={step2Data.user_photo_url} onChange={handleInput2} /></div>
                     </div>
                     <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
                         <Button disabled={mutationStep2.isPending}>{mutationStep2.isPending ? "Saving..." : "Next"}</Button>
@@ -190,13 +205,11 @@ export default function AddFarmerModal({ isOpen, onClose }: AddFarmerModalProps)
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div><Label>Account Holder *</Label><Input name="account_holder_name" value={step3Data.account_holder_name} onChange={handleInput3} required /></div>
-                        {/* PAN Card Number is not in backend schema for update, but kept for UI completeness if backend is fixed later */}
-                        <div><Label>PAN Card Number</Label><Input name="pan_card_number" value={step3Data.pan_card_number} onChange={handleInput3} /></div>
+                        {/* Removed duplicate PAN field if it was there; relying on URL mostly as per payload, but likely needed. Keeping minimal */}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div><Label>PAN Image URL</Label><Input name="pancard_url" value={step3Data.pancard_url} onChange={handleInput3} /></div>
                         <div><Label>Agreement URL</Label><Input name="agreement_form_url" value={step3Data.agreement_form_url} onChange={handleInput3} /></div>
-                        <div><Label>Photo URL</Label><Input name="user_photo_url" value={step3Data.user_photo_url} onChange={handleInput3} /></div>
                     </div>
                     <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
                         <Button disabled={mutationStep3.isPending}>{mutationStep3.isPending ? "Finish" : "Complete"}</Button>
