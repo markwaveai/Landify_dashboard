@@ -11,6 +11,24 @@ interface LandDetailsModalProps {
 export default function LandDetailsModal({ isOpen, onClose, land }: LandDetailsModalProps) {
     if (!land) return null;
 
+    const renderPreview = (url: string, label: string) => {
+        if (!url) return null;
+        const isPdf = url.toLowerCase().includes('.pdf');
+        return (
+            <a href={url} target="_blank" rel="noopener noreferrer" className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5">
+                <span className="text-xs text-primary-500 mb-1 block">{label}</span>
+                {isPdf ? (
+                    <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded flex flex-col items-center justify-center text-xs text-gray-500">
+                        <span className="font-bold text-red-500 mb-1">PDF</span>
+                        <span>View Document</span>
+                    </div>
+                ) : (
+                    <img src={url} alt={label} className="h-20 w-full object-cover rounded bg-gray-100 dark:bg-gray-800" />
+                )}
+            </a>
+        );
+    };
+
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-4xl p-6">
             <div className="flex items-center justify-between mb-4 border-b pb-2">
@@ -74,60 +92,35 @@ export default function LandDetailsModal({ isOpen, onClose, land }: LandDetailsM
 
                     <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Attached Documents & Proofs</h5>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {land.land_urls && Array.isArray(land.land_urls) && land.land_urls.map((url: string, i: number) => (
-                            <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5">
-                                <span className="text-xs text-primary-500 mb-1 block">Land Photo {i + 1}</span>
-                                <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center text-xs text-gray-400">View Image</div>
-                            </a>
-                        ))}
+                        {land.land_urls && Array.isArray(land.land_urls) && land.land_urls.map((url: string, i: number) => {
+                            const isPdf = url.toLowerCase().includes('.pdf');
+                            return (
+                                <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5">
+                                    <span className="text-xs text-primary-500 mb-1 block">Land Photo {i + 1}</span>
+                                    {isPdf ? (
+                                        <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded flex flex-col items-center justify-center text-xs text-gray-500">
+                                            <span className="font-bold text-red-500 mb-1">PDF</span>
+                                            <span>View Document</span>
+                                        </div>
+                                    ) : (
+                                        <img src={url} alt={`Land Photo ${i + 1}`} className="h-20 w-full object-cover rounded bg-gray-100 dark:bg-gray-800" />
+                                    )}
+                                </a>
+                            );
+                        })}
 
                         {/* Common Proofs */}
-                        {land.passbook_image_url && (
-                            <a href={land.passbook_image_url} target="_blank" rel="noopener noreferrer" className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5">
-                                <span className="text-xs text-primary-500 mb-1 block">Passbook</span>
-                                <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center text-xs text-gray-400">View Image</div>
-                            </a>
-                        )}
-                        {land.ec_certificate_url && (
-                            <a href={land.ec_certificate_url} target="_blank" rel="noopener noreferrer" className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5">
-                                <span className="text-xs text-primary-500 mb-1 block">EC Certificate</span>
-                                <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center text-xs text-gray-400">View Image</div>
-                            </a>
-                        )}
-                        {land.ror_1b_url && (
-                            <a href={land.ror_1b_url} target="_blank" rel="noopener noreferrer" className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5">
-                                <span className="text-xs text-primary-500 mb-1 block">ROR-1B</span>
-                                <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center text-xs text-gray-400">View Image</div>
-                            </a>
-                        )}
+                        {land.passbook_image_url && renderPreview(land.passbook_image_url, "Passbook")}
+                        {land.ec_certificate_url && renderPreview(land.ec_certificate_url, "EC Certificate")}
+                        {land.ror_1b_url && renderPreview(land.ror_1b_url, "ROR-1B")}
 
                         {/* Lease Specific */}
-                        {land.owner_noc_image_url && (
-                            <a href={land.owner_noc_image_url} target="_blank" rel="noopener noreferrer" className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5">
-                                <span className="text-xs text-primary-500 mb-1 block">Owner NOC</span>
-                                <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center text-xs text-gray-400">View Image</div>
-                            </a>
-                        )}
+                        {land.owner_noc_image_url && renderPreview(land.owner_noc_image_url, "Owner NOC")}
 
                         {/* Assigned Specific */}
-                        {land.d_form_patta_image_url && (
-                            <a href={land.d_form_patta_image_url} target="_blank" rel="noopener noreferrer" className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5">
-                                <span className="text-xs text-primary-500 mb-1 block">D-Form Patta</span>
-                                <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center text-xs text-gray-400">View Image</div>
-                            </a>
-                        )}
-                        {land.noc_image_url && (
-                            <a href={land.noc_image_url} target="_blank" rel="noopener noreferrer" className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5">
-                                <span className="text-xs text-primary-500 mb-1 block">NOC</span>
-                                <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center text-xs text-gray-400">View Image</div>
-                            </a>
-                        )}
-                        {land.apc_image_url && (
-                            <a href={land.apc_image_url} target="_blank" rel="noopener noreferrer" className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5">
-                                <span className="text-xs text-primary-500 mb-1 block">APC</span>
-                                <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center text-xs text-gray-400">View Image</div>
-                            </a>
-                        )}
+                        {land.d_form_patta_image_url && renderPreview(land.d_form_patta_image_url, "D-Form Patta")}
+                        {land.noc_image_url && renderPreview(land.noc_image_url, "NOC")}
+                        {land.apc_image_url && renderPreview(land.apc_image_url, "APC")}
                     </div>
                 </div>
 
