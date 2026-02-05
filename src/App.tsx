@@ -27,8 +27,13 @@ import FodderProcurementPage from "./pages/Dashboard/FodderProcurementPage";
 import LandApprovalsPage from "./pages/Dashboard/LandApprovalsPage";
 
 import { SnackbarProvider } from "./context/SnackbarContext";
+import { useSelector } from "react-redux";
+import { RootState } from "./store/store";
+import { Navigate } from "react-router";
 
 export default function App() {
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+
   return (
     <>
       <SnackbarProvider>
@@ -36,8 +41,8 @@ export default function App() {
           <ScrollToTop />
           <Routes>
             {/* Dashboard Layout */}
-            <Route element={<AppLayout />}>
-              <Route index path="/" element={<Home />} />
+            <Route element={isAuthenticated ? <AppLayout /> : <Navigate to="/signin" replace />}>
+              <Route index element={<Home />} />
               <Route path="/aos" element={<AosPage />} />
               <Route path="/agents" element={<AgentsPage />} />
               <Route path="/agents/:phoneNumber" element={<AgentDetailsPage />} />

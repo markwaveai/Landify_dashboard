@@ -20,6 +20,12 @@ interface User {
   farmer_count?: number;
   land_count?: number;
   total_acres?: number;
+  aadhar_front?: string;
+  farmer_aadhar_front?: string;
+  aadhar_back?: string;
+  farmer_aadhar_back?: string;
+  farmer_aadhar_card_number?: string;
+  aadhar_card_number?: string;
 }
 
 interface AuthState {

@@ -1,13 +1,22 @@
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { Navigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import AuthLayout from "./AuthPageLayout";
 import SignInForm from "../../components/auth/SignInForm";
 
 export default function SignIn() {
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <>
       <PageMeta
-        title="React.js SignIn Dashboard | Landify - Next.js Admin Dashboard Template"
-        description="This is React.js SignIn Tables Dashboard page for Landify - React.js Tailwind CSS Admin Dashboard Template"
+        title="SignIn | Landify"
+        description="Sign in to your account"
       />
       <AuthLayout>
         <SignInForm />

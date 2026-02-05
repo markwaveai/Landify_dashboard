@@ -91,11 +91,11 @@ export default function SignInForm() {
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Enter your phone number and OTP to sign in!
             </p>
-            <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg">
+            {/* <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg">
               <p className="text-xs text-blue-600 dark:text-blue-400">
                 <strong>Admin Login:</strong> Phone <code>9999999999</code>, OTP <code>123456</code>
               </p>
-            </div>
+            </div> */}
           </div>
           <div>
             <form onSubmit={otpSent ? handleLogin : handleSendOTP}>

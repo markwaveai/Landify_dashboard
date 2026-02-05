@@ -1,6 +1,7 @@
+import React from "react";
 import { Modal } from "../ui/modal";
 import Label from "../form/Label";
-
+import { ImagePreviewModal } from "../ui/modal/ImagePreviewModal";
 
 interface LandDetailsModalProps {
     isOpen: boolean;
@@ -9,13 +10,29 @@ interface LandDetailsModalProps {
 }
 
 export default function LandDetailsModal({ isOpen, onClose, land }: LandDetailsModalProps) {
+    const [previewImage, setPreviewImage] = React.useState<{ url: string; title: string } | null>(null);
+
     if (!land) return null;
 
     const renderPreview = (url: string, label: string) => {
         if (!url) return null;
         const isPdf = url.toLowerCase().includes('.pdf');
+
+        const handleClick = (e: React.MouseEvent) => {
+            if (!isPdf) {
+                e.preventDefault();
+                setPreviewImage({ url, title: label });
+            }
+        };
+
         return (
-            <a href={url} target="_blank" rel="noopener noreferrer" className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5">
+            <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-2 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-white/5"
+                onClick={handleClick}
+            >
                 <span className="text-xs text-primary-500 mb-1 block">{label}</span>
                 {isPdf ? (
                     <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded flex flex-col items-center justify-center text-xs text-gray-500">
@@ -114,6 +131,10 @@ export default function LandDetailsModal({ isOpen, onClose, land }: LandDetailsM
                         {land.ec_certificate_url && renderPreview(land.ec_certificate_url, "EC Certificate")}
                         {land.ror_1b_url && renderPreview(land.ror_1b_url, "ROR-1B")}
 
+                        {/* Aadhaar Proofs (from land record) */}
+                        {(land.farmer_aadhar_front || land.aadhar_front) && renderPreview(land.farmer_aadhar_front || land.aadhar_front, "Aadhar Front")}
+                        {(land.farmer_aadhar_back || land.aadhar_back) && renderPreview(land.farmer_aadhar_back || land.aadhar_back, "Aadhar Back")}
+
                         {/* Lease Specific */}
                         {land.owner_noc_image_url && renderPreview(land.owner_noc_image_url, "Owner NOC")}
 
@@ -148,6 +169,15 @@ export default function LandDetailsModal({ isOpen, onClose, land }: LandDetailsM
                 </div>
 
             </div>
+
+            {previewImage && (
+                <ImagePreviewModal
+                    isOpen={!!previewImage}
+                    onClose={() => setPreviewImage(null)}
+                    imageUrl={previewImage.url}
+                    title={previewImage.title}
+                />
+            )}
         </Modal>
     );
 }
