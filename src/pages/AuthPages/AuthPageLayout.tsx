@@ -1,7 +1,4 @@
 import React from "react";
-import GridShape from "../../components/common/GridShape";
-import { Link } from "react-router";
-import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
 
 export default function AuthLayout({
   children,
@@ -9,32 +6,32 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
-      <div className="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900 sm:p-0">
-        {children}
-        <div className="items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid">
-          <div className="relative flex items-center justify-center z-1">
-            {/* <!-- ===== Common Grid Shape Start ===== --> */}
-            <GridShape />
-            <div className="flex flex-col items-center max-w-xs">
-              <Link to="/" className="block mb-4 flex flex-col items-center gap-4">
-                <img
-                  className="w-24 h-24 rounded-2xl object-cover"
-                  src="/landify_logo.jpeg"
-                  alt="Landify Logo"
-                />
-                <h1 className="text-3xl font-bold text-white font-satoshi">
-                  Landify
-                </h1>
-              </Link>
-              <p className="text-center text-gray-400 dark:text-white/60 text-lg">
-                Agricultural Management Dashboard
-              </p>
+    <div className="h-screen bg-[#F0F5F2] flex items-center justify-center p-0 lg:p-8 overflow-hidden">
+      <div className="w-full max-w-[1100px] h-full lg:h-[90vh] lg:min-h-[650px] bg-white lg:rounded-[40px] shadow-2xl shadow-brand-900/10 overflow-hidden flex flex-col lg:flex-row">
+
+        {/* Left Pane - Branding */}
+        <div className="hidden lg:flex w-full lg:w-[45%] bg-brand-500 relative items-center justify-center p-12 text-center text-white shrink-0">
+          <div className="relative z-1 flex flex-col items-center animate-slide-up">
+            <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center mb-8 shadow-2xl shadow-black/20">
+              <img
+                src="/landify_logo.jpeg"
+                className="w-16 h-16 object-contain"
+                alt="Landify Logo"
+              />
             </div>
+            <h1 className="text-4xl font-bold mb-4 tracking-tight">Landify Systems</h1>
+            <p className="text-white/80 text-lg leading-relaxed max-w-[280px]">
+              Advanced grass cultivation and harvesting management for professional agricultural operations.
+            </p>
           </div>
+          {/* Subtle background pattern could go here */}
         </div>
-        <div className="fixed z-50 hidden bottom-6 right-6 sm:block">
-          <ThemeTogglerTwo />
+
+        {/* Right Pane - Form */}
+        <div className="flex-1 flex flex-col items-center justify-center p-8 sm:p-12 lg:p-16 relative bg-white overflow-y-auto no-scrollbar">
+          <div className="w-full max-w-md mx-auto">
+            {children}
+          </div>
         </div>
       </div>
     </div>

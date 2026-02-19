@@ -1,16 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { NavLink, useLocation } from "react-router";
 import { useSelector } from "react-redux";
 import { RootState } from "../../src/store/store";
 import {
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
-  UserCircleIcon,
   GroupIcon,
-  UserIcon,
-  BoxCubeIcon,
+  UserCircleIcon,
+  ListIcon,
   CheckCircleIcon,
+  BoltIcon,
+  BoxCubeIcon,
+  CalendarIcon,
+  DocsIcon,
+  ChatIcon,
+  AlertIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 
@@ -19,6 +24,7 @@ type NavItem = {
   icon: React.ReactNode;
   path?: string;
   roles?: string[];
+  disabled?: boolean;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
@@ -29,46 +35,75 @@ const navItems: NavItem[] = [
     path: "/",
   },
   {
-    icon: <UserCircleIcon />,
-    name: "Officers",
+    icon: <GroupIcon />,
+    name: "Field Officers",
     path: "/aos",
     roles: ["ADMIN"],
   },
   {
-    icon: <GroupIcon />,
+    icon: <UserCircleIcon />,
     name: "Agents",
     path: "/agents",
     roles: ["ADMIN", "AGRICULTURE_OFFICER"],
   },
   {
-    icon: <CheckCircleIcon />,
-    name: "Approvals",
-    path: "/approvals",
-    roles: ["ADMIN", "AGRICULTURE_OFFICER", "AGENT"],
-  },
-  {
-    icon: <UserIcon />,
+    icon: <ListIcon />,
     name: "Farmers",
     path: "/farmers",
     roles: ["ADMIN", "AGRICULTURE_OFFICER", "AGENT"],
+    disabled: true,
   },
   {
-    icon: <UserCircleIcon />,
-    name: "Profile",
-    path: "/profile",
+    icon: <CheckCircleIcon />,
+    name: "Approvals",
+    path: "/approvals",
+    roles: ["ADMIN", "AGRICULTURE_OFFICER"],
+  },
+  {
+    icon: <span className="flex items-center justify-center text-lg font-bold w-6 h-6">₹</span>,
+    name: "Payments",
+    path: "/payments",
+    roles: ["ADMIN"],
+    disabled: true,
+  },
+  {
+    icon: <BoltIcon />,
+    name: "Cultivation",
+    path: "/cultivation",
+    disabled: true,
   },
   {
     icon: <BoxCubeIcon />,
     name: "Fodder Ops",
     path: "/fodder-procurement",
-    roles: ["ADMIN"], // Assuming only Admin per original request "Admin login"
+    roles: ["ADMIN"],
+  },
+  {
+    icon: <CalendarIcon />,
+    name: "Profile",
+    path: "/profile",
+  },
+  {
+    icon: <DocsIcon />,
+    name: "Legal",
+    path: "/legal",
+  },
+  {
+    icon: <ChatIcon />,
+    name: "Support",
+    path: "/support",
+  },
+  {
+    icon: <AlertIcon />,
+    name: "Delete Account",
+    path: "/delete-account",
   },
 ];
 
 const othersItems: NavItem[] = [];
 
 const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const { isExpanded, isMobileOpen } = useSidebar();
   const { user } = useSelector((state: RootState) => state.auth);
   const location = useLocation();
 
@@ -147,30 +182,30 @@ const AppSidebar: React.FC = () => {
           {nav.subItems ? (
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}
-              className={`menu-item group ${openSubmenu?.type === menuType && openSubmenu?.index === index
-                ? "menu-item-active"
-                : "menu-item-inactive"
-                } cursor-pointer ${!isExpanded && !isHovered
+              className={`group flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm transition-colors ${openSubmenu?.type === menuType && openSubmenu?.index === index
+                ? "bg-white/10 text-white"
+                : "text-white/70 hover:bg-white/5 hover:text-white"
+                } cursor-pointer ${!isExpanded
                   ? "lg:justify-center"
                   : "lg:justify-start"
                 }`}
             >
               <span
-                className={`menu-item-icon-size  ${openSubmenu?.type === menuType && openSubmenu?.index === index
-                  ? "menu-item-icon-active"
-                  : "menu-item-icon-inactive"
+                className={`menu-item-icon-size ${openSubmenu?.type === menuType && openSubmenu?.index === index
+                  ? "text-white"
+                  : "text-white/70 group-hover:text-white"
                   }`}
               >
                 {nav.icon}
               </span>
-              {(isExpanded || isHovered || isMobileOpen) && (
+              {(isExpanded || isMobileOpen) && (
                 <span className="menu-item-text">{nav.name}</span>
               )}
-              {(isExpanded || isHovered || isMobileOpen) && (
+              {(isExpanded || isMobileOpen) && (
                 <ChevronDownIcon
-                  className={`ml-auto w-5 h-5 transition-transform duration-200 ${openSubmenu?.type === menuType &&
+                  className={`ml-auto w-5 h-5 transition-transform duration-200 text-white/70 ${openSubmenu?.type === menuType &&
                     openSubmenu?.index === index
-                    ? "rotate-180 text-brand-500"
+                    ? "rotate-180 text-white"
                     : ""
                     }`}
                 />
@@ -178,26 +213,39 @@ const AppSidebar: React.FC = () => {
             </button>
           ) : (
             nav.path && (
-              <Link
-                to={nav.path}
-                className={`menu-item group ${isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
-                  }`}
-              >
-                <span
-                  className={`menu-item-icon-size ${isActive(nav.path)
-                    ? "menu-item-icon-active"
-                    : "menu-item-icon-inactive"
+              nav.disabled ? (
+                <div
+                  className="group flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm transition-colors text-white/50 cursor-not-allowed"
+                >
+                  <span className="menu-item-icon-size text-white/50 group-hover:text-white/70">
+                    {nav.icon}
+                  </span>
+                  {(isExpanded || isMobileOpen) && (
+                    <span className="menu-item-text">{nav.name}</span>
+                  )}
+                </div>
+              ) : (
+                <NavLink
+                  to={nav.path}
+                  className={`group flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm transition-colors ${isActive(nav.path) ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5 hover:text-white"
                     }`}
                 >
-                  {nav.icon}
-                </span>
-                {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className="menu-item-text">{nav.name}</span>
-                )}
-              </Link>
+                  <span
+                    className={`menu-item-icon-size ${isActive(nav.path)
+                      ? "text-white"
+                      : "text-white/70 group-hover:text-white"
+                      }`}
+                  >
+                    {nav.icon}
+                  </span>
+                  {(isExpanded || isMobileOpen) && (
+                    <span className="menu-item-text">{nav.name}</span>
+                  )}
+                </NavLink>
+              )
             )
           )}
-          {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
+          {nav.subItems && (isExpanded || isMobileOpen) && (
             <div
               ref={(el) => {
                 subMenuRefs.current[`${menuType}-${index}`] = el;
@@ -213,7 +261,7 @@ const AppSidebar: React.FC = () => {
               <ul className="mt-2 space-y-1 ml-9">
                 {nav.subItems.map((subItem) => (
                   <li key={subItem.name}>
-                    <Link
+                    <NavLink
                       to={subItem.path}
                       className={`menu-dropdown-item ${isActive(subItem.path)
                         ? "menu-dropdown-item-active"
@@ -243,7 +291,7 @@ const AppSidebar: React.FC = () => {
                           </span>
                         )}
                       </span>
-                    </Link>
+                    </NavLink>
                   </li>
                 ))}
               </ul>
@@ -256,31 +304,27 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-[#154732] dark:bg-gray-900 dark:border-gray-800 text-white h-screen transition-all duration-300 ease-in-out z-[999999] border-r border-gray-200 
         ${isExpanded || isMobileOpen
           ? "w-[290px]"
-          : isHovered
-            ? "w-[290px]"
-            : "w-[90px]"
+          : "w-[90px]"
         }
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
-      onMouseEnter={() => !isExpanded && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`py-8 flex ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+        className={`py-8 flex ${!isExpanded ? "lg:justify-center" : "justify-start"
           }`}
       >
-        <Link to="/">
-          {isExpanded || isHovered || isMobileOpen ? (
+        <NavLink to="/">
+          {isExpanded || isMobileOpen ? (
             <div className="flex items-center gap-3">
               <img
                 src="/landify_logo.jpeg"
                 alt="Landify"
                 className="w-10 h-10 rounded-lg object-cover"
               />
-              <span className="text-2xl font-bold text-gray-800 dark:text-white font-satoshi">
+              <span className="text-2xl font-bold text-white font-satoshi">
                 Landify
               </span>
             </div>
@@ -291,19 +335,19 @@ const AppSidebar: React.FC = () => {
               className="w-8 h-8 rounded-lg object-cover"
             />
           )}
-        </Link>
+        </NavLink>
       </div>
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+      <div className="flex flex-col flex-1 overflow-y-auto duration-300 ease-linear no-scrollbar overscroll-contain">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
             <div>
               <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-white/50 ${!isExpanded
                   ? "lg:justify-center"
                   : "justify-start"
                   }`}
               >
-                {isExpanded || isHovered || isMobileOpen ? (
+                {isExpanded || isMobileOpen ? (
                   "Menu"
                 ) : (
                   <HorizontaLDots className="size-6" />

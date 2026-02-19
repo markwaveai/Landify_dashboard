@@ -1,0 +1,487 @@
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router';
+import { useSelector } from 'react-redux';
+import { getLands, approveLandStage1, approveLandStage2, updateLand } from '../../services/landService';
+import { CheckCircleIcon, FileIcon } from '../../icons'; // Removed CrossIcon as it might not exist, using native or check icons
+import Badge from '../ui/badge/Badge';
+import { RootState } from '../../store/store';
+import { useSnackbar } from "../../context/SnackbarContext";
+
+interface LandApprovalsTabContentProps {
+    isAdminView?: boolean;
+    lands?: any[];
+    isLoading?: boolean;
+}
+
+export default function LandApprovalsTabContent({ isAdminView = false, lands: initialLands, isLoading: initialLoading }: LandApprovalsTabContentProps) {
+    const { user } = useSelector((state: RootState) => state.auth);
+    const [activeSubTab, setActiveSubTab] = useState<'pending' | 'admin_pending' | 'approved' | 'active_land' | 'rejected'>(isAdminView ? 'admin_pending' : 'pending');
+    const navigate = useNavigate();
+    const { showSnackbar } = useSnackbar();
+
+    // Dynamically fetch lands based on tab and view
+    const { data: allLandsFromQuery, isLoading: queryLoading, refetch } = useQuery({
+        queryKey: ['lands'],
+        queryFn: getLands,
+        refetchInterval: 10000, // Refresh every 10 seconds for more dynamic feel
+        enabled: !initialLands,
+    });
+
+    const allLands = initialLands || allLandsFromQuery;
+    const isLoading = initialLands ? initialLoading : queryLoading;
+
+    const lands = useMemo(() => {
+        if (!allLands) return [];
+        return allLands.filter((l: any) => {
+            const status = l.status || '';
+            const statusUpper = status.toUpperCase();
+
+            if (isAdminView) {
+                // Admin View Logic
+                const isApprovedStatus = status === 'ADMIN_APPROVED' || status === 'LAND_ACTIVATED';
+                const isActive = l.land_status === 'ACTIVE' || String(l.land_status).toUpperCase() === 'ACTIVE';
+
+                if (activeSubTab === 'pending') return status === 'FO_APPROVED'; // Ready for Admin Review
+                if (activeSubTab === 'admin_pending') return status === 'ADMIN_PENDING';
+                if (activeSubTab === 'approved') return isApprovedStatus && !isActive; // Only non-active approved
+                if (activeSubTab === 'active_land') return isApprovedStatus && isActive; // Only active approved
+                if (activeSubTab === 'rejected') return status === 'ADMIN_REJECTED';
+            } else {
+                // FO / Agent View Logic
+                if (activeSubTab === 'pending') return (statusUpper.includes('PENDING') || status === 'SUBMITTED') && statusUpper !== 'ADMIN_PENDING';
+                if (activeSubTab === 'approved') return status === 'FO_APPROVED';
+                if (activeSubTab === 'rejected') return status === 'FO_REJECTED'; // Keeping it consistent if rejected follows similar logic
+            }
+            return false;
+        });
+    }, [allLands, isAdminView, activeSubTab]);
+
+    // Check if user has permission to approve/reject
+    // Actions only valid in 'pending' tabs for respective roles
+    const canApprove = (
+        (activeSubTab === 'pending' || activeSubTab === 'admin_pending') && (
+            (isAdminView && user?.role === 'ADMIN') ||
+            (!isAdminView && user?.role === 'AGRICULTURE_OFFICER' && activeSubTab === 'pending')
+        )
+    );
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedLand, setSelectedLand] = useState<{ id: string, land: any, action: 'APPROVE' | 'REJECT' } | null>(null);
+    const [remarks, setRemarks] = useState("");
+    const [remarkingLandId, setRemarkingLandId] = useState<string | null>(null);
+    const [tempRemarks, setTempRemarks] = useState("");
+
+    const handleActionClick = (land: any, action: 'APPROVE' | 'REJECT') => {
+        setSelectedLand({ id: land.id, land, action });
+        setRemarks("");
+        setIsModalOpen(true);
+    };
+
+    const handleConfirmAction = async () => {
+        if (!selectedLand) return;
+        const { id, action } = selectedLand;
+        const actionLabel = action === 'APPROVE' ? 'Approve' : 'Reject';
+
+        if (action === 'REJECT' && !remarks.trim()) {
+            showSnackbar("Remarks are required for rejection", "error");
+            return;
+        }
+
+        try {
+            if (isAdminView) {
+                await approveLandStage2(id, { action, reason: remarks });
+            } else {
+                await approveLandStage1(id, { action, reason: remarks });
+            }
+            showSnackbar(`Land ${actionLabel}ed Successfully`, 'success');
+            setIsModalOpen(false);
+            setSelectedLand(null);
+            refetch();
+        } catch (error: any) {
+            console.error(error);
+            showSnackbar(error.response?.data?.message || "Failed to process request", 'error');
+        }
+    };
+
+    const handleRowClick = (land: any) => {
+        navigate(`/land-approvals/${land.id}`, { state: { land } });
+    };
+
+    const handleRemarkSubmit = async (land: any) => {
+        if (!tempRemarks.trim()) {
+            showSnackbar("Please enter some remarks", "error");
+            return;
+        }
+
+        try {
+            await updateLand(land.id, { remarks: tempRemarks });
+            showSnackbar("Remarks updated successfully", "success");
+            setRemarkingLandId(null);
+            setTempRemarks("");
+            refetch();
+        } catch (error: any) {
+            showSnackbar("Failed to update remarks", "error");
+        }
+    };
+
+    const formatValue = (val: any) => (val === undefined || val === null || val === "" ? "-" : val);
+
+    const IconLink = ({ url, label }: { url?: string; label: string }) => {
+        if (!url || url === "-") return <div className="flex items-center gap-1 text-gray-400 truncate"><span className="text-[10px]">{label}:</span> -</div>;
+        return (
+            <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-green-600 hover:text-green-700 dark:text-green-400 hover:underline truncate"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <FileIcon className="size-3 flex-shrink-0" />
+                <span className="text-[10px] font-bold">{label}</span>
+            </a>
+        );
+    };
+
+    // Dynamic columns logic
+    const columns = useMemo(() => {
+        if (!lands || lands.length === 0) return [];
+
+        return [
+            {
+                id: 'land_id',
+                header: 'LAND ID',
+                render: (land: any) => <span className="text-xs font-mono font-bold text-gray-400">#{formatValue(land.landId || land.id)}</span>
+            },
+            {
+                id: 'user_id',
+                header: 'USER ID',
+                render: (land: any) => <span className="text-xs font-mono font-bold text-gray-500">{formatValue(land.user_id || land.userId)}</span>
+            },
+            {
+                id: 'land_details',
+                header: 'LAND DETAILS',
+                render: (land: any) => (
+                    <div className="text-[11px] space-y-0.5 min-w-[220px] py-1">
+                        <div className="flex justify-between gap-2 border-b border-gray-100 dark:border-gray-800 pb-0.5 mb-0.5">
+                            <span className="text-gray-400 font-medium">Owner:</span>
+                            <span className="text-gray-800 dark:text-gray-200 font-bold truncate max-w-[120px]">{formatValue(land.land_holder_name || land.owner_name)}</span>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                            <span className="text-gray-400">DOB:</span>
+                            <span className="text-gray-600 dark:text-gray-400">{formatValue(land.land_holder_dob)}</span>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                            <span className="text-gray-400">Survey:</span>
+                            <span className="text-gray-600 dark:text-gray-400 font-bold">{formatValue(land.survey_number || land.survey_no)}</span>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                            <span className="text-gray-400">Area:</span>
+                            <span className="text-gray-600 dark:text-gray-400 font-medium">{land.acres || 0} Ac {land.gunta || 0} Gts {land.sents || 0} Snts</span>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                            <span className="text-gray-400">Type:</span>
+                            <span className="text-gray-600 dark:text-gray-400 capitalize">{formatValue(land.land_type?.replace(/_/g, ' '))}</span>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                            <span className="text-gray-400">Water:</span>
+                            <span className="text-gray-600 dark:text-gray-400">{formatValue(land.land_water_source || land.water_source)}</span>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                            <span className="text-gray-400">Ownership:</span>
+                            <span className="text-gray-600 dark:text-gray-400 italic">{formatValue(land.owner_ship_type || land.ownership_details)}</span>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                            <span className="text-gray-400">Passbook No:</span>
+                            <span className="text-gray-600 dark:text-gray-400">{formatValue(land.passbookNo)}</span>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                            <span className="text-gray-400">Aadhar Name:</span>
+                            <span className="text-gray-600 dark:text-gray-400">{formatValue(land.owner_aadharName)}</span>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                id: 'land_address',
+                header: 'LAND_ADDRESS',
+                render: (land: any) => (
+                    <div className="text-[11px] space-y-1 min-w-[140px]">
+                        <div className="p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                            <div className="grid grid-cols-2 gap-1">
+                                <span className="text-gray-400">Village:</span> <span className="text-gray-700 dark:text-gray-300 font-medium">{formatValue(land.village)}</span>
+                                <span className="text-gray-400">Mandal:</span> <span className="text-gray-700 dark:text-gray-300">{formatValue(land.mandal)}</span>
+                                <span className="text-gray-400">District:</span> <span className="text-gray-700 dark:text-gray-300">{formatValue(land.district)}</span>
+                                <span className="text-gray-400">State:</span> <span className="text-gray-700 dark:text-gray-300">{formatValue(land.state)}</span>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                id: 'verification',
+                header: 'VERIFICATION',
+                render: (land: any) => (
+                    <div className="min-w-[200px] p-1.5 bg-gray-50/50 dark:bg-white/[0.02] rounded-lg">
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                            <IconLink url={land.user_image_url} label="User" />
+                            <IconLink url={land.land_image_url} label="Land" />
+                            <IconLink url={land.owner_aadhar_url} label="Aadhar" />
+                            <IconLink url={land.emcumbrance_url} label="EC" />
+                            <IconLink url={land.passbook_url} label="Passbook" />
+                            <IconLink url={land.lpm_url} label="LPM" />
+                            <IconLink url={land.adangal_url} label="Adangal" />
+                            <IconLink url={land.ror_url} label="ROR" />
+                            <IconLink url={land.noc_url} label="NOC" />
+                            <IconLink url={land.apc_url} label="APC" />
+                            <div className="col-span-2 mt-1 pt-1 border-t border-gray-200/50 dark:border-gray-700/50 text-[10px] flex justify-between">
+                                <span className="text-gray-400">ROR No:</span>
+                                <span className="text-gray-600 dark:text-gray-400 font-bold">{formatValue(land.rorNo)}</span>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                id: 'status',
+                header: 'STATUS',
+                render: (land: any) => (
+                    <Badge variant="solid" color={
+                        (land.status || '').includes('REJECTED') ? 'error' :
+                            (land.status || '') === 'ADMIN_APPROVED' ? 'success' :
+                                (land.status || '') === 'FO_APPROVED' ? 'warning' : 'light'
+                    }>
+                        {formatValue(land.status)}
+                    </Badge>
+                )
+            },
+            {
+                id: 'remarks',
+                header: 'REMARKS',
+                render: (land: any) => (
+                    <div className="max-w-[150px] truncate text-xs italic text-gray-500" title={land.remarks || land.remarks_stage1 || land.remarks_stage2}>
+                        {formatValue(land.remarks || land.remarks_stage1 || land.remarks_stage2)}
+                    </div>
+                )
+            },
+            {
+                id: 'land_status',
+                header: 'LAND_STATUS',
+                render: (land: any) => <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{formatValue(land.land_status)}</span>
+            },
+            {
+                id: 'is_active',
+                header: 'IS_ACTIVE',
+                render: (land: any) => (
+                    <Badge size="sm" color={land.is_active ? 'success' : 'light'}>
+                        {land.is_active ? 'YES' : 'NO'}
+                    </Badge>
+                )
+            },
+            {
+                id: 'agent_name',
+                header: 'AGENT_NAME',
+                render: (land: any) => <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{formatValue(land.agent_name || land.added_by_name)}</span>
+            },
+            {
+                id: 'agent_contact',
+                header: 'AGENT_CONTACT',
+                render: (land: any) => <span className="text-xs font-mono text-gray-500">{formatValue(land.agent_contact || land.agent_phone)}</span>
+            }
+        ];
+    }, [lands]);
+
+    const getTabLabel = (tab: 'pending' | 'admin_pending' | 'approved' | 'active_land' | 'rejected') => {
+        if (isAdminView) {
+            if (tab === 'pending') return 'FO Approved';
+            if (tab === 'admin_pending') return 'Admin Pending';
+            if (tab === 'approved') return 'Admin Approved';
+            if (tab === 'active_land') return 'Active Land';
+            if (tab === 'rejected') return 'Admin Rejected';
+        }
+        return tab.charAt(0).toUpperCase() + tab.slice(1);
+    };
+
+    return (
+        <div className="space-y-6">
+            {/* Sub Tabs */}
+            {/* Sub Tabs Pill Style */}
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+                {(isAdminView ? ['admin_pending', 'approved', 'active_land', 'rejected'] : ['pending'] as const).map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveSubTab(tab as any)}
+                        className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all duration-200 border ${activeSubTab === tab
+                            ? 'bg-green-600 border-green-600 text-white shadow-sm'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 hover:border-green-300 dark:hover:border-green-800 hover:text-green-600 dark:hover:text-green-400'
+                            }`}
+                    >
+                        {getTabLabel(tab as any)}
+                    </button>
+                ))}
+            </div>
+
+            {/* Table or Empty State */}
+            {isLoading ? (
+                <div className="py-20 text-center">
+                    <div className="animate-spin h-8 w-8 border-2 border-green-500 border-t-transparent rounded-full mx-auto" />
+                    <p className="text-gray-500 mt-2 text-sm">Loading lands...</p>
+                </div>
+            ) : !lands || lands.length === 0 ? (
+                <div className="py-20 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                    <FileIcon className="size-12 mx-auto text-gray-300 mb-3" />
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">No Lands Found</h3>
+                    <p className="text-gray-500 text-sm">No land records in {getTabLabel(activeSubTab)} state.</p>
+                </div>
+            ) : (
+                <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-[10px] uppercase text-gray-500 font-bold tracking-wider">
+                                {columns.map(col => (
+                                    <th key={col.id} className="px-5 py-4">{col.header}</th>
+                                ))}
+                                {canApprove && <th className="px-5 py-4 text-right">Actions</th>}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                            {lands.map((land: any) => (
+                                <tr
+                                    key={land.id}
+                                    onClick={() => handleRowClick(land)}
+                                    className="hover:bg-gray-50 dark:hover:bg-white/[0.02] cursor-pointer transition-colors group"
+                                >
+                                    {columns.map(col => (
+                                        <td key={col.id} className="px-5 py-4">
+                                            {col.render(land)}
+                                        </td>
+                                    ))}
+                                    {canApprove && (
+                                        <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                                            {remarkingLandId === land.id ? (
+                                                <div className="flex flex-col gap-2 min-w-[200px]">
+                                                    <textarea
+                                                        value={tempRemarks}
+                                                        onChange={(e) => setTempRemarks(e.target.value)}
+                                                        placeholder="Enter remarks..."
+                                                        className="w-full p-2 text-[11px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg focus:ring-1 focus:ring-green-500 outline-none resize-none"
+                                                        rows={2}
+                                                    />
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => handleRemarkSubmit(land)}
+                                                            className="flex-1 px-2 py-1 text-[10px] font-bold text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors"
+                                                        >
+                                                            Submit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setRemarkingLandId(null);
+                                                                setTempRemarks("");
+                                                            }}
+                                                            className="flex-1 px-2 py-1 text-[10px] font-bold text-gray-500 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col gap-2">
+                                                    <button
+                                                        onClick={() => handleActionClick(land, 'APPROVE')}
+                                                        className="px-3 py-1.5 text-[10px] font-bold uppercase rounded-lg bg-green-50 text-green-600 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30 transition-all border border-green-200/50 dark:border-green-800/50"
+                                                    >
+                                                        Approve
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleActionClick(land, 'REJECT')}
+                                                        className="px-3 py-1.5 text-[10px] font-bold uppercase rounded-lg bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 transition-all border border-red-200/50 dark:border-red-800/50"
+                                                    >
+                                                        Reject
+                                                    </button>
+                                                    {activeSubTab === 'admin_pending' && (
+                                                        <button
+                                                            onClick={() => {
+                                                                setRemarkingLandId(land.id);
+                                                                setTempRemarks(land.remarks || "");
+                                                            }}
+                                                            className="px-3 py-1.5 text-[10px] font-bold uppercase rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-all border border-blue-200/50 dark:border-blue-800/50"
+                                                        >
+                                                            Remarks
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </td>
+                                    )}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {/* Action Popup Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-gray-900 w-full max-w-md rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="p-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className={`p-2 rounded-lg ${selectedLand?.action === 'APPROVE' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                    {selectedLand?.action === 'APPROVE' ? (
+                                        <CheckCircleIcon className="size-6" />
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                                    {selectedLand?.action === 'APPROVE' ? 'Confirm Approval' : 'Confirm Rejection'}
+                                </h3>
+                            </div>
+
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
+                                Are you sure you want to {selectedLand?.action.toLowerCase()} land ID <span className="text-gray-900 dark:text-white font-bold">#{selectedLand?.land?.landId || selectedLand?.land?.id}</span>?
+                                {selectedLand?.action === 'REJECT' && " Remarks are required."}
+                            </p>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Remarks / Reason</label>
+                                    <textarea
+                                        rows={4}
+                                        value={remarks}
+                                        onChange={(e) => setRemarks(e.target.value)}
+                                        placeholder={`Enter ${selectedLand?.action.toLowerCase()} remarks here...`}
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all dark:text-white resize-none"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800">
+                            <button
+                                onClick={() => {
+                                    setIsModalOpen(false);
+                                    setSelectedLand(null);
+                                }}
+                                className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmAction}
+                                className={`flex-[1.5] px-4 py-2.5 text-sm font-bold text-white rounded-xl shadow-lg transition-all active:scale-95 ${selectedLand?.action === 'APPROVE'
+                                    ? 'bg-green-600 hover:bg-green-700 shadow-green-500/20'
+                                    : 'bg-red-600 hover:bg-red-700 shadow-red-500/20'}`}
+                            >
+                                Confirm {selectedLand?.action === 'APPROVE' ? 'Approve' : 'Reject'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

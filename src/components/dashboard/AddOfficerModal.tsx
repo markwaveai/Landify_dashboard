@@ -1,19 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "../ui/modal";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Button from "../ui/button/Button";
-import { createAO } from "../../services/userService";
+import Select from "../form/Select";
+import { createAO, updateAO } from "../../services/userService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "../../context/SnackbarContext";
 
 interface AddOfficerModalProps {
     isOpen: boolean;
     onClose: () => void;
+    user?: any; // Add user prop for editing
 }
 
-export default function AddOfficerModal({ isOpen, onClose }: AddOfficerModalProps) {
+export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerModalProps) {
     const { showSnackbar } = useSnackbar();
+    const queryClient = useQueryClient();
+
     const [formData, setFormData] = useState({
         first_name: "",
         last_name: "",
@@ -25,11 +29,44 @@ export default function AddOfficerModal({ isOpen, onClose }: AddOfficerModalProp
         district: "",
         state: "",
         date_of_birth: "",
+        gender: "",
     });
 
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    // Populate form data when editing
+    useEffect(() => {
+        if (user && isOpen) {
+            setFormData({
+                first_name: user.first_name || "",
+                last_name: user.last_name || "",
+                phone_number: user.phone_number || "",
+                email: user.email || "",
+                pincode: user.pincode || "",
+                village: user.village || "",
+                mandal: user.mandal || "",
+                district: user.district || "",
+                state: user.state || "",
+                date_of_birth: user.date_of_birth || "",
+                gender: user.gender || "",
+            });
+        } else if (!user && isOpen) {
+            // Reset form when opening for new officer
+            setFormData({
+                first_name: "",
+                last_name: "",
+                phone_number: "",
+                email: "",
+                pincode: "",
+                village: "",
+                mandal: "",
+                district: "",
+                state: "",
+                date_of_birth: "",
+                gender: "",
+            });
+        }
+    }, [user, isOpen]);
 
-    const queryClient = useQueryClient();
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const validate = () => {
         const newErrors: Record<string, string> = {};
@@ -50,6 +87,7 @@ export default function AddOfficerModal({ isOpen, onClose }: AddOfficerModalProp
         }
 
         if (!formData.date_of_birth) newErrors.date_of_birth = "Date of birth is required";
+        if (!formData.gender) newErrors.gender = "Gender is required";
 
         if (!formData.pincode.trim()) {
             newErrors.pincode = "Pincode is required";
@@ -67,28 +105,16 @@ export default function AddOfficerModal({ isOpen, onClose }: AddOfficerModalProp
     };
 
     const mutation = useMutation({
-        mutationFn: createAO,
+        mutationFn: (data: any) => user?.unique_id ? updateAO(user.unique_id, data) : createAO(data),
         onSuccess: () => {
-            showSnackbar("Officer added successfully!", "success");
+            showSnackbar(user ? "Officer updated successfully!" : "Officer added successfully!", "success");
             queryClient.invalidateQueries({ queryKey: ["aos"] });
             onClose();
-            setFormData({
-                first_name: "",
-                last_name: "",
-                phone_number: "",
-                email: "",
-                pincode: "",
-                village: "",
-                mandal: "",
-                district: "",
-                state: "",
-                date_of_birth: "",
-            });
             setErrors({});
         },
         onError: (error: any) => {
-            console.error("Failed to create AO", error);
-            showSnackbar(error.response?.data?.detail || "Failed to create Officer", "error");
+            console.error("Failed to save AO", error);
+            showSnackbar(error.response?.data?.detail || `Failed to ${user ? 'update' : 'create'} Officer`, "error");
         }
     });
 
@@ -119,7 +145,7 @@ export default function AddOfficerModal({ isOpen, onClose }: AddOfficerModalProp
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-xl p-6">
             <h3 className="mb-4 text-lg font-bold text-gray-800 dark:text-white">
-                Add Agricultural Officer
+                {user ? "Update Agricultural Officer" : "Add Agricultural Officer"}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="max-h-[60vh] overflow-y-auto px-1 -mx-1 custom-scrollbar">
@@ -181,6 +207,27 @@ export default function AddOfficerModal({ isOpen, onClose }: AddOfficerModalProp
                             />
                         </div>
 
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <Label>Gender <span className="text-error-500">*</span></Label>
+                                <Select
+                                    options={[
+                                        { value: "MALE", label: "Male" },
+                                        { value: "FEMALE", label: "Female" },
+                                        { value: "OTHER", label: "Other" },
+                                    ]}
+                                    placeholder="Select Gender"
+                                    defaultValue={formData.gender}
+                                    onChange={(value) => {
+                                        setFormData({ ...formData, gender: value });
+                                        if (errors.gender) setErrors({ ...errors, gender: "" });
+                                    }}
+                                    className={errors.gender ? "border-error-500" : ""}
+                                />
+                                {errors.gender && <p className="mt-1 text-xs text-error-500">{errors.gender}</p>}
+                            </div>
+                        </div>
+
                         <h4 className="font-medium text-gray-700 dark:text-gray-300 border-b pb-2 mt-4">Location</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -239,7 +286,7 @@ export default function AddOfficerModal({ isOpen, onClose }: AddOfficerModalProp
                 <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100 dark:border-gray-800">
                     <Button variant="outline" onClick={onClose} type="button" className="flex-1 sm:flex-none">Cancel</Button>
                     <Button disabled={mutation.isPending} className="flex-1 sm:flex-none">
-                        {mutation.isPending ? "Adding..." : "Add Officer"}
+                        {mutation.isPending ? (user ? "Updating..." : "Adding...") : (user ? "Update Officer" : "Add Officer")}
                     </Button>
                 </div>
             </form>

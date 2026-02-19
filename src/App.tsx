@@ -11,8 +11,7 @@ import Buttons from "./pages/UiElements/Buttons";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
 import Calendar from "./pages/Calendar";
-import BasicTables from "./pages/Tables/BasicTables";
-import FormElements from "./pages/Forms/FormElements";
+
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
@@ -20,11 +19,18 @@ import Home from "./pages/Dashboard/Home";
 import AosPage from "./pages/Dashboard/AosPage";
 import AgentsPage from "./pages/Dashboard/AgentsPage";
 import AgentDetailsPage from "./pages/Dashboard/AgentDetailsPage";
-import FarmersPage from "./pages/Dashboard/FarmersPage";
-import FarmerDetailsPage from "./pages/Dashboard/FarmerDetailsPage";
+import OfficerDetailsPage from "./pages/Dashboard/OfficerDetailsPage";
+// import FarmersPage from "./pages/Dashboard/FarmersPage";
+import ApprovalsPage from "./pages/Dashboard/ApprovalsPage";
+// import FarmerDetailsPage from "./pages/Dashboard/FarmerDetailsPage";
 import UserProfile from "./pages/Dashboard/UserProfile";
+import LandApprovalDetailsPage from "./pages/Dashboard/LandApprovalDetailsPage";
 import FodderProcurementPage from "./pages/Dashboard/FodderProcurementPage";
-import LandApprovalsPage from "./pages/Dashboard/LandApprovalsPage";
+// import PaymentsPage from "./pages/Dashboard/PaymentsPage";
+// import CultivationPage from "./pages/Dashboard/CultivationPage";
+import LegalPage from "./pages/OtherPage/LegalPage";
+import SupportPage from "./pages/OtherPage/SupportPage";
+import DeleteAccountPage from "./pages/OtherPage/DeleteAccountPage";
 
 import { SnackbarProvider } from "./context/SnackbarContext";
 import { useSelector } from "react-redux";
@@ -44,26 +50,25 @@ export default function App() {
             <Route element={isAuthenticated ? <AppLayout /> : <Navigate to="/signin" replace />}>
               <Route index element={<Home />} />
               <Route path="/aos" element={<AosPage />} />
+              <Route path="/aos/:phoneNumber" element={<OfficerDetailsPage />} />
               <Route path="/agents" element={<AgentsPage />} />
               <Route path="/agents/:phoneNumber" element={<AgentDetailsPage />} />
-              <Route path="/farmers" element={<FarmersPage />} />
-              <Route path="/farmers/:phoneNumber" element={<FarmerDetailsPage />} />
-              <Route path="/approvals" element={<LandApprovalsPage />} />
+              {/* <Route path="/farmers" element={<FarmersPage />} /> */}
+              {/* <Route path="/farmers/:phoneNumber" element={<FarmerDetailsPage />} /> */}
+              <Route path="/approvals" element={<ApprovalsPage />} />
+              {/* <Route path="/payments" element={<PaymentsPage />} /> */}
+              {/* <Route path="/cultivation" element={<CultivationPage />} /> */}
 
               {/* Others Page */}
               <Route path="/profile" element={<UserProfile />} />
+              <Route path="/legal" element={<LegalPage />} />
+              <Route path="/support" element={<SupportPage />} />
+              <Route path="/delete-account" element={<DeleteAccountPage />} />
               <Route path="/fodder-procurement" element={<FodderProcurementPage />} />
               <Route path="/fodder" element={<FodderProcurementPage />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/blank" element={<Blank />} />
-
-              {/* Forms */}
-              <Route path="/form-elements" element={<FormElements />} />
-
-              {/* Tables */}
-              <Route path="/basic-tables" element={<BasicTables />} />
-
-              {/* Ui Elements */}
+              <Route path="/land-approvals/:id" element={<LandApprovalDetailsPage />} />
               <Route path="/alerts" element={<Alerts />} />
               <Route path="/avatars" element={<Avatars />} />
               <Route path="/badge" element={<Badges />} />

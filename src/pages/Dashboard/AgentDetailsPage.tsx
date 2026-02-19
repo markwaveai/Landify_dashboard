@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAgentProfile, getAgentFarmers } from "../../services/userService";
-import { UserIcon, EnvelopeIcon, GridIcon, CalenderIcon, AngleLeftIcon } from "../../icons";
+import { UserIcon, EnvelopeIcon, GridIcon, CalendarIcon, AngleLeftIcon } from "../../icons";
 import Badge from "../../components/ui/badge/Badge";
 import PageMeta from "../../components/common/PageMeta";
 import UserTable from "../../components/dashboard/UserTable";
@@ -24,9 +24,9 @@ export default function AgentDetailsPage() {
     });
 
     const { data: farmers, isLoading: isLoadingFarmers } = useQuery({
-        queryKey: ['agentFarmers', phoneNumber],
-        queryFn: () => getAgentFarmers(phoneNumber!),
-        enabled: !!phoneNumber
+        queryKey: ['agentFarmers', profile?.unique_id],
+        queryFn: () => getAgentFarmers(profile?.unique_id!),
+        enabled: !!profile?.unique_id
     });
 
     if (isLoadingProfile) {
@@ -98,7 +98,7 @@ export default function AgentDetailsPage() {
                             <div className="flex items-center gap-6 mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                                 <div>
                                     <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Farmers</p>
-                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{profile.farmer_count || 0}</p>
+                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{isLoadingFarmers ? "..." : (farmers?.length || 0)}</p>
                                 </div>
                                 <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
                                 <div>
@@ -121,13 +121,14 @@ export default function AgentDetailsPage() {
                                 <InfoItem label="Phone Number" value={profile.phone_number} icon={<PhoneIcon className="size-4" />} />
                                 <InfoItem label="Email Address" value={profile.email} icon={<EnvelopeIcon className="size-4" />} />
                                 <InfoItem label="Gender" value={profile.gender} icon={<UserIcon className="size-4" />} />
-                                <InfoItem label="Date of Birth" value={profile.date_of_birth} icon={<CalenderIcon className="size-4" />} />
+                                <InfoItem label="Date of Birth" value={profile.date_of_birth} icon={<CalendarIcon className="size-4" />} />
                             </div>
                         </DetailCard>
 
                         {/* Section 2: KYC & Address */}
                         <DetailCard title="KYC & Address">
                             <div className="grid grid-cols-1 gap-3">
+                                <InfoItem label="Reference ID" value={profile.reference_id} />
                                 <InfoItem label="Aadhar Number" value={profile.aadhar_card_number} />
                                 <InfoItem label="Pincode" value={profile.pincode} />
                                 <InfoItem label="Mandal" value={profile.mandal} />
@@ -149,8 +150,12 @@ export default function AgentDetailsPage() {
                 </div>
             </div>
 
-            {/* Farmers List */}
+            {/* Farmers ListSection */}
             <div className="space-y-4">
+                <div className="flex flex-col gap-1">
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white">Assigned Farmers</h3>
+                    <p className="text-sm text-gray-500">List of farmers registered under this agent, including their unique enrollment IDs and locations.</p>
+                </div>
                 <UserTable
                     title="Farmers List"
                     users={farmers || []}

@@ -62,7 +62,7 @@ const MiniCalendar: React.FC<MiniCalendarProps> = ({ selectedDate, onSelect, onC
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   return (
-    <div className="absolute left-0 top-12 z-50 w-64 rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+    <div className="absolute left-0 top-full mt-1 z-[999] w-64 rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800">
       <div className="mb-4 flex items-center justify-between">
         <button onClick={prevMonth} className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700">
           <svg className="h-4 w-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -186,7 +186,7 @@ const FodderProcurement: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* 1. Request Creation Form */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900 shadow-sm relative z-20 overflow-visible">
         <div className="mb-6">
           <h3 className="text-lg font-bold text-gray-800 dark:text-white">
             Create Fodder Schedule
