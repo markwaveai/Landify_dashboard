@@ -5,6 +5,11 @@ export const sendOTP = async (phoneNumber: string) => {
     return response.data;
 };
 
+export const sendStaticOTP = async (phoneNumber: string) => {
+    const response = await api.post('/users/static/send-otp', { mobile: phoneNumber });
+    return response.data;
+};
+
 export const verifyOTP = async (phoneNumber: string, otp: string) => {
     const response = await api.post('/users/verify-otp', { mobile: phoneNumber, otp: otp });
     return response.data;

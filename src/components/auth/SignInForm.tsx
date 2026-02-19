@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useSnackbar } from "../../context/SnackbarContext";
 import Label from "../form/Label";
 import { useDispatch } from "react-redux";
-import { sendOTP, fetchProfile, verifyOTP } from "../../services/authService";
+import { sendOTP, fetchProfile, verifyOTP, sendStaticOTP } from "../../services/authService";
 import { setCredentials } from "../../store/slices/authSlice";
 
 export default function SignInForm() {
@@ -22,9 +22,11 @@ export default function SignInForm() {
     setError("");
     setLoading(true);
     try {
-      const sanitizedPhone = phoneNumber.trim().replace(/[\u200B-\u200D\u2028\u2029\uFEFF]/g, "");
+      const sanitizedPhone = phoneNumber.trim().replace(/\D/g, ""); // Keep only digits
 
       if (sanitizedPhone === "9999999999") {
+        console.log("Calling static OTP endpoint for 9999999999");
+        await sendStaticOTP(sanitizedPhone);
         setOtpSent(true);
         setOtp("123456");
         setLoading(false);
@@ -50,17 +52,22 @@ export default function SignInForm() {
     setError("");
     setLoading(true);
     try {
-      const sanitizedPhone = phoneNumber.trim().replace(/[\u200B-\u200D\u2028\u2029\uFEFF]/g, "");
-      await verifyOTP(sanitizedPhone, otp);
+      const sanitizedPhone = phoneNumber.trim().replace(/\D/g, "");
+      const sanitizedOtp = otp.trim().replace(/\s/g, "");
+
+      console.log("Attempting login for:", sanitizedPhone, "with OTP:", sanitizedOtp);
+
+      await verifyOTP(sanitizedPhone, sanitizedOtp);
       localStorage.setItem('user_phone', sanitizedPhone);
       const user = await fetchProfile(sanitizedPhone);
       dispatch(setCredentials({ user }));
       showSnackbar("Login successful!", "success");
       navigate("/");
     } catch (err: any) {
-      console.error(err);
-      setError("Login failed. Identity verification failed.");
-      showSnackbar("Login failed. Identity verification failed.", "error");
+      console.error("Login Error:", err);
+      const backendMessage = err.response?.data?.detail || err.response?.data?.message || "Identity verification failed.";
+      setError(`Login failed. ${backendMessage}`);
+      showSnackbar(`Login failed. ${backendMessage}`, "error");
       localStorage.removeItem('user_phone');
     } finally {
       setLoading(false);
@@ -73,7 +80,7 @@ export default function SignInForm() {
         <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-theme-lg">
           <img src="/landify_logo.jpeg" className="w-8 h-8 object-contain rounded-lg" alt="Logo" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login (Validated)</h1>
         <p className="text-gray-500">
           Welcome back! Please enter your phone number and OTP to manage the cultivation systems.
         </p>
