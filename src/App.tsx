@@ -37,6 +37,11 @@ import { useSelector } from "react-redux";
 import { RootState } from "./store/store";
 import { Navigate } from "react-router";
 
+const ConditionalLayout = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  return isAuthenticated ? <AppLayout>{children}</AppLayout> : <>{children}</>;
+};
+
 export default function App() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
@@ -58,12 +63,8 @@ export default function App() {
               <Route path="/approvals" element={<ApprovalsPage />} />
               {/* <Route path="/payments" element={<PaymentsPage />} /> */}
               {/* <Route path="/cultivation" element={<CultivationPage />} /> */}
-
-              {/* Others Page */}
               <Route path="/profile" element={<UserProfile />} />
-              <Route path="/legal" element={<LegalPage />} />
-              <Route path="/support" element={<SupportPage />} />
-              <Route path="/delete-account" element={<DeleteAccountPage />} />
+
               <Route path="/fodder-procurement" element={<FodderProcurementPage />} />
               <Route path="/fodder" element={<FodderProcurementPage />} />
               <Route path="/calendar" element={<Calendar />} />
@@ -80,6 +81,11 @@ export default function App() {
               <Route path="/line-chart" element={<LineChart />} />
               <Route path="/bar-chart" element={<BarChart />} />
             </Route>
+
+            {/* Public but Dashboard-aware Routes */}
+            <Route path="/legal" element={<ConditionalLayout><LegalPage /></ConditionalLayout>} />
+            <Route path="/support" element={<ConditionalLayout><SupportPage /></ConditionalLayout>} />
+            <Route path="/delete-account" element={<ConditionalLayout><DeleteAccountPage /></ConditionalLayout>} />
 
             {/* Auth Layout */}
             <Route path="/signin" element={<SignIn />} />
