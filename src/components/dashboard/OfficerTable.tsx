@@ -7,13 +7,7 @@ import {
     TableRow,
 } from "../ui/table";
 import {
-    PencilIcon,
-    TrashBinIcon,
-    ChevronLeftIcon,
-    EyeIcon,
-    UserCircleIcon,
-    TractorIcon,
-    GridIcon,
+
     UserIcon,
 } from "../../icons";
 import { useQuery } from "@tanstack/react-query";
@@ -129,8 +123,7 @@ interface OfficerTableProps {
 export default function OfficerTable({
     users,
     isLoading,
-    onEdit,
-    onDelete,
+
     onView,
 }: OfficerTableProps) {
     const [searchTerm, setSearchTerm] = useState("");
