@@ -145,7 +145,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-xl p-6">
             <h3 className="mb-4 text-lg font-bold text-gray-800 dark:text-white">
-                {user ? "Update Agricultural Officer" : "Add Agricultural Officer"}
+                {user ? "Update Field Officer" : "Add Field Officer"}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="max-h-[60vh] overflow-y-auto px-1 -mx-1 custom-scrollbar">

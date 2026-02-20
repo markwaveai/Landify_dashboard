@@ -49,12 +49,12 @@ const AgentCountCell = ({ officerId }: { officerId: string }) => {
                     e.stopPropagation();
                     setIsExpanded(!isExpanded);
                 }}
-                className="flex items-center gap-2 group/btn"
+                className="flex items-center gap-2 group/btn py-1.5 px-3 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors border border-gray-100 dark:border-gray-700"
             >
-                <div className={`px-2 py-0.5 rounded-full text-xs font-bold transition-all ${isExpanded ? 'bg-brand-600 text-white shadow-sm' : 'bg-brand-50 text-brand-700 group-hover/btn:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-400'}`}>
-                    {count} {count === 1 ? 'Agent' : 'Agents'}
+                <div className={`px-2 py-0.5 rounded-lg text-xs font-black tracking-wide transition-all ${isExpanded ? 'bg-brand-600 text-white shadow-sm' : 'bg-transparent text-gray-700 dark:text-gray-300 group-hover/btn:text-brand-600 dark:group-hover/btn:text-brand-400'}`}>
+                    {count} {count === 1 ? 'AGENT' : 'AGENTS'}
                 </div>
-                <ChevronLeftIcon className={`size-3 transition-transform text-gray-400 ${isExpanded ? 'rotate-[-90deg]' : 'rotate-[-180deg]'}`} />
+                <ChevronLeftIcon className={`size-3.5 transition-transform ${isExpanded ? 'rotate-[-90deg] text-brand-600 dark:text-brand-400' : 'rotate-[-180deg] text-gray-400 group-hover/btn:text-gray-600 dark:group-hover/btn:text-gray-300'}`} />
             </button>
 
             {isExpanded && (
@@ -141,165 +141,98 @@ export default function OfficerTable({
     const format = (val: any) => (val === undefined || val === null || val === "" || val === 0) ? "-" : val;
 
     // Dynamic columns logic
-    const columns = useMemo(() => {
+    const columns: any[] = useMemo(() => {
         if (users.length === 0) return [];
 
         return [
             {
+                id: "sno",
+                header: "S.NO",
+                minWidth: "60px",
+                render: (_: User, idx: number) => (
+                    <div className="flex items-center h-12">
+                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                            {(currentPage - 1) * itemsPerPage + idx + 1}
+                        </span>
+                    </div>
+                )
+            },
+            {
                 id: "name",
-                header: "NAME",
-                minWidth: "180px",
+                header: "Field Officer",
+                minWidth: "220px",
                 render: (user: User) => (
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-600">
-                            <img
-                                src={user.user_image_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.phone_number}`}
-                                alt="avatar"
-                                className="w-full h-full object-cover"
-                            />
+                    <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-2xl bg-gray-50 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative group-hover:border-brand-300 transition-colors flex items-center justify-center">
+                            {user.user_image_url ? (
+                                <img
+                                    src={user.user_image_url}
+                                    alt="avatar"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <UserIcon className="size-6 text-gray-400 dark:text-gray-500" />
+                            )}
+                            <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-2xl pointer-events-none"></div>
                         </div>
-                        <div>
-                            <div className="font-semibold text-gray-900 dark:text-white text-sm">
+                        <div className="flex flex-col">
+                            <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                                 {user.first_name} {user.last_name}
-                            </div>
+                            </span>
+                            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
+                                {user.phone_number}
+                            </span>
                         </div>
                     </div>
                 )
             },
             {
                 id: "user_id",
-                header: "USER ID",
-                minWidth: "120px",
+                header: "FO ID",
+                minWidth: "160px",
                 render: (user: User) => (
-                    <div className="text-[11px] font-mono font-bold text-gray-600 dark:text-gray-400">
-                        {format(user.unique_id)}
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+
+                            <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md shadow-sm border border-gray-200/50 dark:border-gray-700 text-center">{format(user.unique_id)}</span>
+                        </div>
+
                     </div>
                 )
             },
             {
                 id: "mandal",
                 header: "MANDAL",
-                minWidth: "120px",
+                minWidth: "140px",
                 render: (user: User) => (
-                    <div className="text-sm font-bold text-brand-600 dark:text-brand-400 uppercase tracking-tight">
-                        {format(user.mandal)}
+                    <div className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-brand-50 to-white border border-brand-100 shadow-sm dark:from-brand-900/20 dark:to-gray-800 dark:border-brand-800/50">
+                        <span className="text-xs font-black text-brand-700 dark:text-brand-400 uppercase tracking-widest">
+                            {format(user.mandal)}
+                        </span>
+                    </div>
+                )
+            },
+
+            {
+                id: "role",
+                header: "ROLE",
+                minWidth: "100px",
+                render: (user: User) => (
+                    <div className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 shadow-sm">
+                        <span className="text-[10px] font-black uppercase tracking-widest">{format(user.role)}</span>
                     </div>
                 )
             },
             {
-                id: "ref_id",
-                header: "REF ID",
-                minWidth: "120px",
+                id: "is_active",
+                header: "STATUS",
+                minWidth: "100px",
                 render: (user: User) => (
-                    <div className="text-[11px] font-mono font-bold text-brand-600 dark:text-brand-400">
-                        {format(user.reference_id)}
+                    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border shadow-sm ${user.is_active !== false ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50' : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50'}`}>
+                        <div className={`size-1.5 rounded-full ${user.is_active !== false ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+                        <span className="text-[10px] font-black uppercase tracking-widest">{user.is_active !== false ? 'ACTIVE' : 'INACTIVE'}</span>
                     </div>
                 )
-            },
-            {
-                id: "address_group",
-                header: "ADDRESS",
-                minWidth: "180px",
-                render: (user: User) => (
-                    <div className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
-                        <p className="font-bold text-gray-800 dark:text-gray-100">{format(user.village)}</p>
-                        <p className="dark:text-gray-200">{format(user.district)}</p>
-                        <p className="dark:text-gray-200">{format(user.state)} - {format(user.pincode)}</p>
-                    </div>
-                )
-            },
-            {
-                id: "land_status",
-                header: "LAND STATUS",
-                minWidth: "220px",
-                render: (user: User) => (
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] font-medium">
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
-                            <span className="text-gray-400 dark:text-gray-300">ACTIVE:</span>
-                            <span className="text-green-600 font-bold dark:text-green-400">{format(user.active_lands)}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
-                            <span className="text-gray-400 dark:text-gray-300">HARVEST:</span>
-                            <span className="text-blue-600 font-bold dark:text-blue-400">{format(user.harvest_ready)}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
-                            <span className="text-gray-400 dark:text-gray-300">REMARKS:</span>
-                            <span className="text-yellow-600 font-bold dark:text-yellow-400">{format(user.remarks_lands)}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
-                            <span className="text-gray-400 dark:text-gray-300">REJECTED:</span>
-                            <span className="text-red-600 font-bold dark:text-red-400">{format(user.rejected_lands)}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
-                            <span className="text-gray-400 dark:text-gray-300">APPROVED:</span>
-                            <span className="text-green-600 font-bold dark:text-green-400">{format(user.approved_lands)}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
-                            <span className="text-gray-400 dark:text-gray-300">REVIEW:</span>
-                            <span className="text-purple-600 font-bold dark:text-purple-400">{format(user.review_lands)}</span>
-                        </div>
-                    </div>
-                )
-            },
-            {
-                id: "details",
-                header: "DETAILS",
-                minWidth: "180px",
-                render: (user: User) => (
-                    <div className="text-[11px] space-y-0.5 text-gray-600 dark:text-gray-200">
-                        <p><span className="text-gray-400 dark:text-gray-300 font-bold">AADHAR:</span> {format(user.aadhar_card_number)}</p>
-                        <p><span className="text-gray-400 dark:text-gray-300 font-bold">PAN:</span> {format(user.pan_number)}</p>
-                        <p><span className="text-gray-400 dark:text-gray-300 font-bold">ALT:</span> {format(user.alternate_phone_number)}</p>
-                    </div>
-                )
-            },
-            {
-                id: "bank_details",
-                header: "BANK DETAILS",
-                minWidth: "180px",
-                render: (user: User) => (
-                    <div className="text-[11px] space-y-0.5 text-gray-600 dark:text-gray-300">
-                        <p className="font-bold text-gray-800 dark:text-gray-100">{format(user.account_number)}</p>
-                        <p>{format(user.bank_name)}</p>
-                        <p>{format(user.ifsc_code)}</p>
-                        <p className="text-[10px] italic">{format(user.bank_branch)}</p>
-                    </div>
-                )
-            },
-            {
-                id: "verification",
-                header: "VERIFICATION",
-                minWidth: "180px",
-                render: (user: User) => {
-                    const docs = [
-                        { label: "USER", url: user.user_image_url },
-                        { label: "AADHAR", url: user.aadhar_image_url },
-                        { label: "PAN", url: user.pan_image_url },
-                        { label: "BANK", url: user.bank_passbook_image_url },
-                        { label: "AGREEMENT", url: user.agreement_url },
-                    ];
-                    return (
-                        <div className="flex flex-wrap gap-1.5">
-                            {docs.map((doc, i) => (
-                                doc.url ? (
-                                    <a
-                                        key={i}
-                                        href={doc.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-[9px] font-bold px-1.5 py-0.5 bg-brand-50 text-brand-700 rounded border border-brand-100 hover:bg-brand-100 transition-colors"
-                                    >
-                                        {doc.label}
-                                    </a>
-                                ) : (
-                                    <span key={i} className="text-[9px] font-bold px-1.5 py-0.5 bg-gray-50 text-gray-400 rounded border border-gray-100">
-                                        {doc.label}
-                                    </span>
-                                )
-                            ))}
-                        </div>
-                    );
-                }
             },
             {
                 id: "agents",
@@ -310,7 +243,7 @@ export default function OfficerTable({
                 )
             },
         ];
-    }, [users]);
+    }, [users, currentPage]);
 
     // Filter users based on search
     const filteredUsers = useMemo(() => {
@@ -376,62 +309,62 @@ export default function OfficerTable({
             </div>
 
             {/* Main Table Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-2xl shadow-gray-200/40 dark:shadow-none overflow-hidden mt-8">
                 <div className="overflow-x-auto">
                     <Table>
-                        <TableHeader className="bg-gray-50/50 dark:bg-gray-800/50">
+                        <TableHeader className="bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-700">
                             <TableRow>
                                 {columns.map((col, idx) => (
-                                    <TableCell key={col.id} isHeader className={`py-4 ${idx === 0 ? 'pl-6' : 'px-4'} text-xs font-bold text-gray-400 uppercase tracking-wider text-left`}>
+                                    <TableCell key={col.id} isHeader className={`py-5 ${idx === 0 ? 'pl-8' : 'px-4'} text-[10px] font-black text-gray-400 uppercase tracking-widest text-left`}>
                                         <div style={{ minWidth: col.minWidth }}>{col.header}</div>
                                     </TableCell>
                                 ))}
-                                <TableCell isHeader className="py-4 pr-6 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">
+                                {/* <TableCell isHeader className="py-5 pr-8 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
                                     <div className="min-w-[90px] flex justify-end">ACTIONS</div>
-                                </TableCell>
+                                </TableCell> */}
                             </TableRow>
                         </TableHeader>
-                        <TableBody className="divide-y divide-gray-100 dark:divide-gray-700/50">
+                        <TableBody className="divide-y divide-gray-50 dark:divide-gray-700/50">
                             {isLoading ? (
                                 <TableRow>
-                                    <TableCell colSpan={columns.length + 1} className="text-center py-10 text-gray-400">Loading officers data...</TableCell>
+                                    <TableCell colSpan={columns.length + 1} className="text-center py-20 text-gray-400 font-medium">Loading officers data...</TableCell>
                                 </TableRow>
                             ) : paginatedUsers.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={columns.length + 1} className="text-center py-10 text-gray-400">No officers found matching your search.</TableCell>
+                                    <TableCell colSpan={columns.length + 1} className="text-center py-20 text-gray-400 font-medium">No officers found matching your search.</TableCell>
                                 </TableRow>
                             ) : (
                                 paginatedUsers.map((user, index) => {
                                     return (
                                         <TableRow
                                             key={index}
-                                            className="hover:bg-gray-50 dark:hover:bg-gray-700/25 transition-colors group cursor-pointer"
+                                            className="hover:bg-brand-50/30 dark:hover:bg-brand-900/10 transition-all duration-200 group cursor-pointer"
                                             onClick={() => onView && onView(user)}
                                         >
                                             {columns.map((col, colIdx) => (
-                                                <TableCell key={col.id} className={`py-4 ${colIdx === 0 ? 'pl-6' : 'px-4'}`}>
-                                                    {col.render(user)}
+                                                <TableCell key={col.id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'}`}>
+                                                    {col.render(user, index)}
                                                 </TableCell>
                                             ))}
-                                            <TableCell className="py-4 pr-6 text-right">
-                                                <div className="min-w-[100px] flex items-center justify-end gap-2 transition-opacity ml-auto">
+                                            {/* <TableCell className="py-5 pr-8 text-right align-top">
+                                                <div className="min-w-[120px] flex items-center justify-end gap-2.5 transition-opacity ml-auto">
                                                     {onView && (
-                                                        <button onClick={(e) => { e.stopPropagation(); onView(user); }} className="p-1.5 text-gray-400 hover:text-brand-500 hover:bg-brand-50 rounded-lg transition-all">
+                                                        <button onClick={(e) => { e.stopPropagation(); onView(user); }} className="p-2 text-gray-400 hover:text-brand-600 hover:bg-white dark:hover:bg-gray-700 rounded-xl transition-all shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800">
                                                             <EyeIcon className="size-4" />
                                                         </button>
                                                     )}
                                                     {onEdit && (
-                                                        <button onClick={(e) => { e.stopPropagation(); onEdit(user); }} className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all">
+                                                        <button onClick={(e) => { e.stopPropagation(); onEdit(user); }} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-white dark:hover:bg-gray-700 rounded-xl transition-all shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800">
                                                             <PencilIcon className="size-4" />
                                                         </button>
                                                     )}
                                                     {onDelete && (
-                                                        <button onClick={(e) => { e.stopPropagation(); onDelete(user); }} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                                                        <button onClick={(e) => { e.stopPropagation(); onDelete(user); }} className="p-2 text-gray-400 hover:text-red-600 hover:bg-white dark:hover:bg-gray-700 rounded-xl transition-all shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800">
                                                             <TrashBinIcon className="size-4" />
                                                         </button>
                                                     )}
                                                 </div>
-                                            </TableCell>
+                                            </TableCell> */}
                                         </TableRow>
                                     );
                                 })
@@ -441,7 +374,7 @@ export default function OfficerTable({
                 </div>
 
                 {/* Pagination */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-2">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 px-8 bg-gray-50/30 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-300 font-medium">
                         Showing <span className="text-gray-800 dark:text-white font-bold">{users.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> to <span className="text-gray-800 dark:text-white font-bold">{Math.min(currentPage * itemsPerPage, users.length)}</span> of <span className="text-gray-800 dark:text-white font-bold">{users.length}</span> entries
                     </p>
@@ -498,98 +431,7 @@ export default function OfficerTable({
             </div>
 
             {/* Bottom Widgets Row - Auto-Cycling Field Officer Data */}
-            {(() => {
-                const [activeIdx, setActiveIdx] = useState(0);
 
-                useMemo(() => {
-                    if (users.length === 0) return;
-                    const timer = setInterval(() => {
-                        setActiveIdx((prev) => (prev + 1) % users.length);
-                    }, 5000); // Cycle every 5 seconds
-                    return () => clearInterval(timer);
-                }, [users.length]);
-
-                const officer = users[activeIdx];
-                if (!officer) return null;
-
-                return (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-500">
-                        {/* Box 1: Basic Profile */}
-                        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 rounded-2xl group hover:border-brand-200 transition-all shadow-sm relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-2 opacity-5">
-                                <UserCircleIcon className="size-20" />
-                            </div>
-                            <div className="flex justify-between items-start mb-4">
-                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">BASIC PROFILE</span>
-                                <div className="h-12 w-12 rounded-full bg-brand-50 dark:bg-brand-900/20 overflow-hidden border-2 border-white dark:border-gray-700 shadow-md">
-                                    <img
-                                        src={officer.user_image_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${officer.phone_number}`}
-                                        alt="avatar"
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate">{officer.first_name} {officer.last_name}</h3>
-                            <p className="text-brand-600 dark:text-brand-400 text-sm font-black uppercase mt-1">{officer.unique_id}</p>
-                            <div className="mt-4 flex gap-2">
-                                <div className="px-2 py-1 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-[10px] font-bold rounded uppercase">Active</div>
-                                <div className="px-2 py-1 bg-gray-50 dark:bg-gray-700 text-gray-400 text-[10px] font-bold rounded uppercase">Verified</div>
-                            </div>
-                        </div>
-
-                        {/* Box 2: Land Performance */}
-                        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 rounded-2xl group hover:border-brand-200 transition-all shadow-sm">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-4">LAND PERFORMANCE</span>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Active Lands</p>
-                                    <p className="text-xl font-bold text-green-600">{format(officer.active_lands)}</p>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Approved</p>
-                                    <p className="text-xl font-bold text-blue-600">{format(officer.approved_lands)}</p>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">In Review</p>
-                                    <p className="text-xl font-bold text-purple-600">{format(officer.review_lands)}</p>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Rejected</p>
-                                    <p className="text-xl font-bold text-red-600">{format(officer.rejected_lands)}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Box 3: Location Details */}
-                        <div className="bg-[#154732] border border-[#1a553c] p-6 rounded-2xl group transition-all shadow-lg text-white relative">
-                            <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest block mb-4">LOCATION DETAILS</span>
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-white/10 rounded-lg"><TractorIcon className="size-4 text-green-300" /></div>
-                                    <div>
-                                        <p className="text-[9px] font-bold text-white/40 uppercase">Mandal</p>
-                                        <p className="text-sm font-bold">{format(officer.mandal)}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-white/10 rounded-lg"><GridIcon className="size-4 text-green-300" /></div>
-                                    <div>
-                                        <p className="text-[9px] font-bold text-white/40 uppercase">District</p>
-                                        <p className="text-sm font-bold">{format(officer.district)}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-white/10 rounded-lg"><UserIcon className="size-4 text-green-300" /></div>
-                                    <div>
-                                        <p className="text-[9px] font-bold text-white/40 uppercase">State</p>
-                                        <p className="text-sm font-bold">{format(officer.state)}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-            })()}
 
         </div>
     );

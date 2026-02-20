@@ -77,20 +77,20 @@ export default function SignInForm() {
   return (
     <div className="w-full">
       <div className="mb-6">
-        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-theme-lg">
+        <div className="w-14 h-14 bg-white dark:bg-gray-900 rounded-2xl flex items-center justify-center mb-6 shadow-theme-lg dark:shadow-none border border-transparent dark:border-gray-800">
           <img src="/landify_logo.jpeg" className="w-8 h-8 object-contain rounded-lg" alt="Logo" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
-        <p className="text-gray-500">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Admin Login</h1>
+        <p className="text-gray-500 dark:text-gray-400">
           Welcome back! Please enter your phone number and OTP to manage the cultivation systems.
         </p>
       </div>
 
       <form onSubmit={otpSent ? handleLogin : handleSendOTP} className="space-y-6">
         <div>
-          <Label className="text-gray-700 font-medium mb-2 block">Phone Number</Label>
+          <Label className="text-gray-700 dark:text-gray-300 font-medium mb-2 block">Phone Number</Label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-bold">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 font-bold">
               +91
             </span>
             <input
@@ -102,7 +102,7 @@ export default function SignInForm() {
                 const val = e.target.value.replace(/\D/g, '').slice(0, 10);
                 setPhoneNumber(val);
               }}
-              className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all outline-none"
+              className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all outline-none"
             />
           </div>
         </div>
@@ -110,27 +110,31 @@ export default function SignInForm() {
         {otpSent && (
           <div>
             <div className="flex justify-between items-center mb-2">
-              <Label className="text-gray-700 font-medium block">OTP Verification</Label>
+              <Label className="text-gray-700 dark:text-gray-300 font-medium block">OTP Verification</Label>
               <button
                 type="button"
                 onClick={() => setOtpSent(false)}
-                className="text-sm font-semibold text-brand-600 hover:text-brand-700"
+                className="text-sm font-semibold text-brand-600 dark:text-brand-500 hover:text-brand-700 dark:hover:text-brand-400"
               >
                 Change?
               </button>
             </div>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </span>
               <input
                 type="text"
+                maxLength={6}
                 placeholder="••••••"
                 value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all outline-none tracking-[0.5em] font-bold"
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                  setOtp(val);
+                }}
+                className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all outline-none tracking-[0.5em] font-bold"
               />
             </div>
           </div>
@@ -139,8 +143,8 @@ export default function SignInForm() {
         {error && <p className="text-sm text-error-500 font-medium px-1">{error}</p>}
 
         <div className="flex items-center gap-3">
-          <input type="checkbox" id="remember" className="w-5 h-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500" />
-          <label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">Remember this device for 30 days</label>
+          <input type="checkbox" id="remember" className="w-5 h-5 rounded border-gray-300 dark:border-gray-700 text-brand-600 focus:ring-brand-500 dark:bg-gray-900" />
+          <label htmlFor="remember" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">Remember this device for 30 days</label>
         </div>
 
         <button

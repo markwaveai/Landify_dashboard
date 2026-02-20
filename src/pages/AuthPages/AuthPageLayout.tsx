@@ -6,8 +6,8 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-screen bg-[#F0F5F2] flex items-center justify-center p-0 lg:p-8 overflow-hidden">
-      <div className="w-full max-w-[1100px] h-full lg:h-[90vh] lg:min-h-[650px] bg-white lg:rounded-[40px] shadow-2xl shadow-brand-900/10 overflow-hidden flex flex-col lg:flex-row">
+    <div className="h-screen bg-[#F0F5F2] dark:bg-gray-900 flex items-center justify-center p-0 lg:p-8 overflow-hidden">
+      <div className="w-full max-w-[1100px] h-full lg:h-[90vh] lg:min-h-[650px] bg-white dark:bg-gray-800 lg:rounded-[40px] shadow-2xl shadow-brand-900/10 dark:shadow-none overflow-hidden flex flex-col lg:flex-row border border-transparent dark:border-gray-800">
 
         {/* Left Pane - Branding */}
         <div className="hidden lg:flex w-full lg:w-[45%] bg-brand-500 relative items-center justify-center p-12 text-center text-white shrink-0">
@@ -28,7 +28,7 @@ export default function AuthLayout({
         </div>
 
         {/* Right Pane - Form */}
-        <div className="flex-1 flex flex-col items-center justify-center p-8 sm:p-12 lg:p-16 relative bg-white overflow-y-auto no-scrollbar">
+        <div className="flex-1 flex flex-col items-center justify-center p-8 sm:p-12 lg:p-16 relative bg-white dark:bg-gray-800 overflow-y-auto no-scrollbar">
           <div className="w-full max-w-md mx-auto">
             {children}
           </div>

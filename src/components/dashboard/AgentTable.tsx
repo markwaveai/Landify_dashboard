@@ -428,7 +428,7 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
     };
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
+        <div className="space-y-6 font-outfit">
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
@@ -448,118 +448,152 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                     )}
                 </div>
             </div>
-            <div className="max-w-full overflow-x-auto">
-                <Table>
-                    <TableHeader className="border-gray-100 dark:border-gray-800 border-y bg-gray-50/50 dark:bg-white/[0.02]">
-                        <TableRow>
-                            {columns.map(col => (
-                                <TableCell key={col.id} isHeader className="py-3 px-4 font-medium text-gray-500 text-left text-xs uppercase tracking-wider whitespace-nowrap dark:text-gray-400">
-                                    <div style={{ minWidth: col.minWidth }}>{col.header}</div>
-                                </TableCell>
-                            ))}
-                            <TableCell isHeader className="py-3 px-4 font-medium text-gray-500 text-left text-xs uppercase tracking-wider whitespace-nowrap dark:text-gray-400">
-                                Actions
-                            </TableCell>
-                        </TableRow>
-                    </TableHeader>
 
-                    <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                        {isLoading ? (
+            {/* Main Table Card */}
+            <div className="bg-white dark:bg-gray-800 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-2xl shadow-gray-200/40 dark:shadow-none overflow-hidden mt-8">
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader className="bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-700">
                             <TableRow>
-                                <TableCell className="py-8 text-center text-gray-500" colSpan={columns.length + 1}>
-                                    Loading agents...
+                                {columns.map((col, idx) => (
+                                    <TableCell key={col.id} isHeader className={`py-5 ${idx === 0 ? 'pl-8' : 'px-4'} text-[10px] font-black text-gray-400 uppercase tracking-widest text-left`}>
+                                        <div style={{ minWidth: col.minWidth }}>{col.header}</div>
+                                    </TableCell>
+                                ))}
+                                <TableCell isHeader className="py-5 pr-8 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
+                                    <div className="min-w-[90px] flex justify-end">ACTIONS</div>
                                 </TableCell>
                             </TableRow>
-                        ) : currentUsers.length === 0 ? (
-                            <TableRow>
-                                <TableCell className="py-8 text-center text-gray-500" colSpan={columns.length + 1}>
-                                    No agents found.
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            currentUsers.map((user, index) => (
-                                <TableRow
-                                    key={index}
-                                    className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
-                                    onClick={() => onRowClick ? onRowClick(user) : navigate(`/agents/${user.phone_number}`)}
-                                >
-                                    {columns.map(col => (
-                                        <TableCell key={col.id} className="py-4 px-4 align-middle">
-                                            {col.render(user)}
-                                        </TableCell>
-                                    ))}
+                        </TableHeader>
 
-                                    <TableCell className="py-4 px-4 align-middle text-gray-500 text-sm dark:text-gray-400 whitespace-nowrap">
-                                        <div className="flex items-center gap-3">
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    onRowClick ? onRowClick(user) : navigate(`/agents/${user.phone_number}`)
-                                                }}
-                                                className="p-1.5 text-gray-400 hover:text-brand-500 hover:bg-brand-50 rounded-lg transition-all"
-                                                title="View Details"
-                                            >
-                                                <EyeIcon className="size-4" />
-                                            </button>
-
-                                            {/* Activate/Deactivate Button */}
-                                            {onStatusToggle && (
-                                                user.is_active !== false && (user.status_label === 'ACTIVE' || !user.status_label) ? (
-                                                    <button
-                                                        className="px-3 py-1 text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors min-w-[80px]"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            onStatusToggle(user);
-                                                        }}
-                                                    >
-                                                        Deactivate
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        className="px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors min-w-[80px]"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            onStatusToggle(user);
-                                                        }}
-                                                    >
-                                                        Activate
-                                                    </button>
-                                                )
-                                            )}
-                                        </div>
+                        <TableBody className="divide-y divide-gray-50 dark:divide-gray-700/50">
+                            {isLoading ? (
+                                <TableRow>
+                                    <TableCell className="py-8 text-center text-gray-500" colSpan={columns.length + 1}>
+                                        Loading agents...
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+                            ) : currentUsers.length === 0 ? (
+                                <TableRow>
+                                    <TableCell className="py-8 text-center text-gray-500" colSpan={columns.length + 1}>
+                                        No agents found.
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                currentUsers.map((user, index) => (
+                                    <TableRow
+                                        key={index}
+                                        className="hover:bg-brand-50/30 dark:hover:bg-brand-900/10 transition-all duration-200 group cursor-pointer"
+                                        onClick={() => onRowClick ? onRowClick(user) : navigate(`/agents/${user.phone_number}`)}
+                                    >
+                                        {columns.map((col, colIdx) => (
+                                            <TableCell key={col.id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'}`}>
+                                                {col.render(user)}
+                                            </TableCell>
+                                        ))}
 
-            {/* Pagination Controls */}
-            {!isLoading && users.length > 0 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-2">
+                                        <TableCell className="py-5 pr-8 text-right align-top">
+                                            <div className="min-w-[120px] flex items-center justify-end gap-2.5 transition-opacity ml-auto">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onRowClick ? onRowClick(user) : navigate(`/agents/${user.phone_number}`)
+                                                    }}
+                                                    className="p-2 text-gray-400 hover:text-brand-600 hover:bg-white dark:hover:bg-gray-700 rounded-xl transition-all shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800"
+                                                    title="View Details"
+                                                >
+                                                    <EyeIcon className="size-4" />
+                                                </button>
+
+                                                {/* Activate/Deactivate Button */}
+                                                {onStatusToggle && (
+                                                    user.is_active !== false && (user.status_label === 'ACTIVE' || !user.status_label) ? (
+                                                        <button
+                                                            className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-gray-500 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors min-w-[80px]"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                onStatusToggle(user);
+                                                            }}
+                                                        >
+                                                            Deactivate
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors min-w-[80px]"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                onStatusToggle(user);
+                                                            }}
+                                                        >
+                                                            Activate
+                                                        </button>
+                                                    )
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 px-8 bg-gray-50/30 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-300 font-medium">
                         Showing <span className="text-gray-800 dark:text-white font-bold">{users.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}</span> to <span className="text-gray-800 dark:text-white font-bold">{Math.min(currentPage * ITEMS_PER_PAGE, users.length)}</span> of <span className="text-gray-800 dark:text-white font-bold">{users.length}</span> entries
                     </p>
                     <div className="flex items-center gap-2">
                         <button
-                            onClick={() => handlePageChange(currentPage - 1)}
+                            onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
                             disabled={currentPage === 1}
-                            className="px-3 py-1 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-white/[0.05] dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.1] transition-colors"
+                            className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                         >
-                            Previous
+                            <ChevronLeftIcon className="w-4 h-4" />
                         </button>
 
+                        {(() => {
+                            const pages = [];
+                            if (totalPages <= 7) {
+                                for (let i = 1; i <= totalPages; i++) pages.push(i);
+                            } else {
+                                pages.push(1);
+                                if (currentPage > 3) pages.push("...");
+                                const start = Math.max(2, currentPage - 1);
+                                const end = Math.min(totalPages - 1, currentPage + 1);
+                                for (let i = start; i <= end; i++) {
+                                    if (!pages.includes(i)) pages.push(i);
+                                }
+                                if (currentPage < totalPages - 2) pages.push("...");
+                                pages.push(totalPages);
+                            }
+                            return pages.map((page, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => typeof page === 'number' && handlePageChange(page)}
+                                    disabled={typeof page !== 'number'}
+                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all shadow-sm ${currentPage === page
+                                        ? 'bg-brand-600 text-white border border-brand-600'
+                                        : typeof page === 'number'
+                                            ? 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:bg-gray-50'
+                                            : 'bg-transparent text-gray-400 border-transparent cursor-default'
+                                        }`}
+                                >
+                                    {page}
+                                </button>
+                            ));
+                        })()}
+
                         <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="px-3 py-1 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-white/[0.05] dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.1] transition-colors"
+                            onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                         >
-                            Next
+                            <ChevronLeftIcon className="w-4 h-4 rotate-180" />
                         </button>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

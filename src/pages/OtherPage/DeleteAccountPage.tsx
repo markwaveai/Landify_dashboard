@@ -130,7 +130,10 @@ const DeleteAccountPage: React.FC = () => {
                                             className="w-full px-5 py-4 bg-transparent outline-none text-gray-800 dark:text-white font-bold text-lg placeholder:text-gray-300 dark:placeholder:text-gray-600"
                                             required
                                             value={formData.mobile}
-                                            onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                                setFormData({ ...formData, mobile: val });
+                                            }}
                                             disabled={loading}
                                         />
                                     </div>
