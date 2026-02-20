@@ -151,12 +151,12 @@ export default function LandApprovalsTabContent({ isAdminView = false, lands: in
             {
                 id: 'land_id',
                 header: 'LAND ID',
-                render: (land: any) => <span className="text-xs font-mono font-bold text-gray-400">#{formatValue(land.landId || land.id)}</span>
+                render: (land: any) => <span className="text-xs font-mono font-bold text-gray-400 dark:text-gray-300">#{formatValue(land.landId || land.id)}</span>
             },
             {
                 id: 'user_id',
                 header: 'USER ID',
-                render: (land: any) => <span className="text-xs font-mono font-bold text-gray-500">{formatValue(land.user_id || land.userId)}</span>
+                render: (land: any) => <span className="text-xs font-mono font-bold text-gray-500 dark:text-gray-400">{formatValue(land.user_id || land.userId)}</span>
             },
             {
                 id: 'land_details',
@@ -164,40 +164,40 @@ export default function LandApprovalsTabContent({ isAdminView = false, lands: in
                 render: (land: any) => (
                     <div className="text-[11px] space-y-0.5 min-w-[220px] py-1">
                         <div className="flex justify-between gap-2 border-b border-gray-100 dark:border-gray-800 pb-0.5 mb-0.5">
-                            <span className="text-gray-400 font-medium">Owner:</span>
-                            <span className="text-gray-800 dark:text-gray-200 font-bold truncate max-w-[120px]">{formatValue(land.land_holder_name || land.owner_name)}</span>
+                            <span className="text-gray-400 dark:text-gray-300 font-medium">Owner:</span>
+                            <span className="text-gray-800 dark:text-gray-100 font-bold truncate max-w-[120px]">{formatValue(land.land_holder_name || land.owner_name)}</span>
                         </div>
                         <div className="flex justify-between gap-2">
-                            <span className="text-gray-400">DOB:</span>
-                            <span className="text-gray-600 dark:text-gray-400">{formatValue(land.land_holder_dob)}</span>
+                            <span className="text-gray-400 dark:text-gray-400">DOB:</span>
+                            <span className="text-gray-600 dark:text-gray-200">{formatValue(land.land_holder_dob)}</span>
                         </div>
                         <div className="flex justify-between gap-2">
-                            <span className="text-gray-400">Survey:</span>
-                            <span className="text-gray-600 dark:text-gray-400 font-bold">{formatValue(land.survey_number || land.survey_no)}</span>
+                            <span className="text-gray-400 dark:text-gray-400">Survey:</span>
+                            <span className="text-gray-600 dark:text-gray-200 font-bold">{formatValue(land.survey_number || land.survey_no)}</span>
                         </div>
                         <div className="flex justify-between gap-2">
-                            <span className="text-gray-400">Area:</span>
-                            <span className="text-gray-600 dark:text-gray-400 font-medium">{land.acres || 0} Ac {land.gunta || 0} Gts {land.sents || 0} Snts</span>
+                            <span className="text-gray-400 dark:text-gray-400">Area:</span>
+                            <span className="text-gray-600 dark:text-gray-200 font-medium">{land.acres || 0} Ac {land.gunta || 0} Gts {land.sents || 0} Snts</span>
                         </div>
                         <div className="flex justify-between gap-2">
-                            <span className="text-gray-400">Type:</span>
-                            <span className="text-gray-600 dark:text-gray-400 capitalize">{formatValue(land.land_type?.replace(/_/g, ' '))}</span>
+                            <span className="text-gray-400 dark:text-gray-400">Type:</span>
+                            <span className="text-gray-600 dark:text-gray-200 capitalize">{formatValue(land.land_type?.replace(/_/g, ' '))}</span>
                         </div>
                         <div className="flex justify-between gap-2">
-                            <span className="text-gray-400">Water:</span>
-                            <span className="text-gray-600 dark:text-gray-400">{formatValue(land.land_water_source || land.water_source)}</span>
+                            <span className="text-gray-400 dark:text-gray-400">Water:</span>
+                            <span className="text-gray-600 dark:text-gray-200">{formatValue(land.land_water_source || land.water_source)}</span>
                         </div>
                         <div className="flex justify-between gap-2">
-                            <span className="text-gray-400">Ownership:</span>
-                            <span className="text-gray-600 dark:text-gray-400 italic">{formatValue(land.owner_ship_type || land.ownership_details)}</span>
+                            <span className="text-gray-400 dark:text-gray-400">Ownership:</span>
+                            <span className="text-gray-600 dark:text-gray-200 italic">{formatValue(land.owner_ship_type || land.ownership_details)}</span>
                         </div>
                         <div className="flex justify-between gap-2">
-                            <span className="text-gray-400">Passbook No:</span>
-                            <span className="text-gray-600 dark:text-gray-400">{formatValue(land.passbookNo)}</span>
+                            <span className="text-gray-400 dark:text-gray-400">Passbook No:</span>
+                            <span className="text-gray-600 dark:text-gray-200">{formatValue(land.passbookNo)}</span>
                         </div>
                         <div className="flex justify-between gap-2">
-                            <span className="text-gray-400">Aadhar Name:</span>
-                            <span className="text-gray-600 dark:text-gray-400">{formatValue(land.owner_aadharName)}</span>
+                            <span className="text-gray-400 dark:text-gray-400">Aadhar Name:</span>
+                            <span className="text-gray-600 dark:text-gray-200">{formatValue(land.owner_aadharName)}</span>
                         </div>
                     </div>
                 )
@@ -209,10 +209,10 @@ export default function LandApprovalsTabContent({ isAdminView = false, lands: in
                     <div className="text-[11px] space-y-1 min-w-[140px]">
                         <div className="p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                             <div className="grid grid-cols-2 gap-1">
-                                <span className="text-gray-400">Village:</span> <span className="text-gray-700 dark:text-gray-300 font-medium">{formatValue(land.village)}</span>
-                                <span className="text-gray-400">Mandal:</span> <span className="text-gray-700 dark:text-gray-300">{formatValue(land.mandal)}</span>
-                                <span className="text-gray-400">District:</span> <span className="text-gray-700 dark:text-gray-300">{formatValue(land.district)}</span>
-                                <span className="text-gray-400">State:</span> <span className="text-gray-700 dark:text-gray-300">{formatValue(land.state)}</span>
+                                <span className="text-gray-400 dark:text-gray-400">Village:</span> <span className="text-gray-700 dark:text-gray-200 font-medium">{formatValue(land.village)}</span>
+                                <span className="text-gray-400 dark:text-gray-400">Mandal:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.mandal)}</span>
+                                <span className="text-gray-400 dark:text-gray-400">District:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.district)}</span>
+                                <span className="text-gray-400 dark:text-gray-400">State:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.state)}</span>
                             </div>
                         </div>
                     </div>
@@ -235,8 +235,8 @@ export default function LandApprovalsTabContent({ isAdminView = false, lands: in
                             <IconLink url={land.noc_url} label="NOC" />
                             <IconLink url={land.apc_url} label="APC" />
                             <div className="col-span-2 mt-1 pt-1 border-t border-gray-200/50 dark:border-gray-700/50 text-[10px] flex justify-between">
-                                <span className="text-gray-400">ROR No:</span>
-                                <span className="text-gray-600 dark:text-gray-400 font-bold">{formatValue(land.rorNo)}</span>
+                                <span className="text-gray-400 dark:text-gray-400">ROR No:</span>
+                                <span className="text-gray-600 dark:text-gray-300 font-bold">{formatValue(land.rorNo)}</span>
                             </div>
                         </div>
                     </div>
@@ -286,7 +286,7 @@ export default function LandApprovalsTabContent({ isAdminView = false, lands: in
             {
                 id: 'agent_contact',
                 header: 'AGENT_CONTACT',
-                render: (land: any) => <span className="text-xs font-mono text-gray-500">{formatValue(land.agent_contact || land.agent_phone)}</span>
+                render: (land: any) => <span className="text-xs font-mono text-gray-500 dark:text-gray-400">{formatValue(land.agent_contact || land.agent_phone)}</span>
             }
         ];
     }, [lands]);
@@ -337,7 +337,7 @@ export default function LandApprovalsTabContent({ isAdminView = false, lands: in
                 <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-[10px] uppercase text-gray-500 font-bold tracking-wider">
+                            <tr className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-[10px] uppercase text-gray-500 dark:text-gray-300 font-bold tracking-wider">
                                 {columns.map(col => (
                                     <th key={col.id} className="px-5 py-4">{col.header}</th>
                                 ))}

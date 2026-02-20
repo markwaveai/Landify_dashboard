@@ -66,7 +66,7 @@ export default function ApprovalsPage() {
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1.5">
                             {activeTab === 'fo' ? "FO Approvals" : "Admin Approvals"}
                         </h2>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-300">
                             {activeTab === 'fo' ? "Review land registration requests" : "Final management of FO approved requests"}
                         </p>
                     </div>
@@ -77,7 +77,7 @@ export default function ApprovalsPage() {
                             onClick={() => handleTabChange('fo')}
                             className={`flex items-center gap-2 px-6 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 ${activeTab === 'fo'
                                 ? "bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 shadow-md ring-1 ring-black/5"
-                                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                : "text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
                                 }`}
                         >
                             <UserCircleIcon className="size-4.5" />
@@ -88,7 +88,7 @@ export default function ApprovalsPage() {
                             onClick={() => handleTabChange('admin')}
                             className={`flex items-center gap-2 px-6 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 ${activeTab === 'admin'
                                 ? "bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 shadow-md ring-1 ring-black/5"
-                                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                : "text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
                                 }`}
                         >
                             <LockIcon className="size-4.5" />
@@ -108,7 +108,7 @@ export default function ApprovalsPage() {
                                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                                 </div>
                                 <div className="mt-4">
-                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Requests</p>
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-widest">Total Requests</p>
                                     <h4 className="mt-1 text-3xl font-black text-gray-900 dark:text-white">{landStats.foTotal}</h4>
                                 </div>
                             </div>
@@ -120,7 +120,7 @@ export default function ApprovalsPage() {
                                     <span className="text-[10px] font-black tracking-tighter text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full dark:bg-amber-900/20 dark:text-amber-400 uppercase">Attention Required</span>
                                 </div>
                                 <div className="mt-4">
-                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Pending FO Review</p>
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-widest">Pending FO Review</p>
                                     <h4 className="mt-1 text-3xl font-black text-gray-900 dark:text-white">{landStats.foPending}</h4>
                                 </div>
                             </div>
@@ -140,7 +140,7 @@ export default function ApprovalsPage() {
                                     <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full dark:bg-blue-900/20 dark:text-blue-400 uppercase tracking-tighter">In Review</span>
                                 </div>
                                 <div className="mt-4">
-                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Admin Pending</p>
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-widest">Admin Pending</p>
                                     <h4 className="mt-1 text-3xl font-black text-gray-900 dark:text-white">{landStats.adminPending}</h4>
                                 </div>
                             </div>
@@ -152,7 +152,7 @@ export default function ApprovalsPage() {
                                     <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full dark:bg-emerald-900/20 dark:text-emerald-400 uppercase tracking-tighter">Verified</span>
                                 </div>
                                 <div className="mt-4">
-                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Admin Approved</p>
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-widest">Admin Approved</p>
                                     <h4 className="mt-1 text-3xl font-black text-gray-900 dark:text-white">{landStats.adminApproved}</h4>
                                 </div>
                             </div>
@@ -166,7 +166,7 @@ export default function ApprovalsPage() {
                                     <span className="text-[10px] font-black text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-full dark:bg-cyan-900/20 dark:text-cyan-400 uppercase tracking-tighter">Live</span>
                                 </div>
                                 <div className="mt-4">
-                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Active Land</p>
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-widest">Active Land</p>
                                     <h4 className="mt-1 text-3xl font-black text-gray-900 dark:text-white">{landStats.adminActive}</h4>
                                 </div>
                             </div>
@@ -180,7 +180,7 @@ export default function ApprovalsPage() {
                                     <span className="text-[10px] font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full dark:bg-rose-900/20 dark:text-rose-400 uppercase tracking-tighter">Declined</span>
                                 </div>
                                 <div className="mt-4">
-                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Admin Rejected</p>
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-widest">Admin Rejected</p>
                                     <h4 className="mt-1 text-3xl font-black text-gray-900 dark:text-white">{landStats.adminRejected}</h4>
                                 </div>
                             </div>

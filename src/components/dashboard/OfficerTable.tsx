@@ -191,7 +191,7 @@ export default function OfficerTable({
                 header: "REF ID",
                 minWidth: "120px",
                 render: (user: User) => (
-                    <div className="text-[11px] font-mono font-bold text-brand-600">
+                    <div className="text-[11px] font-mono font-bold text-brand-600 dark:text-brand-400">
                         {format(user.reference_id)}
                     </div>
                 )
@@ -201,10 +201,10 @@ export default function OfficerTable({
                 header: "ADDRESS",
                 minWidth: "180px",
                 render: (user: User) => (
-                    <div className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
-                        <p className="font-bold text-gray-800 dark:text-gray-200">{format(user.village)}</p>
-                        <p>{format(user.district)}</p>
-                        <p>{format(user.state)} - {format(user.pincode)}</p>
+                    <div className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+                        <p className="font-bold text-gray-800 dark:text-gray-100">{format(user.village)}</p>
+                        <p className="dark:text-gray-200">{format(user.district)}</p>
+                        <p className="dark:text-gray-200">{format(user.state)} - {format(user.pincode)}</p>
                     </div>
                 )
             },
@@ -214,29 +214,29 @@ export default function OfficerTable({
                 minWidth: "220px",
                 render: (user: User) => (
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] font-medium">
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-0.5">
-                            <span className="text-gray-400">ACTIVE:</span>
-                            <span className="text-green-600 font-bold">{format(user.active_lands)}</span>
+                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
+                            <span className="text-gray-400 dark:text-gray-300">ACTIVE:</span>
+                            <span className="text-green-600 font-bold dark:text-green-400">{format(user.active_lands)}</span>
                         </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-0.5">
-                            <span className="text-gray-400">HARVEST:</span>
-                            <span className="text-blue-600 font-bold">{format(user.harvest_ready)}</span>
+                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
+                            <span className="text-gray-400 dark:text-gray-300">HARVEST:</span>
+                            <span className="text-blue-600 font-bold dark:text-blue-400">{format(user.harvest_ready)}</span>
                         </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-0.5">
-                            <span className="text-gray-400">REMARKS:</span>
-                            <span className="text-yellow-600 font-bold">{format(user.remarks_lands)}</span>
+                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
+                            <span className="text-gray-400 dark:text-gray-300">REMARKS:</span>
+                            <span className="text-yellow-600 font-bold dark:text-yellow-400">{format(user.remarks_lands)}</span>
                         </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-0.5">
-                            <span className="text-gray-400">REJECTED:</span>
-                            <span className="text-red-600 font-bold">{format(user.rejected_lands)}</span>
+                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
+                            <span className="text-gray-400 dark:text-gray-300">REJECTED:</span>
+                            <span className="text-red-600 font-bold dark:text-red-400">{format(user.rejected_lands)}</span>
                         </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-0.5">
-                            <span className="text-gray-400">APPROVED:</span>
-                            <span className="text-green-600 font-bold">{format(user.approved_lands)}</span>
+                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
+                            <span className="text-gray-400 dark:text-gray-300">APPROVED:</span>
+                            <span className="text-green-600 font-bold dark:text-green-400">{format(user.approved_lands)}</span>
                         </div>
-                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-0.5">
-                            <span className="text-gray-400">REVIEW:</span>
-                            <span className="text-purple-600 font-bold">{format(user.review_lands)}</span>
+                        <div className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-0.5">
+                            <span className="text-gray-400 dark:text-gray-300">REVIEW:</span>
+                            <span className="text-purple-600 font-bold dark:text-purple-400">{format(user.review_lands)}</span>
                         </div>
                     </div>
                 )
@@ -246,10 +246,10 @@ export default function OfficerTable({
                 header: "DETAILS",
                 minWidth: "180px",
                 render: (user: User) => (
-                    <div className="text-[11px] space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <p><span className="text-gray-400 font-bold">AADHAR:</span> {format(user.aadhar_card_number)}</p>
-                        <p><span className="text-gray-400 font-bold">PAN:</span> {format(user.pan_number)}</p>
-                        <p><span className="text-gray-400 font-bold">ALT:</span> {format(user.alternate_phone_number)}</p>
+                    <div className="text-[11px] space-y-0.5 text-gray-600 dark:text-gray-200">
+                        <p><span className="text-gray-400 dark:text-gray-300 font-bold">AADHAR:</span> {format(user.aadhar_card_number)}</p>
+                        <p><span className="text-gray-400 dark:text-gray-300 font-bold">PAN:</span> {format(user.pan_number)}</p>
+                        <p><span className="text-gray-400 dark:text-gray-300 font-bold">ALT:</span> {format(user.alternate_phone_number)}</p>
                     </div>
                 )
             },
@@ -258,8 +258,8 @@ export default function OfficerTable({
                 header: "BANK DETAILS",
                 minWidth: "180px",
                 render: (user: User) => (
-                    <div className="text-[11px] space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <p className="font-bold text-gray-800 dark:text-gray-200">{format(user.account_number)}</p>
+                    <div className="text-[11px] space-y-0.5 text-gray-600 dark:text-gray-300">
+                        <p className="font-bold text-gray-800 dark:text-gray-100">{format(user.account_number)}</p>
                         <p>{format(user.bank_name)}</p>
                         <p>{format(user.ifsc_code)}</p>
                         <p className="text-[10px] italic">{format(user.bank_branch)}</p>
@@ -441,9 +441,9 @@ export default function OfficerTable({
                 </div>
 
                 {/* Pagination */}
-                <div className="px-6 py-4 flex items-center justify-between border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-                    <p className="text-xs text-gray-500 font-medium">
-                        Showing <span className="text-gray-800 dark:text-white font-bold">{filteredUsers.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> to <span className="text-gray-800 dark:text-white font-bold">{Math.min(currentPage * itemsPerPage, filteredUsers.length)}</span> of <span className="text-gray-800 dark:text-white font-bold">{filteredUsers.length}</span> entries
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-300 font-medium">
+                        Showing <span className="text-gray-800 dark:text-white font-bold">{users.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> to <span className="text-gray-800 dark:text-white font-bold">{Math.min(currentPage * itemsPerPage, users.length)}</span> of <span className="text-gray-800 dark:text-white font-bold">{users.length}</span> entries
                     </p>
                     <div className="flex items-center gap-2">
                         <button

@@ -4,13 +4,13 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../src/store/store";
 import {
   ChevronDownIcon,
-  GridIcon,
+  // GridIcon,
   HorizontaLDots,
   GroupIcon,
   UserCircleIcon,
   ListIcon,
   CheckCircleIcon,
-  BoltIcon,
+  // BoltIcon,
   BoxCubeIcon,
   CalendarIcon,
   DocsIcon,
@@ -29,11 +29,11 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  {
-    icon: <GridIcon />,
-    name: "Dashboard",
-    path: "/",
-  },
+  // {
+  //   icon: <GridIcon />,
+  //   name: "Dashboard",
+  //   path: "/",
+  // },
   {
     icon: <GroupIcon />,
     name: "Field Officers",
@@ -59,19 +59,19 @@ const navItems: NavItem[] = [
     path: "/approvals",
     roles: ["ADMIN", "AGRICULTURE_OFFICER"],
   },
-  {
-    icon: <span className="flex items-center justify-center text-lg font-bold w-6 h-6">₹</span>,
-    name: "Payments",
-    path: "/payments",
-    roles: ["ADMIN"],
-    disabled: true,
-  },
-  {
-    icon: <BoltIcon />,
-    name: "Cultivation",
-    path: "/cultivation",
-    disabled: true,
-  },
+  // {
+  //   icon: <span className="flex items-center justify-center text-lg font-bold w-6 h-6">₹</span>,
+  //   name: "Payments",
+  //   path: "/payments",
+  //   roles: ["ADMIN"],
+  //   disabled: true,
+  // },
+  // {
+  //   icon: <BoltIcon />,
+  //   name: "Cultivation",
+  //   path: "/cultivation",
+  //   disabled: true,
+  // },
   {
     icon: <BoxCubeIcon />,
     name: "Fodder Ops",

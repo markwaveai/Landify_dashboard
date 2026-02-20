@@ -298,7 +298,7 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
 
                     const displayAddress = parts.length > 0 ? parts.join(", ") : "-";
                     return (
-                        <div className="text-gray-500 text-sm dark:text-gray-400 truncate max-w-[250px]" title={displayAddress}>
+                        <div className="text-gray-500 text-sm dark:text-gray-300 truncate max-w-[250px]" title={displayAddress}>
                             {displayAddress}
                         </div>
                     )
@@ -312,7 +312,7 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 minWidth: "140px",
                 show: hasData("aadhar_card_number"),
                 render: (user: Agent) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
+                    <div className="text-gray-500 text-sm dark:text-gray-300 font-mono">
                         {user.aadhar_card_number || "-"}
                     </div>
                 )
@@ -323,7 +323,7 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 minWidth: "140px",
                 show: hasData("pan_number"),
                 render: (user: Agent) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
+                    <div className="text-gray-500 text-sm dark:text-gray-300 font-mono">
                         {user.pan_number || "-"}
                     </div>
                 )
@@ -334,11 +334,11 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 minWidth: "180px",
                 show: hasData("bank_name") || hasData("account_number") || hasData("ifsc_code") || hasData("bank_branch") || hasData("bank_passbook_image_url"),
                 render: (user: Agent) => (
-                    <div className="text-gray-500 text-xs dark:text-gray-400 space-y-1">
+                    <div className="text-gray-500 text-xs dark:text-gray-300 space-y-1">
                         {user.bank_name && <div className="font-semibold text-gray-800 dark:text-white/90 uppercase">{user.bank_name}</div>}
-                        {user.account_number && <div><span className="text-[10px] text-gray-400">A/C:</span> {user.account_number}</div>}
-                        {user.ifsc_code && <div><span className="text-[10px] text-gray-400">IFSC:</span> {user.ifsc_code}</div>}
-                        {user.bank_branch && <div><span className="text-[10px] text-gray-400">Branch:</span> {user.bank_branch}</div>}
+                        {user.account_number && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">A/C:</span> {user.account_number}</div>}
+                        {user.ifsc_code && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">IFSC:</span> {user.ifsc_code}</div>}
+                        {user.bank_branch && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">Branch:</span> {user.bank_branch}</div>}
                         {user.bank_passbook_image_url && (
                             <div className="pt-1">
                                 <ImageLink url={user.bank_passbook_image_url} label="Passbook" />
@@ -357,20 +357,20 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 render: (user: Agent) => (
                     <div className="text-xs space-y-1">
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 text-[10px] uppercase">Photo:</span>
-                            {user.user_image_url ? <ImageLink url={user.user_image_url} label="Image" /> : <span className="text-gray-400 font-medium italic">null</span>}
+                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Photo:</span>
+                            {user.user_image_url ? <ImageLink url={user.user_image_url} label="Image" /> : <span className="text-gray-400 dark:text-gray-300 font-medium italic">null</span>}
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 text-[10px] uppercase">Aadhar:</span>
-                            {user.aadhar_image_url ? <ImageLink url={user.aadhar_image_url} label="Card" /> : <span className="text-gray-400 font-medium italic">null</span>}
+                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Aadhar:</span>
+                            {user.aadhar_image_url ? <ImageLink url={user.aadhar_image_url} label="Card" /> : <span className="text-gray-400 dark:text-gray-300 font-medium italic">null</span>}
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 text-[10px] uppercase">PAN:</span>
-                            {user.pan_image_url ? <ImageLink url={user.pan_image_url} label="Card" /> : <span className="text-gray-400 font-medium italic">null</span>}
+                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">PAN:</span>
+                            {user.pan_image_url ? <ImageLink url={user.pan_image_url} label="Card" /> : <span className="text-gray-400 dark:text-gray-300 font-medium italic">null</span>}
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 text-[10px] uppercase">Agreement:</span>
-                            {user.agreement_url ? <ImageLink url={user.agreement_url} label="File" /> : <span className="text-gray-400 font-medium italic">null</span>}
+                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Agreement:</span>
+                            {user.agreement_url ? <ImageLink url={user.agreement_url} label="File" /> : <span className="text-gray-400 dark:text-gray-300 font-medium italic">null</span>}
                         </div>
                     </div>
                 )
@@ -538,8 +538,8 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
             {/* Pagination Controls */}
             {!isLoading && users.length > 0 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-2">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Showing <span className="font-medium text-gray-900 dark:text-white">{startIndex + 1}</span> to <span className="font-medium text-gray-900 dark:text-white">{Math.min(endIndex, users.length)}</span> of <span className="font-medium text-gray-900 dark:text-white">{users.length}</span> agents
+                    <p className="text-xs text-gray-500 dark:text-gray-300 font-medium">
+                        Showing <span className="text-gray-800 dark:text-white font-bold">{users.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}</span> to <span className="text-gray-800 dark:text-white font-bold">{Math.min(currentPage * ITEMS_PER_PAGE, users.length)}</span> of <span className="text-gray-800 dark:text-white font-bold">{users.length}</span> entries
                     </p>
                     <div className="flex items-center gap-2">
                         <button

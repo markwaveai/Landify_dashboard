@@ -55,7 +55,7 @@ export default function AgentDetailsPage() {
                 </button>
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Agent Profile</h1>
-                    <p className="text-sm text-gray-500">Manage information and records</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Manage information and records</p>
                 </div>
             </div>
 
@@ -97,17 +97,17 @@ export default function AgentDetailsPage() {
 
                             <div className="flex items-center gap-6 mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                                 <div>
-                                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Farmers</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Farmers</p>
                                     <p className="text-xl font-bold text-gray-800 dark:text-white">{isLoadingFarmers ? "..." : (farmers?.length || 0)}</p>
                                 </div>
                                 <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
                                 <div>
-                                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Lands</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Lands</p>
                                     <p className="text-xl font-bold text-gray-800 dark:text-white">{profile.land_count || 0}</p>
                                 </div>
                                 <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
                                 <div>
-                                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Total Acres</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Total Acres</p>
                                     <p className="text-xl font-bold text-gray-800 dark:text-white">{profile.total_acres || 0}</p>
                                 </div>
                             </div>

@@ -15,7 +15,7 @@ import Calendar from "./pages/Calendar";
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
-import Home from "./pages/Dashboard/Home";
+// import Home from "./pages/Dashboard/Home";
 import AosPage from "./pages/Dashboard/AosPage";
 import AgentsPage from "./pages/Dashboard/AgentsPage";
 import AgentDetailsPage from "./pages/Dashboard/AgentDetailsPage";
@@ -53,7 +53,8 @@ export default function App() {
           <Routes>
             {/* Dashboard Layout */}
             <Route element={isAuthenticated ? <AppLayout /> : <Navigate to="/signin" replace />}>
-              <Route index element={<Home />} />
+              <Route index element={<Navigate to="/aos" replace />} />
+              {/* <Route index element={<Home />} /> */}
               <Route path="/aos" element={<AosPage />} />
               <Route path="/aos/:phoneNumber" element={<OfficerDetailsPage />} />
               <Route path="/agents" element={<AgentsPage />} />

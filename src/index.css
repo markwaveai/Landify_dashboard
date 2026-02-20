@@ -2,8 +2,11 @@
 
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
-  --variant-dark: (&:is(.dark *));
+  --variant-dark: .dark &;
+
   --font-*: initial;
   --font-outfit: Outfit, sans-serif;
 
@@ -178,6 +181,8 @@
       transform: translateY(0);
     }
   }
+
+  --variant-dark: (selector [class~="dark"] &);
 }
 
 /*
@@ -195,7 +200,7 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    @apply border-gray-200 dark:border-gray-800;
   }
 
   button:not(:disabled),
@@ -204,7 +209,7 @@
   }
 
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50;
+    @apply relative font-normal font-outfit z-1 bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white;
   }
 }
 
@@ -588,10 +593,8 @@ span.flatpickr-weekday,
   box-shadow: -10px 0 0 #465fff;
 }
 
-.flatpickr-months .flatpickr-prev-month svg,
-.flatpickr-months .flatpickr-next-month svg,
-.flatpickr-months .flatpickr-prev-month,
-.flatpickr-months .flatpickr-next-month {
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
   @apply hover:!fill-none;
 }
 

@@ -157,7 +157,7 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 minWidth: "120px",
                 show: hasData("reference_id"),
                 render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
+                    <div className="text-gray-500 text-sm dark:text-gray-300 font-mono">
                         {user.reference_id || "-"}
                     </div>
                 )
@@ -168,7 +168,7 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 minWidth: "100px",
                 show: hasData("gender"),
                 render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 capitalize">
+                    <div className="text-gray-500 text-sm dark:text-gray-300 capitalize">
                         {user.gender?.toLowerCase() || "-"}
                     </div>
                 )
@@ -179,7 +179,7 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 minWidth: "120px",
                 show: hasData("date_of_birth"),
                 render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400">
+                    <div className="text-gray-500 text-sm dark:text-gray-300">
                         {user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : "-"}
                     </div>
                 )
@@ -202,7 +202,7 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                     ].filter(p => p && p.trim() !== "");
                     const displayAddress = parts.length > 0 ? parts.join(", ") : "-";
                     return (
-                        <div className="text-gray-500 text-sm dark:text-gray-400 truncate max-w-[250px]" title={displayAddress}>
+                        <div className="text-gray-500 text-sm dark:text-gray-300 truncate max-w-[250px]" title={displayAddress}>
                             {displayAddress}
                         </div>
                     )
@@ -216,7 +216,7 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 minWidth: "140px",
                 show: hasData("aadhar_card_number"),
                 render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
+                    <div className="text-gray-500 text-sm dark:text-gray-300 font-mono">
                         {user.aadhar_card_number || "-"}
                     </div>
                 )
@@ -227,7 +227,7 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 minWidth: "140px",
                 show: hasData("pan_number"),
                 render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
+                    <div className="text-gray-500 text-sm dark:text-gray-300 font-mono">
                         {user.pan_number || "-"}
                     </div>
                 )
@@ -238,11 +238,11 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 minWidth: "180px",
                 show: hasData("bank_name") || hasData("account_number") || hasData("ifsc_code") || hasData("bank_branch") || hasData("bank_passbook_image_url"),
                 render: (user: Farmer) => (
-                    <div className="text-gray-500 text-xs dark:text-gray-400 space-y-1">
+                    <div className="text-gray-500 text-xs dark:text-gray-300 space-y-1">
                         {user.bank_name && <div className="font-semibold text-gray-800 dark:text-white/90 uppercase">{user.bank_name}</div>}
-                        {user.account_number && <div><span className="text-[10px] text-gray-400">A/C:</span> {user.account_number}</div>}
-                        {user.ifsc_code && <div><span className="text-[10px] text-gray-400">IFSC:</span> {user.ifsc_code}</div>}
-                        {user.bank_branch && <div><span className="text-[10px] text-gray-400">Branch:</span> {user.bank_branch}</div>}
+                        {user.account_number && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">A/C:</span> {user.account_number}</div>}
+                        {user.ifsc_code && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">IFSC:</span> {user.ifsc_code}</div>}
+                        {user.bank_branch && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">Branch:</span> {user.bank_branch}</div>}
                         {user.bank_passbook_image_url && (
                             <div className="pt-1">
                                 <ImageLink url={user.bank_passbook_image_url} label="Passbook" />
@@ -261,24 +261,24 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 render: (user: Farmer) => (
                     <div className="text-xs space-y-1">
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 text-[10px] uppercase">Photo:</span>
-                            {user.user_image_url ? <ImageLink url={user.user_image_url} label="Image" /> : <span className="text-gray-400">-</span>}
+                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Photo:</span>
+                            {user.user_image_url ? <ImageLink url={user.user_image_url} label="Image" /> : <span className="text-gray-400 dark:text-gray-400">-</span>}
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 text-[10px] uppercase">Aadhar:</span>
-                            {user.aadhar_image_url ? <ImageLink url={user.aadhar_image_url} label="Card" /> : <span className="text-gray-400">-</span>}
+                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Aadhar:</span>
+                            {user.aadhar_image_url ? <ImageLink url={user.aadhar_image_url} label="Card" /> : <span className="text-gray-400 dark:text-gray-400">-</span>}
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 text-[10px] uppercase">PAN:</span>
-                            {user.pan_image_url ? <ImageLink url={user.pan_image_url} label="Card" /> : <span className="text-gray-400">-</span>}
+                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">PAN:</span>
+                            {user.pan_image_url ? <ImageLink url={user.pan_image_url} label="Card" /> : <span className="text-gray-400 dark:text-gray-400">-</span>}
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 text-[10px] uppercase">Passbook:</span>
-                            {user.bank_passbook_image_url ? <ImageLink url={user.bank_passbook_image_url} label="Passbook" /> : <span className="text-gray-400">-</span>}
+                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Passbook:</span>
+                            {user.bank_passbook_image_url ? <ImageLink url={user.bank_passbook_image_url} label="Passbook" /> : <span className="text-gray-400 dark:text-gray-400">-</span>}
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 text-[10px] uppercase">Agreement:</span>
-                            {user.agreement_url ? <ImageLink url={user.agreement_url} label="File" /> : <span className="text-gray-400">-</span>}
+                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Agreement:</span>
+                            {user.agreement_url ? <ImageLink url={user.agreement_url} label="File" /> : <span className="text-gray-400 dark:text-gray-400">-</span>}
                         </div>
                     </div>
                 )
@@ -414,9 +414,9 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
             </div>
 
             {!isLoading && users.length > ITEMS_PER_PAGE && (
-                <div className="flex items-center justify-between mt-4 px-4 py-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                        Showing <span className="font-medium">{startIndex + 1}</span> to <span className="font-medium">{Math.min(startIndex + ITEMS_PER_PAGE, users.length)}</span> of <span className="font-medium">{users.length}</span> records
+                <div className="flex items-center justify-between mt-4 px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <p className="text-xs text-gray-500 dark:text-gray-300 font-medium">
+                        Showing <span className="text-gray-800 dark:text-white font-bold">{users.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}</span> to <span className="text-gray-800 dark:text-white font-bold">{Math.min(currentPage * ITEMS_PER_PAGE, users.length)}</span> of <span className="text-gray-800 dark:text-white font-bold">{users.length}</span> entries
                     </p>
                     <div className="flex gap-2">
                         <button

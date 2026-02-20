@@ -80,7 +80,7 @@ export default function SignInForm() {
         <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-theme-lg">
           <img src="/landify_logo.jpeg" className="w-8 h-8 object-contain rounded-lg" alt="Logo" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login (Validated)</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
         <p className="text-gray-500">
           Welcome back! Please enter your phone number and OTP to manage the cultivation systems.
         </p>
@@ -90,17 +90,18 @@ export default function SignInForm() {
         <div>
           <Label className="text-gray-700 font-medium mb-2 block">Phone Number</Label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-              </svg>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-bold">
+              +91
             </span>
             <input
               type="text"
               placeholder="Enter phone number"
               value={phoneNumber}
               disabled={otpSent}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setPhoneNumber(val);
+              }}
               className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all outline-none"
             />
           </div>

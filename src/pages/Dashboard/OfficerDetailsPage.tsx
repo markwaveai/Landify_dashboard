@@ -33,7 +33,7 @@ const InfoCard = ({ title, icon, children }: { title: string, icon?: React.React
 // Custom Field Component
 const Field = ({ label, value, isLink, href }: { label: string, value: string | undefined, isLink?: boolean, href?: string }) => (
     <div className="group">
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">{label}</p>
+        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-400 uppercase tracking-widest mb-1.5">{label}</p>
         {isLink && href ? (
             <a href={href} className="font-medium text-brand-600 hover:text-brand-700 hover:underline text-sm truncate block transition-colors">
                 {value || "-"}
@@ -53,7 +53,7 @@ const StatCard = ({ label, value, colorClass, icon }: { label: string, value: st
             {icon}
         </div>
         <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">{label}</p>
+            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-400 uppercase tracking-widest mb-0.5">{label}</p>
             <p className="text-2xl font-black text-gray-800 dark:text-white">{value}</p>
         </div>
     </div>
@@ -118,8 +118,8 @@ export default function OfficerDetailsPage() {
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
                         Officer Profile
-                        <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-gray-300"></span>
-                        <span className="hidden sm:inline-block text-sm font-normal text-gray-500">Manage details & agents</span>
+                        <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+                        <span className="hidden sm:inline-block text-sm font-normal text-gray-500 dark:text-gray-400">Manage details & agents</span>
                     </h1>
                 </div>
             </div>
@@ -160,7 +160,7 @@ export default function OfficerDetailsPage() {
                             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                                 <div>
                                     <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">
-                                        {profile.first_name} <span className="text-gray-400 dark:text-gray-600">{profile.last_name}</span>
+                                        {profile.first_name} <span className="text-gray-400 dark:text-gray-500">{profile.last_name}</span>
                                     </h2>
                                     <div className="flex flex-wrap items-center gap-3">
                                         <Badge color="success" size="md">FIELD OFFICER</Badge>
@@ -293,15 +293,15 @@ export default function OfficerDetailsPage() {
                             </div>
                             <div className="p-4">
                                 <div className="flex items-center justify-between mb-1">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{doc.type}</p>
+                                    <p className="text-[10px] font-bold text-gray-400 dark:text-gray-400 uppercase tracking-wider">{doc.type}</p>
                                     {doc.url ? (
                                         <CheckCircleIcon className="size-3.5 text-green-500" />
                                     ) : (
-                                        <div className="size-2 rounded-full bg-gray-300"></div>
+                                        <div className="size-2 rounded-full bg-gray-300 dark:bg-gray-600"></div>
                                     )}
                                 </div>
                                 <h4 className="font-bold text-gray-800 dark:text-gray-200 text-sm">{doc.label}</h4>
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                     {doc.url ? 'Preview available' : 'Not uploaded'}
                                 </p>
                             </div>
