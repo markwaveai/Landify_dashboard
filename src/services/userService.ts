@@ -85,14 +85,12 @@ export const createAO = async (data: any) => {
         email: data.email,
         dob: data.date_of_birth,
         gender: data.gender,
-        isVerified: data.verified === 'true',
-        address: {
-            village: data.village,
-            mandal: data.mandal,
-            district: data.district,
-            state: data.state,
-            pincode: data.pincode
-        }
+        isActive: true,
+        address: `${data.village}, ${data.mandal}, ${data.district}, ${data.state} - ${data.pincode}`,
+        village: data.village,
+        mandal: data.mandal,
+        aadhar_images_url: data.aadhar_image_url || "",
+        pan_url: data.pan_image_url || ""
     };
     const response = await api.post('/users/register', payload);
     return mapUser(response.data);
@@ -124,14 +122,12 @@ export const updateAO = async (userId: string, data: any) => {
         email: data.email,
         dob: data.date_of_birth,
         gender: data.gender,
-        isVerified: data.verified === 'true',
-        address: {
-            village: data.village,
-            mandal: data.mandal,
-            district: data.district,
-            state: data.state,
-            pincode: data.pincode
-        }
+        isActive: true,
+        address: `${data.village}, ${data.mandal}, ${data.district}, ${data.state} - ${data.pincode}`,
+        village: data.village,
+        mandal: data.mandal,
+        aadhar_images_url: data.aadhar_image_url || "",
+        pan_url: data.pan_image_url || ""
     };
     const response = await api.put(`/users/${userId}`, payload);
     return mapUser(response.data);
