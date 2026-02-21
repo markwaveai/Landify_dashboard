@@ -8,7 +8,6 @@ import {
   HorizontaLDots,
   GroupIcon,
   UserCircleIcon,
-  ListIcon,
   CheckCircleIcon,
   // BoltIcon,
   BoxCubeIcon,
@@ -46,13 +45,13 @@ const navItems: NavItem[] = [
     path: "/agents",
     roles: ["ADMIN", "AGRICULTURE_OFFICER"],
   },
-  {
-    icon: <ListIcon />,
-    name: "Farmers",
-    path: "/farmers",
-    roles: ["ADMIN", "AGRICULTURE_OFFICER", "AGENT"],
-    disabled: true,
-  },
+  // {
+  //   icon: <ListIcon />,
+  //   name: "Farmers",
+  //   path: "/farmers",
+  //   roles: ["ADMIN", "AGRICULTURE_OFFICER", "AGENT"],
+  //   disabled: true,
+  // },
   {
     icon: <CheckCircleIcon />,
     name: "Approvals",

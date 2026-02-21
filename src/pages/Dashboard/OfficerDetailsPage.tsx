@@ -60,13 +60,13 @@ const StatCard = ({ label, value, colorClass, icon }: { label: string, value: st
 );
 
 export default function OfficerDetailsPage() {
-    const { phoneNumber } = useParams();
+    const { userId } = useParams();
     const navigate = useNavigate();
 
     const { data: profile, isLoading: isLoadingProfile } = useQuery({
-        queryKey: ['officerProfile', phoneNumber],
-        queryFn: () => getOfficerProfile(phoneNumber!),
-        enabled: !!phoneNumber
+        queryKey: ['officerProfile', userId],
+        queryFn: () => getOfficerProfile(userId!),
+        enabled: !!userId
     });
 
     const { data: agents, isLoading: isLoadingAgents } = useQuery({
@@ -117,25 +117,16 @@ export default function OfficerDetailsPage() {
                 </button>
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                        Officer Profile
-                        <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                        <span className="hidden sm:inline-block text-sm font-normal text-gray-500 dark:text-gray-400">Manage details & agents</span>
+                        FO Profile
+
                     </h1>
                 </div>
             </div>
 
             {/* Profile Header Card */}
             <div className="bg-white dark:bg-gray-800 rounded-[2rem] border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-                {/* Decorative Banner */}
-                <div className="h-40 bg-gradient-to-r from-emerald-800 via-emerald-600 to-green-500 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                    <div className="absolute right-0 bottom-0 opacity-20 transform translate-x-10 translate-y-10">
-                        <DocsIcon className="size-64 text-white" />
-                    </div>
-                </div>
-
-                <div className="px-8 pb-8">
-                    <div className="flex flex-col lg:flex-row gap-8 items-start relative -mt-16">
+                <div className="px-8 py-8">
+                    <div className="flex flex-col lg:flex-row gap-8 items-start">
                         {/* Profile Image */}
                         <div className="relative group">
                             <div className="size-36 rounded-[2rem] border-[6px] border-white dark:border-gray-800 overflow-hidden bg-white shadow-xl shadow-gray-200/50 dark:shadow-none">

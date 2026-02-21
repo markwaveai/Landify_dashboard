@@ -209,7 +209,17 @@
   }
 
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white;
+    @apply relative font-normal font-outfit z-1 bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white no-scrollbar;
+  }
+
+  /* Global scrollbar hiding while keeping scroll active */
+  * {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
   }
 }
 
@@ -280,16 +290,11 @@
 }
 
 @utility no-scrollbar {
-
-  /* Chrome, Safari and Opera */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
   }
-
-  -ms-overflow-style: none;
-  /* IE and Edge */
-  scrollbar-width: none;
-  /* Firefox */
 }
 
 @utility custom-scrollbar {

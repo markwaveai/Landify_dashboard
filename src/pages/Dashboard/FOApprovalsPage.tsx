@@ -6,10 +6,11 @@ import PageMeta from "../../components/common/PageMeta";
 import { GroupIcon, FileIcon } from "../../icons";
 
 export default function FOApprovalsPage() {
-    const { data: lands } = useQuery({
+    const { data: lands, isLoading } = useQuery({
         queryKey: ['lands'],
         queryFn: getLands,
-        refetchInterval: 10000,
+        staleTime: Infinity,
+        refetchOnWindowFocus: false,
     });
 
     // Derived Statistics - Lands
@@ -74,7 +75,7 @@ export default function FOApprovalsPage() {
                         </div>
                     </div>
                 </div>
-                <LandApprovalsTabContent />
+                <LandApprovalsTabContent lands={lands} isLoading={isLoading} />
             </div>
         </>
     );

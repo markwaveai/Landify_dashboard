@@ -14,13 +14,13 @@ const LocationIcon = GridIcon;
 const ArrowLeftIcon = AngleLeftIcon;
 
 export default function AgentDetailsPage() {
-    const { phoneNumber } = useParams();
+    const { userId } = useParams<{ userId: string }>();
     const navigate = useNavigate();
 
     const { data: profile, isLoading: isLoadingProfile } = useQuery({
-        queryKey: ['agentProfile', phoneNumber],
-        queryFn: () => getAgentProfile(phoneNumber!),
-        enabled: !!phoneNumber
+        queryKey: ['agentProfile', userId],
+        queryFn: () => getAgentProfile(userId!),
+        enabled: !!userId
     });
 
     const { data: farmers, isLoading: isLoadingFarmers } = useQuery({
@@ -55,16 +55,15 @@ export default function AgentDetailsPage() {
                 </button>
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Agent Profile</h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Manage information and records</p>
+
                 </div>
             </div>
 
             {/* Profile Overview Card */}
-            <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
-                <div className="h-8 bg-gray-100 dark:bg-gray-800 relative"></div>
-                <div className="px-8 pb-1">
-                    <div className="flex flex-col md:flex-row gap-6 items-start -mt-12 mb-6">
-                        <div className="size-32 rounded-3xl border-4 border-white dark:border-gray-900 overflow-hidden bg-white shadow-xl min-w-[120px] md:mt-15">
+            <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
+                <div className="px-8 py-8">
+                    <div className="flex flex-col md:flex-row gap-6 items-start mb-6">
+                        <div className="size-32 rounded-3xl border-4 border-white dark:border-gray-900 overflow-hidden bg-white shadow-xl min-w-[120px]">
                             {profile.user_photo_url ? (
                                 <img
                                     src={profile.user_photo_url}

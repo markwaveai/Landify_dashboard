@@ -9,64 +9,14 @@ import {
 import { useNavigate } from "react-router";
 import Badge from "../ui/badge/Badge";
 import Button from "../ui/button/Button";
-import { EyeIcon, ChevronLeftIcon } from "../../icons";
-import { useQuery } from "@tanstack/react-query";
-import { getAgentFarmers } from "../../services/userService";
+import { ChevronLeftIcon, UserIcon } from "../../icons";
 
-const FarmerCountCell = ({ agentId }: { agentId: string }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const { data: users, isLoading } = useQuery({
-        queryKey: ['agent-farmers', agentId],
-        queryFn: () => getAgentFarmers(agentId),
-        enabled: !!agentId
-    });
+const format = (val: any) => (val === undefined || val === null || val === "" || val === 0) ? "-" : val;
 
-    if (isLoading) return (
-        <div className="flex items-center gap-2">
-            <div className="size-2 rounded-full bg-gray-200 animate-pulse"></div>
-            <span className="text-xs text-gray-400 italic">loading...</span>
-        </div>
-    );
-
-    const farmers = users?.filter((u: any) => u.role === 'FARMER') || [];
-    const count = farmers.length;
-
-    if (count === 0) return (
-        <div className="text-sm text-gray-400 font-medium italic">
-            0 Farmers
-        </div>
-    );
-
+const FarmerCountCell = ({ count }: { count?: number }) => {
     return (
-        <div className="flex flex-col gap-2">
-            <button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    setIsExpanded(!isExpanded);
-                }}
-                className="flex items-center gap-2 group/btn"
-            >
-                <div className={`px-2 py-0.5 rounded-full text-xs font-bold transition-all ${isExpanded ? 'bg-amber-600 text-white shadow-sm' : 'bg-amber-50 text-amber-700 group-hover/btn:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400'}`}>
-                    {count} {count === 1 ? 'Farmer' : 'Farmers'}
-                </div>
-                <ChevronLeftIcon className={`size-3 transition-transform text-gray-400 ${isExpanded ? 'rotate-[-90deg]' : 'rotate-[-180deg]'}`} />
-            </button>
-
-            {isExpanded && (
-                <div className="bg-gray-50 dark:bg-white/[0.03] rounded-xl border border-gray-100 dark:border-gray-800 p-2.5 space-y-2 max-h-[120px] overflow-y-auto custom-scrollbar w-[180px] shadow-inner" onClick={e => e.stopPropagation()}>
-                    <p className="text-[10px] font-bold text-amber-600/60 uppercase tracking-widest border-b border-gray-200/50 dark:border-gray-700/50 pb-1.5 mb-2 font-outfit">FARMER IDS</p>
-                    <div className="space-y-1.5">
-                        {farmers.map((farmer: any) => (
-                            <div key={farmer.unique_id} className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:border-amber-200 dark:hover:border-amber-800">
-                                <span className="text-[10px] font-mono font-bold text-gray-600 dark:text-gray-300">
-                                    {farmer.unique_id || "No ID"}
-                                </span>
-                                <div className="size-1.5 rounded-full bg-amber-500"></div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+        <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
+            {format(count)}
         </div>
     );
 };
@@ -119,24 +69,15 @@ interface AgentTableProps {
     users: Agent[];
     onAddClick?: () => void;
     onRowClick?: (agent: Agent) => void;
-    onStatusToggle?: (agent: Agent) => void;
     addLabel?: string;
     isLoading?: boolean;
 }
 
 const ITEMS_PER_PAGE = 5;
 
-// Helper to render image link
-const ImageLink = ({ url, label }: { url?: string, label: string }) => {
-    if (!url) return <span className="text-gray-400">-</span>;
-    return (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-brand-600 hover:text-brand-700 hover:underline dark:text-brand-400" onClick={(e) => e.stopPropagation()}>
-            View {label}
-        </a>
-    );
-};
 
-export default function AgentTable({ title, users, onAddClick, onRowClick, onStatusToggle, addLabel, isLoading }: AgentTableProps) {
+
+export default function AgentTable({ title, users, onAddClick, onRowClick, addLabel, isLoading }: AgentTableProps) {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -148,23 +89,44 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
 
         const allPossibleColumns = [
             {
+                id: "sno",
+                header: "S.NO",
+                minWidth: "60px",
+                show: true,
+                render: (_: Agent, idx: number) => (
+                    <div className="flex items-center h-12">
+                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                            {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                        </span>
+                    </div>
+                )
+            },
+            {
                 id: "name",
                 header: "AGENT NAME",
                 minWidth: "200px",
                 show: true,
                 render: (user: Agent) => (
-                    <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-500 font-medium text-sm shrink-0 overflow-hidden">
+                    <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-2xl bg-gray-50 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative group-hover:border-brand-300 transition-colors flex items-center justify-center">
                             {user.user_image_url ? (
-                                <img src={user.user_image_url} alt="" className="w-full h-full object-cover" />
+                                <img
+                                    src={user.user_image_url}
+                                    alt="avatar"
+                                    className="w-full h-full object-cover"
+                                />
                             ) : (
-                                <span>{user.first_name?.[0]}{user.last_name?.[0]}</span>
+                                <UserIcon className="size-6 text-gray-400 dark:text-gray-500" />
                             )}
+                            <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-2xl pointer-events-none"></div>
                         </div>
-                        <div className="min-w-0">
-                            <p className="font-semibold text-gray-800 text-sm dark:text-white/90 truncate">
+                        <div className="flex flex-col">
+                            <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                                 {user.first_name} {user.last_name}
-                            </p>
+                            </span>
+                            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
+                                {user.phone_number}
+                            </span>
                         </div>
                     </div>
                 )
@@ -177,9 +139,9 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 minWidth: "140px",
                 show: hasData("role"),
                 render: (user: Agent) => (
-                    <Badge size="sm" color="info">
-                        {user.role ? user.role.replace(/_/g, " ") : "-"}
-                    </Badge>
+                    <div className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 shadow-sm">
+                        <span className="text-[10px] font-black uppercase tracking-widest">{format(user.role ? user.role.replace(/_/g, " ") : undefined)}</span>
+                    </div>
                 )
             },
 
@@ -191,8 +153,10 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 minWidth: "120px",
                 show: hasData("unique_id"),
                 render: (user: Agent) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
-                        {user.unique_id || "-"}
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md shadow-sm border border-gray-200/50 dark:border-gray-700 text-center">{format(user.unique_id)}</span>
+                        </div>
                     </div>
                 )
             },
@@ -204,8 +168,10 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 minWidth: "120px",
                 show: hasData("reference_id"),
                 render: (user: Agent) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
-                        {user.reference_id || "-"}
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md shadow-sm border border-gray-200/50 dark:border-gray-700 text-center">{format(user.reference_id)}</span>
+                        </div>
                     </div>
                 )
             },
@@ -218,7 +184,7 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 minWidth: "120px",
                 show: hasData("date_of_birth"),
                 render: (user: Agent) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400">
+                    <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                         {user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : "-"}
                     </div>
                 )
@@ -232,37 +198,14 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 minWidth: "100px",
                 show: hasData("gender"),
                 render: (user: Agent) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 capitalize">
-                        {user.gender?.toLowerCase() || "-"}
+                    <div className="text-xs font-bold text-gray-700 dark:text-gray-300 capitalize tracking-wide">
+                        {format(user.gender?.toLowerCase())}
                     </div>
                 )
             },
 
 
-            {
-                id: "phone_number",
-                header: "MOBILE NUMBER",
-                minWidth: "140px",
-                show: hasData("phone_number"),
-                render: (user: Agent) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
-                        {user.phone_number}
-                    </div>
-                )
-            },
 
-
-            {
-                id: "email",
-                header: "EMAIL",
-                minWidth: "180px",
-                show: hasData("email"),
-                render: (user: Agent) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400">
-                        {user.email || "-"}
-                    </div>
-                )
-            },
 
             {
                 id: "alt_phone",
@@ -270,8 +213,8 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 minWidth: "140px",
                 show: hasData("alternate_phone_number"),
                 render: (user: Agent) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
-                        {user.alternate_phone_number || "-"}
+                    <div className="text-xs font-mono font-bold text-gray-600 dark:text-gray-300">
+                        {format(user.alternate_phone_number)}
                     </div>
                 )
             },
@@ -280,101 +223,6 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
 
 
 
-            {
-                id: "address",
-                header: "ADDRESS",
-                minWidth: "250px",
-                show: hasData("village") || hasData("mandal") || hasData("district") || hasData("state") || hasData("address") || hasData("city") || hasData("pincode"),
-                render: (user: Agent) => {
-                    const parts = [
-                        user.address,
-                        user.village,
-                        user.mandal,
-                        user.city,
-                        user.district,
-                        user.state,
-                        user.pincode
-                    ].filter(p => p && p.trim() !== "");
-
-                    const displayAddress = parts.length > 0 ? parts.join(", ") : "-";
-                    return (
-                        <div className="text-gray-500 text-sm dark:text-gray-300 truncate max-w-[250px]" title={displayAddress}>
-                            {displayAddress}
-                        </div>
-                    )
-                }
-            },
-
-            // Extra Details
-            {
-                id: "aadhar",
-                header: "AADHAR NO",
-                minWidth: "140px",
-                show: hasData("aadhar_card_number"),
-                render: (user: Agent) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-300 font-mono">
-                        {user.aadhar_card_number || "-"}
-                    </div>
-                )
-            },
-            {
-                id: "pan",
-                header: "PAN NO",
-                minWidth: "140px",
-                show: hasData("pan_number"),
-                render: (user: Agent) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-300 font-mono">
-                        {user.pan_number || "-"}
-                    </div>
-                )
-            },
-            {
-                id: "bank_details",
-                header: "BANK DETAILS",
-                minWidth: "180px",
-                show: hasData("bank_name") || hasData("account_number") || hasData("ifsc_code") || hasData("bank_branch") || hasData("bank_passbook_image_url"),
-                render: (user: Agent) => (
-                    <div className="text-gray-500 text-xs dark:text-gray-300 space-y-1">
-                        {user.bank_name && <div className="font-semibold text-gray-800 dark:text-white/90 uppercase">{user.bank_name}</div>}
-                        {user.account_number && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">A/C:</span> {user.account_number}</div>}
-                        {user.ifsc_code && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">IFSC:</span> {user.ifsc_code}</div>}
-                        {user.bank_branch && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">Branch:</span> {user.bank_branch}</div>}
-                        {user.bank_passbook_image_url && (
-                            <div className="pt-1">
-                                <ImageLink url={user.bank_passbook_image_url} label="Passbook" />
-                            </div>
-                        )}
-                        {!user.bank_name && !user.account_number && !user.ifsc_code && !user.bank_branch && !user.bank_passbook_image_url && "-"}
-                    </div>
-                )
-            },
-
-            {
-                id: "verification",
-                header: "VERIFICATION",
-                minWidth: "160px",
-                show: true,
-                render: (user: Agent) => (
-                    <div className="text-xs space-y-1">
-                        <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Photo:</span>
-                            {user.user_image_url ? <ImageLink url={user.user_image_url} label="Image" /> : <span className="text-gray-400 dark:text-gray-300 font-medium italic">null</span>}
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Aadhar:</span>
-                            {user.aadhar_image_url ? <ImageLink url={user.aadhar_image_url} label="Card" /> : <span className="text-gray-400 dark:text-gray-300 font-medium italic">null</span>}
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">PAN:</span>
-                            {user.pan_image_url ? <ImageLink url={user.pan_image_url} label="Card" /> : <span className="text-gray-400 dark:text-gray-300 font-medium italic">null</span>}
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Agreement:</span>
-                            {user.agreement_url ? <ImageLink url={user.agreement_url} label="File" /> : <span className="text-gray-400 dark:text-gray-300 font-medium italic">null</span>}
-                        </div>
-                    </div>
-                )
-            },
 
             {
                 id: "otp_verified",
@@ -395,7 +243,7 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 minWidth: "150px",
                 show: true,
                 render: (user: Agent) => (
-                    <FarmerCountCell agentId={user.unique_id || user.phone_number} />
+                    <FarmerCountCell count={user.farmer_count} />
                 )
             },
             {
@@ -405,8 +253,12 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                 show: true, // Always show status as it has action
                 render: (user: Agent) => {
                     const isActive = user.is_active !== false && (user.status_label === 'ACTIVE' || !user.status_label && user.is_active);
-                    if (isActive) return <Badge size="sm" color="success">Active</Badge>;
-                    return <Badge size="sm" color="light">Inactive</Badge>;
+                    return (
+                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border shadow-sm ${isActive ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50' : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50'}`}>
+                            <div className={`size-1.5 rounded-full ${isActive ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+                            <span className="text-[10px] font-black uppercase tracking-widest">{isActive ? 'ACTIVE' : 'INACTIVE'}</span>
+                        </div>
+                    );
                 }
             }
         ];
@@ -460,9 +312,9 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                                         <div style={{ minWidth: col.minWidth }}>{col.header}</div>
                                     </TableCell>
                                 ))}
-                                <TableCell isHeader className="py-5 pr-8 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
+                                {/* <TableCell isHeader className="py-5 pr-8 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
                                     <div className="min-w-[90px] flex justify-end">ACTIONS</div>
-                                </TableCell>
+                                </TableCell> */}
                             </TableRow>
                         </TableHeader>
 
@@ -484,15 +336,15 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                                     <TableRow
                                         key={index}
                                         className="hover:bg-brand-50/30 dark:hover:bg-brand-900/10 transition-all duration-200 group cursor-pointer"
-                                        onClick={() => onRowClick ? onRowClick(user) : navigate(`/agents/${user.phone_number}`)}
+                                        onClick={() => onRowClick ? onRowClick(user) : navigate(`/agents/${user.unique_id}`)}
                                     >
                                         {columns.map((col, colIdx) => (
                                             <TableCell key={col.id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'}`}>
-                                                {col.render(user)}
+                                                {col.render(user, index)}
                                             </TableCell>
                                         ))}
 
-                                        <TableCell className="py-5 pr-8 text-right align-top">
+                                        {/* <TableCell className="py-5 pr-8 text-right align-top">
                                             <div className="min-w-[120px] flex items-center justify-end gap-2.5 transition-opacity ml-auto">
                                                 <button
                                                     onClick={(e) => {
@@ -505,7 +357,7 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                                                     <EyeIcon className="size-4" />
                                                 </button>
 
-                                                {/* Activate/Deactivate Button */}
+                                                
                                                 {onStatusToggle && (
                                                     user.is_active !== false && (user.status_label === 'ACTIVE' || !user.status_label) ? (
                                                         <button
@@ -530,7 +382,7 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, onSta
                                                     )
                                                 )}
                                             </div>
-                                        </TableCell>
+                                        </TableCell> */}
                                     </TableRow>
                                 ))
                             )}

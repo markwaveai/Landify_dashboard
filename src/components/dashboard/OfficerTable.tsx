@@ -12,62 +12,12 @@ import {
 
     UserIcon,
 } from "../../icons";
-import { useQuery } from "@tanstack/react-query";
-import { getAgentFarmers } from "../../services/userService";
 
-const AgentCountCell = ({ officerId }: { officerId: string }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const { data: agents, isLoading } = useQuery({
-        queryKey: ['officer-agents', officerId],
-        queryFn: () => getAgentFarmers(officerId),
-        enabled: !!officerId
-    });
 
-    if (isLoading) return (
-        <div className="flex items-center gap-2">
-            <div className="size-2 rounded-full bg-gray-200 animate-pulse"></div>
-            <span className="text-xs text-gray-400 italic">loading...</span>
-        </div>
-    );
-
-    const count = agents?.filter((u: any) => u.role === 'AGENT')?.length || 0;
-
-    if (count === 0) return (
-        <div className="text-sm text-gray-400 font-medium italic">
-            {count} Agents
-        </div>
-    );
-
+const AgentCountCell = () => {
     return (
-        <div className="flex flex-col gap-2">
-            <button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    setIsExpanded(!isExpanded);
-                }}
-                className="flex items-center gap-2 group/btn py-1.5 px-3 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors border border-gray-100 dark:border-gray-700"
-            >
-                <div className={`px-2 py-0.5 rounded-lg text-xs font-black tracking-wide transition-all ${isExpanded ? 'bg-brand-600 text-white shadow-sm' : 'bg-transparent text-gray-700 dark:text-gray-300 group-hover/btn:text-brand-600 dark:group-hover/btn:text-brand-400'}`}>
-                    {count} {count === 1 ? 'AGENT' : 'AGENTS'}
-                </div>
-                <ChevronLeftIcon className={`size-3.5 transition-transform ${isExpanded ? 'rotate-[-90deg] text-brand-600 dark:text-brand-400' : 'rotate-[-180deg] text-gray-400 group-hover/btn:text-gray-600 dark:group-hover/btn:text-gray-300'}`} />
-            </button>
-
-            {isExpanded && (
-                <div className="bg-gray-50 dark:bg-white/[0.03] rounded-xl border border-gray-100 dark:border-gray-800 p-2.5 space-y-2 max-h-[120px] overflow-y-auto custom-scrollbar w-[180px] shadow-inner" onClick={e => e.stopPropagation()}>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-200/50 dark:border-gray-700/50 pb-1.5 mb-2 tracking-widest">AGENT IDS</p>
-                    <div className="space-y-1.5">
-                        {agents?.filter((u: any) => u.role === 'AGENT').map((agent: any) => (
-                            <div key={agent.unique_id} className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:border-brand-200 dark:hover:border-brand-800">
-                                <span className="text-[10px] font-mono font-bold text-gray-600 dark:text-gray-300">
-                                    {agent.unique_id || "No ID"}
-                                </span>
-                                <div className="size-1.5 rounded-full bg-green-500"></div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+        <div className="text-sm font-bold text-gray-400 dark:text-gray-500">
+            -
         </div>
     );
 };
@@ -184,14 +134,24 @@ export default function OfficerTable({
             {
                 id: "user_id",
                 header: "FO ID",
+                minWidth: "140px",
+                render: (user: User) => (
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md shadow-sm border border-gray-200/50 dark:border-gray-700 text-center">{format(user.unique_id)}</span>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                id: "reference_id",
+                header: "ADMIN ID",
                 minWidth: "160px",
                 render: (user: User) => (
                     <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-
-                            <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md shadow-sm border border-gray-200/50 dark:border-gray-700 text-center">{format(user.unique_id)}</span>
+                            <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/10 px-2 py-0.5 rounded-md shadow-sm border border-blue-200/50 dark:border-blue-700/50 text-center">{format(user.reference_id)}</span>
                         </div>
-
                     </div>
                 )
             },
@@ -233,8 +193,8 @@ export default function OfficerTable({
                 id: "agents",
                 header: "AGENTS",
                 minWidth: "120px",
-                render: (user: User) => (
-                    <AgentCountCell officerId={user.unique_id || user.phone_number} />
+                render: (_: User) => (
+                    <AgentCountCell />
                 )
             },
         ];

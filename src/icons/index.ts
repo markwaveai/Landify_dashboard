@@ -41,6 +41,7 @@ import { ReactComponent as Info } from "./info.svg?react";
 import { ReactComponent as List } from "./list.svg?react";
 import { ReactComponent as Lock } from "./lock.svg?react";
 import { ReactComponent as Logout } from "./logout.svg?react";
+import { ReactComponent as User } from "./user.svg?react";
 
 export {
   AlertHexa as AlertHexaIcon,
@@ -85,20 +86,21 @@ export {
   List as ListIcon,
   Lock as LockIcon,
   Logout as LogoutIcon,
+  User as UserIconComponent,
 };
 
 // Aliases and Fallbacks
 export const PencilIcon = Copy;
 export const TrashBinIcon = Close;
-export const UserCircleIcon = Group;
-export const UserIcon = Group;
+export const UserCircleIcon = User;
+export const UserIcon = User;
 export const TractorIcon = BoxCube;
 export const VideoIcon = Audio;
 export const PlusIcon = CheckLine;
 export const RupeeLineIcon = DollarLine;
 export const MoreDotIcon = HorizontaLDotsIcon;
 export const BoxIconLine = BoxLine;
-export const UserCircleIconLine = Group;
+export const UserCircleIconLine = User;
 export const TimeIcon = Calendar;
 export const PlantIcon = Bolt;
 export const TableIcon = Grid;

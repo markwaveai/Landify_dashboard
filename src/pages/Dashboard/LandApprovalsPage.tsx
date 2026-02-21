@@ -20,7 +20,8 @@ export default function LandApprovalsPage() {
     const { data: lands, isLoading } = useQuery({
         queryKey: ['land-approvals', statusFilter],
         queryFn: () => getLandApprovals(statusFilter),
-        enabled: !!user?.role
+        enabled: !!user?.role,
+        staleTime: 5000,
     });
 
     const mutationStage1 = useMutation({

@@ -18,7 +18,10 @@ export default function ApprovalsPage() {
     const { data: lands, isLoading } = useQuery({
         queryKey: ['lands'],
         queryFn: getLands,
-        refetchInterval: 10000,
+        staleTime: Infinity, // Keep data fresh until explicitly invalidated
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
     });
 
     // Derived Statistics - Lands
@@ -99,7 +102,7 @@ export default function ApprovalsPage() {
 
                 {activeTab === 'fo' ? (
                     <>
-                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                             <div className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 dark:border-gray-800 dark:bg-gray-800">
                                 <div className="flex items-start justify-between">
                                     <div className="flex bg-green-50 p-2.5 rounded-xl text-green-600 dark:bg-green-900/20 dark:text-green-400">
@@ -124,8 +127,34 @@ export default function ApprovalsPage() {
                                     <h4 className="mt-1 text-3xl font-black text-gray-900 dark:text-white">{landStats.foPending}</h4>
                                 </div>
                             </div>
+                            <div className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 dark:border-gray-800 dark:bg-gray-800">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex bg-blue-50 p-2.5 rounded-xl text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                                        <CheckCircleIcon className="size-6" />
+                                    </div>
+                                    <span className="text-[10px] font-black tracking-tighter text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full dark:bg-blue-900/20 dark:text-blue-400 uppercase">Verified</span>
+                                </div>
+                                <div className="mt-4">
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-widest">FO Approved</p>
+                                    <h4 className="mt-1 text-3xl font-black text-gray-900 dark:text-white">{landStats.foApproved}</h4>
+                                </div>
+                            </div>
+                            <div className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 dark:border-gray-800 dark:bg-gray-800">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex bg-rose-50 p-2.5 rounded-xl text-rose-600 dark:bg-rose-900/20 dark:text-rose-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-[10px] font-black tracking-tighter text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full dark:bg-rose-900/20 dark:text-rose-400 uppercase">Declined</span>
+                                </div>
+                                <div className="mt-4">
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-widest">FO Rejected</p>
+                                    <h4 className="mt-1 text-3xl font-black text-gray-900 dark:text-white">{landStats.foRejected}</h4>
+                                </div>
+                            </div>
                         </div>
-                        <LandApprovalsTabContent lands={lands} isLoading={isLoading} />
+                        <LandApprovalsTabContent key="fo-view" lands={lands} isLoading={isLoading} />
                     </>
                 ) : (
                     <>
@@ -185,7 +214,7 @@ export default function ApprovalsPage() {
                                 </div>
                             </div>
                         </div>
-                        <LandApprovalsTabContent isAdminView lands={lands} isLoading={isLoading} />
+                        <LandApprovalsTabContent key="admin-view" isAdminView lands={lands} isLoading={isLoading} />
                     </>
                 )}
             </div>

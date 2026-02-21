@@ -20,9 +20,9 @@ import AosPage from "./pages/Dashboard/AosPage";
 import AgentsPage from "./pages/Dashboard/AgentsPage";
 import AgentDetailsPage from "./pages/Dashboard/AgentDetailsPage";
 import OfficerDetailsPage from "./pages/Dashboard/OfficerDetailsPage";
-// import FarmersPage from "./pages/Dashboard/FarmersPage";
+import FarmersPage from "./pages/Dashboard/FarmersPage";
 import ApprovalsPage from "./pages/Dashboard/ApprovalsPage";
-// import FarmerDetailsPage from "./pages/Dashboard/FarmerDetailsPage";
+import FarmerDetailsPage from "./pages/Dashboard/FarmerDetailsPage";
 import UserProfile from "./pages/Dashboard/UserProfile";
 import LandApprovalDetailsPage from "./pages/Dashboard/LandApprovalDetailsPage";
 import FodderProcurementPage from "./pages/Dashboard/FodderProcurementPage";
@@ -56,11 +56,11 @@ export default function App() {
               <Route index element={<Navigate to="/aos" replace />} />
               {/* <Route index element={<Home />} /> */}
               <Route path="/aos" element={<AosPage />} />
-              <Route path="/aos/:phoneNumber" element={<OfficerDetailsPage />} />
+              <Route path="/aos/:userId" element={<OfficerDetailsPage />} />
               <Route path="/agents" element={<AgentsPage />} />
-              <Route path="/agents/:phoneNumber" element={<AgentDetailsPage />} />
-              {/* <Route path="/farmers" element={<FarmersPage />} /> */}
-              {/* <Route path="/farmers/:phoneNumber" element={<FarmerDetailsPage />} /> */}
+              <Route path="/agents/:userId" element={<AgentDetailsPage />} />
+              <Route path="/farmers" element={<FarmersPage />} />
+              <Route path="/farmers/:userId" element={<FarmerDetailsPage />} />
               <Route path="/approvals" element={<ApprovalsPage />} />
               {/* <Route path="/payments" element={<PaymentsPage />} /> */}
               {/* <Route path="/cultivation" element={<CultivationPage />} /> */}

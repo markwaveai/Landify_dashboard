@@ -6,10 +6,11 @@ import PageMeta from "../../components/common/PageMeta";
 import { CheckCircleIcon } from "../../icons";
 
 export default function AdminApprovalsPage() {
-    const { data: lands } = useQuery({
+    const { data: lands, isLoading } = useQuery({
         queryKey: ['lands'],
         queryFn: getLands,
-        refetchInterval: 10000,
+        staleTime: Infinity,
+        refetchOnWindowFocus: false,
     });
 
     // Derived Statistics - Lands
@@ -92,7 +93,7 @@ export default function AdminApprovalsPage() {
                         </div>
                     </div>
                 </div>
-                <LandApprovalsTabContent isAdminView />
+                <LandApprovalsTabContent isAdminView lands={lands} isLoading={isLoading} />
             </div>
         </>
     );

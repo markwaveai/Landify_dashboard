@@ -65,7 +65,7 @@ export default function AosPage() {
                     isLoading={isLoading}
                     onEdit={handleEdit}
                     onDelete={(user) => console.log("Delete", user)}
-                    onView={(user) => navigate(`/aos/${user.phone_number}`)}
+                    onView={(user) => navigate(`/aos/${user.unique_id}`)}
                 />
             </div>
             <AddOfficerModal

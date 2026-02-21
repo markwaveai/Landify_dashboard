@@ -70,8 +70,20 @@ const mapLand = (l: any) => {
         land_status: landStatus,
         user_id: userId,
         userId: userId,
-        ror_url: l.ror_url || l.ror1b || l.roe || l.roe_url,
-        is_step2_completed: !!(l.land_images_url || l.land_urls?.length),
+        land_coordinates: l.land_coordinates || l.coordinates || l.lat_long || "",
+        land_images_url: l.land_images_url || l.land_urls || [],
+        passbookNo: l.passbookNo || l.passbook_number || "",
+        passbook_url: l.passbook_url || l.passbook_image_url || l.passbook_copy || "",
+        owner_aadhar_url: l.owner_aadhar_url || l.owner_aadhar_copy || "",
+        owner_aadharName: l.owner_aadharName || l.owner_name_as_per_aadhar || l.aadhar_name || "",
+        lpm_url: l.lpm_url || l.lpm_copy || "",
+        adangal_url: l.adangal_url || l.adangal_copy || "",
+        rorNo: l.rorNo || l.ror_number || l.ror_no || "",
+        ror_url: l.ror_url || l.ror1b || l.roe || l.roe_url || l.ror_copy || "",
+        noc_url: l.noc_url || l.noc_copy || "",
+        emcumbrance_url: l.emcumbrance_url || l.encumbrance_certificate || l.ec_copy || "",
+        apc_url: l.apc_url || l.apc_copy || "",
+        is_step2_completed: !!(l.land_images_url || (l.land_urls && l.land_urls.length > 0)),
         ...addressInfo
     };
 };
@@ -99,18 +111,9 @@ export const updateLand = async (landId: string, data: any) => {
 };
 
 export const getLandDetails = async (landId: string) => {
-    // Strip 'LD' or other non-numeric prefixes if present for the API call
-    const cleanId = landId.replace(/^\D+/, '');
-    try {
-        const response = await api.get(`/land/${cleanId}`);
-        const data = Array.isArray(response.data) ? response.data[0] : response.data;
-        return mapLand(data);
-    } catch (error) {
-        // Fallback to original ID if clean ID fails
-        const response = await api.get(`/land/${landId}`);
-        const data = Array.isArray(response.data) ? response.data[0] : response.data;
-        return mapLand(data);
-    }
+    const response = await api.get(`/land/${landId}`);
+    const data = Array.isArray(response.data) ? response.data[0] : response.data;
+    return mapLand(data);
 };
 
 export const getFarmerLands = async (userId: string) => {

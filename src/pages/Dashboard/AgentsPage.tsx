@@ -8,7 +8,7 @@ import AgentTable from "../../components/dashboard/AgentTable";
 import LandApprovalsTabContent from "../../components/dashboard/LandApprovalsTabContent";
 import PageMeta from "../../components/common/PageMeta";
 import AddAgentModal from "../../components/dashboard/AddAgentModal";
-import { GroupIcon, BoxCubeIcon } from "../../icons";
+import { UserIcon } from "../../icons";
 
 // Helper for deterministic mock data based on phone number/id
 const getConsistentRandom = (seedStr: string, max: number) => {
@@ -49,7 +49,7 @@ export default function AgentsPage() {
     const navigate = useNavigate();
 
     const handleAgentClick = (agent: any) => {
-        navigate(`/agents/${agent.phone_number}`);
+        navigate(`/agents/${agent.unique_id}`);
     };
 
     // Enrich agents with mock data for the new UI columns
@@ -91,10 +91,10 @@ export default function AgentsPage() {
     }, [enrichedAgents, searchQuery]);
 
     const stats = useMemo(() => {
-        if (!enrichedAgents.length) return { active: 0, villages: 0 };
+        if (!enrichedAgents.length) return { active: 0, total: 0 };
         return {
             active: enrichedAgents.filter((a: any) => a.status_label === 'ACTIVE').length,
-            villages: (new Set(enrichedAgents.map((a: any) => a.village))).size
+            total: enrichedAgents.length
         };
     }, [enrichedAgents]);
 
@@ -104,19 +104,55 @@ export default function AgentsPage() {
             <div className="space-y-6">
                 {(user?.role === 'ADMIN' || user?.role === 'AGRICULTURE_OFFICER') && (
                     <>
-                        {/* Search Box Section */}
-                        <div className="w-full bg-white dark:bg-white/[0.03] p-1.5 rounded-xl border border-gray-200 dark:border-gray-800">
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <SearchIcon className="h-5 w-5 text-gray-400" />
+                        {/* Search & Stats Header Section */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                            {/* Search Box - Takes 6 columns on large screens */}
+                            <div className="lg:col-span-6 w-full bg-white dark:bg-white/[0.03] p-1.5 rounded-xl border border-gray-200 dark:border-gray-800">
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <SearchIcon className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        className="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg leading-5 bg-transparent placeholder-gray-400 focus:outline-none text-gray-900 dark:text-gray-100 sm:text-sm"
+                                        placeholder="Search by name, village, or officer..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
                                 </div>
-                                <input
-                                    type="text"
-                                    className="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg leading-5 bg-transparent placeholder-gray-400 focus:outline-none text-gray-900 dark:text-gray-100 sm:text-sm"
-                                    placeholder="Search by name, village, or officer..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
+                            </div>
+
+                            {/* Stats Section - Takes 6 columns on large screens */}
+                            <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {/* Total Active Agents */}
+                                <div className="rounded-2xl border border-gray-200 bg-white p-3.5 dark:border-gray-800 dark:bg-white/[0.03]">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-300 shrink-0">
+                                            <UserIcon className="size-5 text-gray-800 dark:text-white" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Active Agents</p>
+                                            <h4 className="text-xl font-black text-gray-800 dark:text-white/90">
+                                                {stats.active}
+                                            </h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Total Agents */}
+                                <div className="rounded-2xl border border-gray-200 bg-white p-3.5 dark:border-gray-800 dark:bg-white/[0.03]">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 shrink-0">
+                                            <UserIcon className="size-5 text-blue-500" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Total Agents</p>
+                                            <h4 className="text-xl font-black text-gray-800 dark:text-white/90">
+                                                {stats.total}
+                                            </h4>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -128,41 +164,6 @@ export default function AgentsPage() {
                             onAddClick={canAdd ? () => { setSelectedAgent(null); setShowModal(true); } : undefined}
                             onRowClick={handleAgentClick}
                         />
-
-                        {/* Summary Stats Cards */}
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                            {/* Total Active Agents */}
-                            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-300">
-                                        <GroupIcon className="size-6 text-gray-800 dark:text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Active Agents</p>
-                                        <h4 className="text-2xl font-bold text-gray-800 dark:text-white/90 mt-1">
-                                            {stats.active}
-                                        </h4>
-                                    </div>
-                                </div>
-                            </div>
-
-
-
-                            {/* Villages Covered */}
-                            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
-                                        <BoxCubeIcon className="size-6 text-blue-500" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Villages Covered</p>
-                                        <h4 className="text-2xl font-bold text-gray-800 dark:text-white/90 mt-1">
-                                            {stats.villages}
-                                        </h4>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </>
                 )}
 

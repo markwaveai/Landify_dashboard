@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import Badge from "../ui/badge/Badge";
+import { UserIcon } from "../../icons";
 
 interface Farmer {
     first_name: string;
@@ -75,17 +76,30 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
 
         const allPossibleColumns = [
             {
+                id: "sno",
+                header: "S.NO",
+                minWidth: "60px",
+                show: true,
+                render: (_: Farmer, idx: number) => (
+                    <div className="flex items-center">
+                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                            {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                        </span>
+                    </div>
+                )
+            },
+            {
                 id: "name",
                 header: "FARMER NAME",
                 minWidth: "200px",
                 show: true,
                 render: (user: Farmer) => (
                     <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-500 font-medium text-sm shrink-0 overflow-hidden">
+                        <div className="h-10 w-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative transition-colors flex items-center justify-center">
                             {user.user_image_url ? (
                                 <img src={user.user_image_url} alt="" className="w-full h-full object-cover" />
                             ) : (
-                                <span>{user.first_name?.[0]}{user.last_name?.[0]}</span>
+                                <UserIcon className="size-5 text-gray-400 dark:text-gray-500" />
                             )}
                         </div>
                         <div className="min-w-0">
@@ -379,7 +393,7 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                             <tr
                                 key={index}
                                 className="bg-white dark:bg-gray-800 shadow-sm rounded-lg hover:shadow-md transition-shadow cursor-pointer group"
-                                onClick={() => onRowClick ? onRowClick(user) : navigate(`/farmers/${user.phone_number}`)}
+                                onClick={() => onRowClick ? onRowClick(user) : navigate(`/farmers/${user.unique_id}`)}
                             >
                                 <td className="px-4 py-4 whitespace-nowrap rounded-l-lg border-y border-l border-gray-100 dark:border-gray-700">
                                     <input
@@ -394,7 +408,7 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                                         className={`px-4 py-4 whitespace-nowrap border-y border-gray-100 dark:border-gray-700 ${colIndex === columns.length - 1 ? "rounded-r-lg border-r" : ""
                                             }`}
                                     >
-                                        {col.render(user)}
+                                        {col.render(user, index)}
                                     </td>
                                 ))}
                             </tr>

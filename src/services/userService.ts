@@ -90,7 +90,8 @@ export const createAO = async (data: any) => {
         village: data.village,
         mandal: data.mandal,
         aadhar_images_url: data.aadhar_image_url || "",
-        pan_url: data.pan_image_url || ""
+        pan_url: data.pan_image_url || "",
+        referenceId: data.reference_id || ""
     };
     const response = await api.post('/users/register', payload);
     return mapUser(response.data);
@@ -127,7 +128,8 @@ export const updateAO = async (userId: string, data: any) => {
         village: data.village,
         mandal: data.mandal,
         aadhar_images_url: data.aadhar_image_url || "",
-        pan_url: data.pan_image_url || ""
+        pan_url: data.pan_image_url || "",
+        referenceId: data.reference_id || ""
     };
     const response = await api.put(`/users/${userId}`, payload);
     return mapUser(response.data);
@@ -177,13 +179,18 @@ export const getFarmerStep3 = async (uniqueId: string) => {
     return response.data;
 };
 
-export const getFarmerFullDetails = async (phoneNumber: string) => {
-    const response = await api.get(`/users/mobile/${phoneNumber}`);
+export const getFarmerFullDetails = async (userId: string) => {
+    const response = await api.get(`/users/${userId}`);
     return mapUser(response.data);
 };
 
 export const getAgentFarmers = async (userId: string) => {
     const response = await api.get(`/users/reference/${userId}`);
+    return (response.data || []).map(mapUser);
+};
+
+export const getFarmersByReference = async (referenceId: string) => {
+    const response = await api.get(`/users/land-details-by-reference/${referenceId}`);
     return (response.data || []).map(mapUser);
 };
 
@@ -196,13 +203,13 @@ export const updateAgentStep2 = async (uniqueId: string, data: any) => {
     return response.data;
 };
 
-export const getAgentProfile = async (phoneNumber: string) => {
-    const response = await api.get(`/users/mobile/${phoneNumber}`);
+export const getAgentProfile = async (userId: string) => {
+    const response = await api.get(`/users/${userId}`);
     return mapUser(response.data);
 };
 
-export const getOfficerProfile = async (phoneNumber: string) => {
-    const response = await api.get(`/users/mobile/${phoneNumber}`);
+export const getOfficerProfile = async (userId: string) => {
+    const response = await api.get(`/users/${userId}`);
     return mapUser(response.data);
 };
 

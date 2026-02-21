@@ -8,7 +8,7 @@ import {
 import { Link, useNavigate } from "react-router";
 import Badge from "../ui/badge/Badge";
 import Button from "../ui/button/Button";
-import { EyeIcon } from "../../icons";
+import { EyeIcon, UserIcon } from "../../icons";
 
 interface User {
     first_name: string;
@@ -28,6 +28,7 @@ interface User {
     is_active?: boolean;
     farmer_count?: number;
     land_count?: number;
+    user_image_url?: string;
 }
 
 interface UserTableProps {
@@ -95,6 +96,12 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                     <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                         <TableRow>
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-300">
+                                S.No
+                            </TableCell>
+                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-300">
+                                Profile
+                            </TableCell>
+                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-300">
                                 Name
                             </TableCell>
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-300">
@@ -145,11 +152,34 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                                     if (onRowClick) {
                                         onRowClick(user);
                                     } else {
-                                        navigate(`/farmers/${user.phone_number}`);
+                                        const role = user.role?.toUpperCase();
+                                        let route = 'farmers';
+                                        if (role === 'AGENT') route = 'agents';
+                                        else if (role === 'AGRICULTURE_OFFICER' || role === 'FIELD_OFFICER') route = 'aos';
+
+                                        navigate(`/${route}/${user.unique_id}`);
                                     }
                                 }}
                                 className="cursor-pointer hover:bg-gray-50/50 dark:hover:bg-white/[0.02]"
                             >
+                                <TableCell className="py-3">
+                                    <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                        {index + 1}
+                                    </p>
+                                </TableCell>
+                                <TableCell className="py-3">
+                                    <div className="h-10 w-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative transition-colors flex items-center justify-center">
+                                        {user.user_image_url ? (
+                                            <img
+                                                src={user.user_image_url}
+                                                alt="avatar"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <UserIcon className="size-5 text-gray-400 dark:text-gray-500" />
+                                        )}
+                                    </div>
+                                </TableCell>
                                 <TableCell className="py-3">
                                     <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
                                         {user.first_name} {user.last_name}
@@ -199,7 +229,13 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                                             </span>
                                         </div>
                                         <Link
-                                            to={`/farmers/${user.phone_number}`}
+                                            to={(() => {
+                                                const role = user.role?.toUpperCase();
+                                                let route = 'farmers';
+                                                if (role === 'AGENT') route = 'agents';
+                                                else if (role === 'AGRICULTURE_OFFICER' || role === 'FIELD_OFFICER') route = 'aos';
+                                                return `/${route}/${user.unique_id}`;
+                                            })()}
                                             className="text-gray-400 hover:text-primary-600 transition-colors"
                                             title="View Profile"
                                         >

@@ -11,7 +11,8 @@ import {
     CalendarIcon,
     FileIcon,
     TableIcon,
-    CheckCircleIcon
+    CheckCircleIcon,
+    BoxIcon
 } from "../../icons";
 import Badge from "../../components/ui/badge/Badge";
 import PageMeta from "../../components/common/PageMeta";
@@ -19,15 +20,17 @@ import DetailCard from "../../components/common/DetailCard";
 import InfoItem from "../../components/common/InfoItem";
 import { ImagePreviewModal } from "../../components/ui/modal/ImagePreviewModal";
 
+const PhoneIcon = UserIcon;
+
 const FarmerDetailsPage: React.FC = () => {
-    const { phoneNumber } = useParams<{ phoneNumber: string }>();
+    const { userId } = useParams<{ userId: string }>();
     const navigate = useNavigate();
     const [previewImage, setPreviewImage] = React.useState<{ url: string; title: string } | null>(null);
 
     const { data: profile, isLoading: isLoadingProfile } = useQuery({
-        queryKey: ['farmerProfile', phoneNumber],
-        queryFn: () => getFarmerFullDetails(phoneNumber!),
-        enabled: !!phoneNumber
+        queryKey: ['farmerProfile', userId],
+        queryFn: () => getFarmerFullDetails(userId!),
+        enabled: !!userId
     });
 
     const { data: lands, isLoading: isLoadingLands } = useQuery({
@@ -66,36 +69,46 @@ const FarmerDetailsPage: React.FC = () => {
         <div className="space-y-6 pb-20 max-w-[1400px] mx-auto px-4 sm:px-6">
             <PageMeta title={`Farmer Details - ${profile.first_name}`} description="View comprehensive farmer enrollment data" />
 
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 border-b border-gray-100 dark:border-gray-800">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="p-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 dark:hover:bg-white/10 transition-all shadow-sm"
-                    >
-                        <AngleLeftIcon className="size-5" />
-                    </button>
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-bold text-gray-800 dark:text-white sm:text-3xl">
-                                Farmer Profile
-                            </h1>
-                            <Badge variant="solid" color={profile.is_active ? 'success' : 'light'}>
-                                {profile.is_active ? 'ACTIVE' : 'INACTIVE'}
+            {/* Premium Profile Header */}
+            <div className="relative overflow-hidden rounded-[2.5rem] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm p-4 sm:p-8">
+                <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                    <div className="flex items-center gap-5">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="p-3 rounded-2xl border border-gray-100 bg-white text-gray-400 hover:text-primary-600 hover:border-primary-100 dark:border-gray-800 dark:bg-white/5 transition-all shadow-sm"
+                        >
+                            <AngleLeftIcon className="size-5" />
+                        </button>
+                        <div>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-2xl font-black text-gray-900 dark:text-white sm:text-4xl tracking-tight uppercase">
+                                    Farmer Profile
+                                </h1>
+                                <Badge variant="solid" color={profile.is_active ? 'success' : 'light'}>
+                                    {profile.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                </Badge>
+                            </div>
+                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-gray-500">
+                                <span className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-primary-600 font-bold font-mono uppercase tracking-wider">
+                                    ID: {profile.unique_id || "N/A"}
+                                </span>
+                                <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                <span className="flex items-center gap-1.5">
+                                    <PhoneIcon className="size-4" /> {profile.phone_number}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 px-6 py-3 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-gray-800">
+                        <div className="text-right">
+                            <p className="text-[10px] uppercase font-black text-gray-400 tracking-widest leading-none mb-1.5">Enrollment Status</p>
+                            <Badge variant="solid" color={
+                                profile.status && profile.status.toLowerCase().includes('pending') ? 'warning' : 'success'
+                            }>
+                                {profile.status || 'Verified'}
                             </Badge>
                         </div>
-                        <p className="text-sm text-gray-500 mt-0.5 font-medium">Record ID: <span className="text-primary-600">#{profile.unique_id || "N/A"}</span> • {profile.phone_number}</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    <div className="text-right hidden sm:block">
-                        <p className="text-[10px] uppercase font-black text-gray-400 tracking-widest">Enrollment Status</p>
-                        <Badge variant="solid" color={
-                            profile.status && profile.status.toLowerCase().includes('pending') ? 'warning' : 'success'
-                        }>
-                            {profile.status || 'Verified'}
-                        </Badge>
                     </div>
                 </div>
             </div>
@@ -245,38 +258,100 @@ const FarmerDetailsPage: React.FC = () => {
                     </DetailCard>
 
                     {lands && lands.length > 0 && (
-                        <DetailCard title="Associated Land Records">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="border-b border-gray-100 dark:border-gray-800">
-                                            <th className="pb-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Survey No</th>
-                                            <th className="pb-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Area</th>
-                                            <th className="pb-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Village</th>
-                                            <th className="pb-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
-                                        {lands.map((land: any) => (
-                                            <tr
-                                                key={land.id}
-                                                className="group cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5"
-                                                onClick={() => navigate(`/land-approvals/${land.id}`)}
-                                            >
-                                                <td className="py-4 font-bold text-gray-800 dark:text-white text-sm">#{land.survey_no}</td>
-                                                <td className="py-4 text-sm text-gray-600 dark:text-gray-400">{land.area_in_acres} Acres</td>
-                                                <td className="py-4 text-sm text-gray-600 dark:text-gray-400">{land.village}</td>
-                                                <td className="py-4">
-                                                    <Badge size="sm" color={land.status?.includes('APPROVED') ? 'success' : 'warning'}>
-                                                        {land.status}
-                                                    </Badge>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </DetailCard>
+                        <div className="space-y-6">
+                            <DetailCard title="Associated Land Records">
+                                <div className="grid grid-cols-1 gap-6">
+                                    {lands.map((land: any) => (
+                                        <div key={land.id} className="p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.02] hover:border-primary-200 transition-all">
+                                            <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+                                                <div>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <h4 className="text-xl font-black text-gray-800 dark:text-white uppercase tracking-tight">Survey #{land.survey_no}</h4>
+                                                        <Badge size="sm" color={land.status?.includes('APPROVED') ? 'success' : 'warning'}>
+                                                            {land.status}
+                                                        </Badge>
+                                                    </div>
+                                                    <p className="text-sm text-gray-500 font-medium">{land.village}, {land.mandal}, {land.district}</p>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <div className="px-3 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center min-w-[50px]">
+                                                        <p className="text-[10px] text-gray-400 uppercase font-black mb-1">Acres</p>
+                                                        <p className="text-base font-black text-primary-600">{land.acres || 0}</p>
+                                                    </div>
+                                                    <div className="px-3 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center min-w-[50px]">
+                                                        <p className="text-[10px] text-gray-400 uppercase font-black mb-1">Guntas</p>
+                                                        <p className="text-base font-black text-primary-600">{land.gunta || 0}</p>
+                                                    </div>
+                                                    <div className="px-3 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center min-w-[50px]">
+                                                        <p className="text-[10px] text-gray-400 uppercase font-black mb-1">Cents</p>
+                                                        <p className="text-base font-black text-primary-600">{land.sents || 0}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                                                <div className="space-y-3 min-w-0">
+                                                    <InfoItem label="Land ID" value={land.landId} icon={<GridIcon className="size-4" />} />
+                                                    <InfoItem label="Land Type" value={land.land_type} icon={<GridIcon className="size-4" />} />
+                                                    <InfoItem label="Water Source" value={land.land_water_source} icon={<BoxIcon className="size-4" />} />
+                                                </div>
+                                                <div className="space-y-3 min-w-0">
+                                                    <InfoItem label="Ownership" value={land.owner_ship_type} icon={<UserIcon className="size-4" />} />
+                                                    <InfoItem label="Coordinates" value={land.land_coordinates} icon={<GridIcon className="size-4" />} />
+                                                </div>
+                                                <div className="space-y-3 min-w-0">
+                                                    <InfoItem label="Passbook No" value={land.passbookNo} icon={<FileIcon className="size-4" />} />
+                                                    <InfoItem label="ROR No" value={land.rorNo} icon={<FileIcon className="size-4" />} />
+                                                    <InfoItem label="Aadhar Name" value={land.owner_aadharName} icon={<UserIcon className="size-4" />} />
+                                                </div>
+                                            </div>
+
+                                            <div className="pt-6 border-t border-dashed border-gray-200 dark:border-gray-700">
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Land Documents & Clearances</p>
+                                                <div className="flex flex-wrap gap-4">
+                                                    {[
+                                                        { label: "Passbook", url: land.passbook_url },
+                                                        { label: "LPM", url: land.lpm_url },
+                                                        { label: "Adangal", url: land.adangal_url },
+                                                        { label: "ROR Copy", url: land.ror_url },
+                                                        { label: "Aadhar", url: land.owner_aadhar_url },
+                                                        { label: "NOC", url: land.noc_url },
+                                                        { label: "Encumbrance", url: land.emcumbrance_url },
+                                                        { label: "APC", url: land.apc_url }
+                                                    ].filter(doc => doc.url).map((doc, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => setPreviewImage({ url: doc.url!, title: `${doc.label} - Survey #${land.survey_no}` })}
+                                                            className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-primary-400 transition-all text-gray-600 dark:text-gray-400 hover:text-primary-600 shadow-sm"
+                                                        >
+                                                            <FileIcon className="size-4" />
+                                                            <span className="text-xs font-bold uppercase tracking-wider">{doc.label}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {land.land_images_url && Array.isArray(land.land_images_url) && land.land_images_url.length > 0 && (
+                                                <div className="mt-6 pt-6 border-t border-dashed border-gray-200 dark:border-gray-700">
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Site Images</p>
+                                                    <div className="flex flex-wrap gap-3">
+                                                        {land.land_images_url.map((img: string, i: number) => (
+                                                            <div
+                                                                key={i}
+                                                                onClick={() => setPreviewImage({ url: img, title: `Land Image ${i + 1} - Survey #${land.survey_no}` })}
+                                                                className="size-20 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 cursor-pointer hover:scale-105 transition-transform"
+                                                            >
+                                                                <img src={img} className="w-full h-full object-cover" alt="" />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </DetailCard>
+                        </div>
                     )}
 
                 </div>

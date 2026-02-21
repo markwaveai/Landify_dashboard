@@ -7,7 +7,7 @@ const api = axios.create({
     baseURL: isLive ? liveUrl : stagingUrl, // Staging backend URL
     headers: {
         'Content-Type': 'application/json',
-        'X-Api-Key': 'lanidfy-testting-apikey'
+        'X-Api-Key': 'landify-testting-apikey'
     },
 });
 
