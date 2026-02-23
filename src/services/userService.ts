@@ -131,10 +131,14 @@ export const createAO = async (data: any) => {
         bank_branch_name: data.bank_branch_name,
 
         // ✅ IMPORTANT
-        address: `${data.village}, ${data.mandal}, ${data.district}, ${data.state} - ${data.pincode}`,
-
-        village: data.village,
-        mandal: data.mandal,
+        address: {
+            village: data.village,
+            mandal: data.mandal,
+            mandal_id: data.mandal_id,
+            district: data.district,
+            state: data.state,
+            pincode: data.pincode
+        },
 
         aadhar_images_url: data.aadhar_image_url || "",
         pan_url: data.pan_image_url || "",
@@ -174,9 +178,14 @@ export const updateAO = async (userId: string, data: any) => {
         dob: data.date_of_birth,
         gender: data.gender,
         isActive: true,
-        address: `${data.village}, ${data.mandal}, ${data.district}, ${data.state} - ${data.pincode}`,
-        village: data.village,
-        mandal: data.mandal,
+        address: {
+            village: data.village,
+            mandal: data.mandal,
+            mandal_id: data.mandal_id,
+            district: data.district,
+            state: data.state,
+            pincode: data.pincode
+        },
         aadhar_images_url: data.aadhar_image_url || "",
         pan_url: data.pan_image_url || "",
         referenceId: data.reference_id || "",

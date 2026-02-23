@@ -7,10 +7,11 @@ import {
     TableRow,
 } from "../ui/table";
 import {
-
     ChevronLeftIcon,
-
     UserIcon,
+    PencilIcon,
+    EyeIcon,
+    TrashBinIcon,
 } from "../../icons";
 
 
@@ -75,7 +76,8 @@ interface OfficerTableProps {
 export default function OfficerTable({
     users,
     isLoading,
-
+    onEdit,
+    onDelete,
     onView,
 }: OfficerTableProps) {
     const [searchTerm, setSearchTerm] = useState("");
@@ -195,6 +197,36 @@ export default function OfficerTable({
                 minWidth: "120px",
                 render: (_: User) => (
                     <AgentCountCell />
+                )
+            },
+            {
+                id: "update",
+                header: "UPDATE",
+                minWidth: "100px",
+                render: (user: User) => (
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onView && onView(user); }}
+                            className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-all shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800"
+                            title="View Details"
+                        >
+                            <EyeIcon className="size-4" />
+                        </button>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onEdit && onEdit(user); }}
+                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-all shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800"
+                            title="Edit Officer"
+                        >
+                            <PencilIcon className="size-4" />
+                        </button>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onDelete && onDelete(user); }}
+                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-all shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800"
+                            title="Delete Officer"
+                        >
+                            <TrashBinIcon className="size-4" />
+                        </button>
+                    </div>
                 )
             },
         ];

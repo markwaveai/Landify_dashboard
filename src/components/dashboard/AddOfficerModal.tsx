@@ -21,6 +21,7 @@ interface OfficerData {
     pincode: string;
     village: string;
     mandal: string;
+    mandal_id?: string;
     district: string;
     state: string;
     date_of_birth: string;
@@ -76,6 +77,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
         pincode: "",
         village: "",
         mandal: "",
+        mandal_id: "",
         district: "",
         state: "",
         date_of_birth: "",
@@ -122,6 +124,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 pincode: user.pincode || "",
                 village: user.village || "",
                 mandal: user.mandal || "",
+                mandal_id: (user as any).mandal_id || "",
                 district: user.district || "",
                 state: user.state || "",
                 date_of_birth: user.date_of_birth || "",
@@ -152,6 +155,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 pincode: "",
                 village: "",
                 mandal: "",
+                mandal_id: "",
                 district: "",
                 state: "",
                 date_of_birth: "",
@@ -637,7 +641,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                                         onChange={(val) => {
                                             const mandal = (mandals || []).find(m => m?.id?.toString() === val);
                                             setSelectedMandalId(val);
-                                            setFormData(prev => ({ ...prev, mandal: mandal?.name || "", village: "" }));
+                                            setFormData(prev => ({ ...prev, mandal: mandal?.name || "", mandal_id: val, village: "" }));
                                             if (errors.mandal) setErrors(prev => ({ ...prev, mandal: "" }));
                                         }}
                                         disabled={!selectedDistrictId}

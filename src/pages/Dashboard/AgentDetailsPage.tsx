@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAgentProfile, getAgentFarmers } from "../../services/userService";
@@ -28,6 +29,14 @@ export default function AgentDetailsPage() {
         queryFn: () => getAgentFarmers(profile?.unique_id!),
         enabled: !!profile?.unique_id
     });
+
+    const aggregateStats = useMemo(() => {
+        if (!farmers) return { lands: 0, acres: 0 };
+        return farmers.reduce((acc: { lands: number; acres: number }, farmer: any) => ({
+            lands: acc.lands + (farmer.land_count || 0),
+            acres: acc.acres + (farmer.total_acres || 0)
+        }), { lands: 0, acres: 0 });
+    }, [farmers]);
 
     if (isLoadingProfile) {
         return (
@@ -102,12 +111,12 @@ export default function AgentDetailsPage() {
                                 <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
                                 <div>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Lands</p>
-                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{profile.land_count || 0}</p>
+                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{isLoadingFarmers ? "..." : aggregateStats.lands}</p>
                                 </div>
                                 <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
                                 <div>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Total Acres</p>
-                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{profile.total_acres || 0}</p>
+                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{isLoadingFarmers ? "..." : aggregateStats.acres.toFixed(1)}</p>
                                 </div>
                             </div>
                         </div>

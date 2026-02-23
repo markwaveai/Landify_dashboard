@@ -271,10 +271,17 @@ const ProcurementDetails: React.FC<ProcurementDetailsProps> = ({ requestId, onBa
 
                 const onboardingDate = addDays(currentHarvestDate, -CONSTANTS.DAYS_IN_CYCLE);
 
+                // Calculate acres for this farmer: use standard block size, 
+                // but for the last farmer, use the remaining acres to match total requirement exactly.
+                const isLastFarmer = farmersGeneratedCount === totalFarmersCap - 1;
+                const farmerAcres = isLastFarmer
+                    ? Number((m.landRequiredAcres - (farmersGeneratedCount * CONSTANTS.ACRES_PER_FARMER_CALC)).toFixed(2))
+                    : CONSTANTS.ACRES_PER_FARMER_CALC;
+
                 const farmer: HarvestScheduleItem = {
                     date: currentHarvestDate,
                     farmerName: farmerName,
-                    acres: CONSTANTS.ACRES_PER_FARMER_CALC,
+                    acres: farmerAcres,
                     onboardingDate: onboardingDate,
                 };
 
@@ -528,15 +535,19 @@ const ProcurementDetails: React.FC<ProcurementDetailsProps> = ({ requestId, onBa
                     <h4 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Required Staff</h4>
                     <div className="flex gap-4">
                         <div className="flex-1 bg-blue-50 p-4 rounded-xl text-center dark:bg-blue-900/20">
-                            <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{metrics.agentsRequired}</div>
+                            <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{agentStats.length}</div>
                             <div className="text-xs text-blue-600 uppercase font-bold tracking-wider">Agents</div>
                         </div>
                         <div className="flex-1 bg-orange-50 p-4 rounded-xl text-center dark:bg-orange-900/20">
-                            <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">{metrics.farmersRequired}</div>
+                            <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">
+                                {agentStats.reduce((sum, a) => sum + a.totalFarmers, 0)}
+                            </div>
                             <div className="text-xs text-orange-600 uppercase font-bold tracking-wider">Farmers</div>
                         </div>
                         <div className="flex-1 bg-green-50 p-4 rounded-xl text-center dark:bg-green-900/20">
-                            <div className="text-2xl font-bold text-green-700 dark:text-green-300">{metrics.landRequiredAcres.toFixed(1)}</div>
+                            <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                                {agentStats.reduce((sum, a) => sum + a.totalAcres, 0).toFixed(1)}
+                            </div>
                             <div className="text-xs text-green-600 uppercase font-bold tracking-wider">Total Acres</div>
                         </div>
                     </div>

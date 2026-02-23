@@ -28,6 +28,7 @@ interface User {
     is_active?: boolean;
     farmer_count?: number;
     land_count?: number;
+    total_acres?: number;
     user_image_url?: string;
 }
 
@@ -141,6 +142,9 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-300">
                                 Land
                             </TableCell>
+                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-300">
+                                Acres
+                            </TableCell>
                         </TableRow>
                     </TableHeader>
 
@@ -223,9 +227,18 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                                 )}
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     <div className="flex items-center gap-3">
-                                        <div className="bg-gray-100 dark:bg-white/[0.05] px-2 py-1 rounded-md">
+                                        <div className="bg-gray-100 dark:bg-white/[0.05] px-2 py-1 rounded-md min-w-[32px] text-center">
                                             <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                                                 {user.land_count || 0}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-brand-50/50 dark:bg-brand-500/10 px-2 py-1 rounded-md min-w-[40px] text-center border border-brand-100 dark:border-brand-500/20">
+                                            <span className="text-xs font-bold text-brand-600 dark:text-brand-400">
+                                                {user.total_acres !== undefined ? user.total_acres.toFixed(1) : "0.0"}
                                             </span>
                                         </div>
                                         <Link
@@ -247,14 +260,14 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                         ))}
                         {isLoading && (
                             <TableRow>
-                                <TableCell className="py-3 text-center" colSpan={10}>
+                                <TableCell className="py-3 text-center" colSpan={15}>
                                     Loading...
                                 </TableCell>
                             </TableRow>
                         )}
                         {!isLoading && users.length === 0 && (
                             <TableRow>
-                                <TableCell className="py-3 text-center" colSpan={10}>
+                                <TableCell className="py-3 text-center" colSpan={15}>
                                     No data found
                                 </TableCell>
                             </TableRow>
