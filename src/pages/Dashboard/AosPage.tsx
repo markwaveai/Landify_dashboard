@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { useQuery } from "@tanstack/react-query";
-import { getAOs, getUsersByReferenceId } from "../../services/userService";
+import { getUsersByReferenceId } from "../../services/userService";
 import OfficerTable from "../../components/dashboard/OfficerTable";
 import PageMeta from "../../components/common/PageMeta";
 import AddOfficerModal from "../../components/dashboard/AddOfficerModal";
