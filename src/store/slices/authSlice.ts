@@ -5,7 +5,7 @@ interface User {
   first_name: string;
   last_name: string;
   email: string;
-  role: 'ADMIN' | 'AGRICULTURE_OFFICER' | 'AGENT' | 'FARMER';
+  role: 'ADMIN' | 'FIELD_OFFICER' | 'AGENT' | 'FARMER';
   unique_id?: string;
   surname?: string;
   gender?: string;

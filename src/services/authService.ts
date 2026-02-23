@@ -48,8 +48,45 @@ export const fetchProfile = async (phoneNumber: string) => {
         total_acres: u.no_of_acres || 0,
         officer_count: u.extra_details?.no_of_aos || 0,
         agent_count: u.extra_details?.no_of_agents || 0,
-        role: u.role === 'FIELD_OFFICER' ? 'AGRICULTURE_OFFICER' : u.role
+        role: u.role === 'FIELD_OFFICER' ? 'FIELD_OFFICER' : u.role
     };
 };
 
 
+export const updateProfile = async (userId: string, data: any) => {
+    // Always recompute name from first/last name to capture UI edits
+    const firstName = data.first_name || "";
+    const lastName = data.last_name || "";
+    const computedName = `${firstName} ${lastName}`.trim();
+
+    // Construct a clean, robust payload
+    const payload: any = {
+        name: computedName || data.name,
+        surname: data.surname || lastName || "",
+        phoneNumber: data.phone_number || data.phoneNumber,
+        email: data.email || "",
+        gender: data.gender || "",
+        role: data.role,
+        isActive: true,
+        village: data.village || "",
+        mandal: data.mandal || "",
+        district: data.district || "",
+        state: data.state || "",
+        pincode: data.pincode || "",
+        address: `${data.village || ''}, ${data.mandal || ''}, ${data.district || ''}, ${data.state || ''} - ${data.pincode || ''}`.trim()
+    };
+
+    // Only add dob if it's a valid looking date string
+    if (data.date_of_birth && data.date_of_birth !== "string" && data.date_of_birth !== "dd-mm-yyyy") {
+        payload.dob = data.date_of_birth;
+    }
+
+    console.log("PUT /users/", userId, "Payload:", payload);
+    try {
+        const response = await api.put(`/users/${userId}`, payload);
+        return response.data;
+    } catch (error: any) {
+        console.error("API update error:", error.response?.data);
+        throw error;
+    }
+};

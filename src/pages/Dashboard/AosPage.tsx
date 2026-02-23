@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { useQuery } from "@tanstack/react-query";
-import { getAOs } from "../../services/userService";
+import { getAOs, getUsersByReferenceId } from "../../services/userService";
 import OfficerTable from "../../components/dashboard/OfficerTable";
 import PageMeta from "../../components/common/PageMeta";
 import AddOfficerModal from "../../components/dashboard/AddOfficerModal";
@@ -17,9 +17,14 @@ export default function AosPage() {
     const [selectedOfficer, setSelectedOfficer] = useState<any>(null);
 
     const { data: aos, isLoading } = useQuery({
-        queryKey: ['aos'],
-        queryFn: getAOs,
-        enabled: user?.role === 'ADMIN'
+        queryKey: ['aos', user?.unique_id],
+        queryFn: async () => {
+            if (!user?.unique_id) return [];
+            const data = await getUsersByReferenceId(user.unique_id);
+            // Filter to only show field officers if the endpoint returns multiple roles
+            return data.filter((u: any) => u.role === 'FIELD_OFFICER');
+        },
+        enabled: !!user?.unique_id && user?.role === 'ADMIN'
     });
 
     if (user?.role !== 'ADMIN') {

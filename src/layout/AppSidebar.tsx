@@ -43,20 +43,20 @@ const navItems: NavItem[] = [
     icon: <UserCircleIcon />,
     name: "Agents",
     path: "/agents",
-    roles: ["ADMIN", "AGRICULTURE_OFFICER"],
+    roles: ["ADMIN", "FIELD_OFFICER"],
   },
   // {
   //   icon: <ListIcon />,
   //   name: "Farmers",
   //   path: "/farmers",
-  //   roles: ["ADMIN", "AGRICULTURE_OFFICER", "AGENT"],
+  //   roles: ["ADMIN", "FIELD_OFFICER", "AGENT"],
   //   disabled: true,
   // },
   {
     icon: <CheckCircleIcon />,
     name: "Approvals",
     path: "/approvals",
-    roles: ["ADMIN", "AGRICULTURE_OFFICER"],
+    roles: ["ADMIN", "FIELD_OFFICER"],
   },
   // {
   //   icon: <span className="flex items-center justify-center text-lg font-bold w-6 h-6">₹</span>,

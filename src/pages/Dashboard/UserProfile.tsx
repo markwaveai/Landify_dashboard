@@ -6,10 +6,10 @@ import {
     UserCircleIcon, GroupIcon, UserIcon, PencilIcon, LogoutIcon
 } from "../../icons";
 import { logout } from "../../store/slices/authSlice";
-import { useQuery } from "@tanstack/react-query";
-import { fetchProfile } from "../../services/authService";
+import { fetchProfile, updateProfile } from "../../services/authService";
 import { setCredentials } from "../../store/slices/authSlice";
 import Button from "../../components/ui/button/Button";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // Reusable Input Component for the cleaner look
 const InputField = ({ label, value, onChange, type = "text", disabled = false, icon, placeholder }: any) => (
@@ -57,8 +57,71 @@ const UserProfile: React.FC = () => {
         }
     }, [updatedUser, user, dispatch]);
 
+    const queryClient = useQueryClient();
+
+    const { mutate: updateMutation, isPending: isUpdating } = useMutation({
+        mutationFn: (data: any) => {
+            const id = user?.unique_id || formData?.unique_id || (user as any)?.userId || data?.userId || data?.unique_id;
+            console.log("Attempting to update profile for ID:", id);
+            console.log("Payload being sent:", data);
+
+            if (!id) {
+                console.error("Critical: User ID missing for update!");
+                throw new Error("User ID is missing. Please try logging in again.");
+            }
+            return updateProfile(id, data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['profile', user?.phone_number] });
+            alert("Profile updated successfully!");
+        },
+        onError: (error: any) => {
+            console.error("Update failed. Full error object:", error);
+            const detail = error.response?.data?.detail;
+            const message = error.response?.data?.message || error.message;
+
+            let errorMessage = `Failed to update profile: ${message}`;
+            if (detail) {
+                if (Array.isArray(detail)) {
+                    const detailMsg = detail.map((d: any) => `${d.loc?.join('.')} : ${d.msg}`).join('\n');
+                    errorMessage += `\n\nValidation Errors:\n${detailMsg}`;
+                    console.error("Validation details:", detailMsg);
+                } else if (typeof detail === 'string') {
+                    errorMessage += `\n\nDetails: ${detail}`;
+                }
+            }
+
+            alert(errorMessage);
+        }
+    });
+
     const handleInputChange = (field: string, value: string) => {
-        setFormData((prev: any) => ({ ...prev, [field]: value }));
+        // Prevent alphabets for Phone Number and Pincode and enforce length
+        if (field === 'phone_number') {
+            const numericValue = value.replace(/\D/g, '').slice(0, 10);
+            setFormData((prev: any) => ({ ...prev, [field]: numericValue }));
+            return;
+        }
+
+        if (field === 'pincode') {
+            const numericValue = value.replace(/\D/g, '').slice(0, 6);
+            setFormData((prev: any) => ({ ...prev, [field]: numericValue }));
+            return;
+        }
+
+        // Prevent numbers for Village, Mandal, District, and State
+        const locationFields = ['village', 'mandal', 'district', 'state'];
+        if (locationFields.includes(field)) {
+            const sanitizedValue = value.replace(/[0-9]/g, '');
+            setFormData((prev: any) => ({ ...prev, [field]: sanitizedValue }));
+        } else {
+            setFormData((prev: any) => ({ ...prev, [field]: value }));
+        }
+    };
+
+    const handleSave = () => {
+        console.log("Save button clicked, formData:", formData);
+        updateMutation(formData);
     };
 
 
@@ -82,7 +145,7 @@ const UserProfile: React.FC = () => {
                 </div>
             );
         }
-        if (user.role === "AGRICULTURE_OFFICER") {
+        if (user.role === "FIELD_OFFICER") {
             return (
                 <div className="grid grid-cols-2 gap-4">
                     <div className="p-6 bg-blue-500 rounded-2xl text-white col-span-2">
@@ -151,7 +214,7 @@ const UserProfile: React.FC = () => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Profile</h1>
                     <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your account settings and platform preferences</p>
                 </div>
                 <div>
@@ -181,7 +244,12 @@ const UserProfile: React.FC = () => {
                         {/* Overlapping Avatar */}
                         <div className="relative inline-block">
                             <div className="size-32 sm:size-40 rounded-full border-8 border-white dark:border-gray-800 shadow-2xl overflow-hidden bg-white">
-                                <img src="/images/user/owner.jpg" alt="Profile" className="size-full object-cover" />
+                                <img
+                                    src={formData.user_image_url || "/images/user/owner.jpg"}
+                                    alt="Profile"
+                                    className="size-full object-cover"
+                                    onError={(e) => (e.currentTarget.src = "/images/user/owner.jpg")}
+                                />
                             </div>
                             <div className="absolute bottom-4 right-4 bg-green-600 text-white p-2.5 rounded-full border-4 border-white dark:border-gray-800 shadow-lg cursor-pointer transform hover:scale-110 transition-transform">
                                 <PencilIcon className="size-4" />
@@ -198,7 +266,7 @@ const UserProfile: React.FC = () => {
                                     {formData.role || 'Admin'}
                                 </span>
                                 <span className="text-sm font-medium text-gray-400">
-                                    ID: <span className="text-gray-500 font-bold">#2026-{formData.phone_number?.slice(-4) || '0001'}</span>
+                                    ID: <span className="text-gray-500 font-bold">{formData.unique_id || 'PENDING'}</span>
                                 </span>
                             </div>
                         </div>
@@ -242,7 +310,7 @@ const UserProfile: React.FC = () => {
                                 <InputField
                                     label="Date of Birth"
                                     type="date"
-                                    value={formData.date_of_birth?.split('T')[0]}
+                                    value={(formData.date_of_birth || "").split('T')[0]}
                                     onChange={(e: any) => handleInputChange('date_of_birth', e.target.value)}
                                 />
                             </div>
@@ -289,8 +357,12 @@ const UserProfile: React.FC = () => {
                         <Button variant="outline" className="border-gray-200" onClick={() => setFormData(user)}>
                             Reset Changes
                         </Button>
-                        <Button className="px-8 shadow-lg shadow-green-600/20" onClick={() => console.log("Save Profile", formData)}>
-                            Save Changes
+                        <Button
+                            className="px-8 shadow-lg shadow-green-600/20"
+                            onClick={handleSave}
+                            disabled={isUpdating}
+                        >
+                            {isUpdating ? "Saving..." : "Save Changes"}
                         </Button>
                     </div>
                 </div>

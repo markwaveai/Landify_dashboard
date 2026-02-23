@@ -49,7 +49,7 @@ export default function LandApprovalsPage() {
     const handleAction = () => {
         if (!selectedLand || !action) return;
 
-        if (user?.role === 'AGRICULTURE_OFFICER') {
+        if (user?.role === 'FIELD_OFFICER') {
             mutationStage1.mutate({ id: selectedLand.id, action, reason });
         } else if (user?.role === 'ADMIN') {
             mutationStage2.mutate({ id: selectedLand.id, action, reason });

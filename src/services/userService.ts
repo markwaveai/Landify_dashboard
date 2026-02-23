@@ -2,18 +2,51 @@ import api from './api';
 
 const mapUser = (u: any) => {
     if (!u) return null;
+    let parsedVillage = u.village || "";
+    let parsedMandal = u.mandal || "";
+    let parsedDistrict = u.district || "";
+    let parsedState = u.state || "";
+    let parsedPincode = u.pincode || "";
+    let parsedCity = u.city || "";
+
+    if (u.address && typeof u.address === 'object') {
+        parsedVillage = u.address.village || parsedVillage;
+        parsedMandal = u.address.mandal || parsedMandal;
+        parsedDistrict = u.address.district || parsedDistrict;
+        parsedState = u.address.state || parsedState;
+        parsedPincode = u.address.pincode || parsedPincode;
+        parsedCity = u.address.city || parsedCity;
+    } else if (typeof u.address === 'string' && u.address.includes(',')) {
+        const parts = u.address.split(',').map((s: string) => s.trim());
+        if (parts.length >= 4) {
+            parsedVillage = parsedVillage || parts[0];
+            parsedMandal = parsedMandal || parts[1];
+            parsedDistrict = parsedDistrict || parts[2];
+
+            const statePincode = parts.slice(3).join(', ');
+            const spParts = statePincode.split('-');
+
+            if (spParts.length >= 2) {
+                parsedState = parsedState || spParts[0].trim();
+                parsedPincode = parsedPincode || spParts[1].trim();
+            } else {
+                parsedState = parsedState || statePincode;
+            }
+        }
+    }
+
     return {
         ...u,
         first_name: u.name?.split(' ')[0] || u.name || "",
         last_name: u.name?.split(' ').slice(1).join(' ') || "",
         phone_number: u.phoneNumber || "",
         unique_id: u.userId,
-        village: u.address?.village || u.village || "",
-        mandal: u.address?.mandal || u.mandal || "",
-        district: u.address?.district || u.district || "",
-        state: u.address?.state || u.state || "",
-        pincode: u.address?.pincode || u.pincode || "",
-        city: u.address?.city || u.city || "",
+        village: parsedVillage,
+        mandal: parsedMandal,
+        district: parsedDistrict,
+        state: parsedState,
+        pincode: parsedPincode,
+        city: parsedCity,
         address: typeof u.address === 'string' ? u.address : "",
         date_of_birth: u.dob || "",
         // Extra details mapping
@@ -86,13 +119,30 @@ export const createAO = async (data: any) => {
         dob: data.date_of_birth,
         gender: data.gender,
         isActive: true,
+
+        reference_id: data.reference_id,
+        aadhar_number: data.aadhar_card_number,
+        pan_number: data.pan_card_number,
+
+        bank_account_name: data.bank_account_name,
+        bank_account_number: data.bank_account_number,
+        bank_name: data.bank_name,
+        bank_ifsc_code: data.bank_ifsc_code,
+        bank_branch_name: data.bank_branch_name,
+
+        // ✅ IMPORTANT
         address: `${data.village}, ${data.mandal}, ${data.district}, ${data.state} - ${data.pincode}`,
+
         village: data.village,
         mandal: data.mandal,
+
         aadhar_images_url: data.aadhar_image_url || "",
         pan_url: data.pan_image_url || "",
-        referenceId: data.reference_id || ""
+        bank_passbook_image_url: data.bank_passbook_image_url || "",
+
+        status: "ACTIVE"
     };
+
     const response = await api.post('/users/register', payload);
     return mapUser(response.data);
 };
@@ -129,7 +179,15 @@ export const updateAO = async (userId: string, data: any) => {
         mandal: data.mandal,
         aadhar_images_url: data.aadhar_image_url || "",
         pan_url: data.pan_image_url || "",
-        referenceId: data.reference_id || ""
+        referenceId: data.reference_id || "",
+        aadhar_number: data.aadhar_card_number,
+        pan_number: data.pan_card_number,
+        bank_account_name: data.bank_account_name,
+        bank_account_number: data.bank_account_number,
+        bank_name: data.bank_name,
+        bank_ifsc_code: data.bank_ifsc_code,
+        bank_branch_name: data.bank_branch_name,
+        bank_passbook_image_url: data.bank_passbook_image_url || ""
     };
     const response = await api.put(`/users/${userId}`, payload);
     return mapUser(response.data);
@@ -191,6 +249,11 @@ export const getAgentFarmers = async (userId: string) => {
 
 export const getFarmersByReference = async (referenceId: string) => {
     const response = await api.get(`/users/land-details-by-reference/${referenceId}`);
+    return (response.data || []).map(mapUser);
+};
+
+export const getUsersByReferenceId = async (referenceId: string) => {
+    const response = await api.get(`/users/reference/${referenceId}`);
     return (response.data || []).map(mapUser);
 };
 

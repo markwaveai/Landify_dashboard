@@ -40,11 +40,11 @@ export default function AgentsPage() {
     const { data: agents, isLoading: isLoadingAgents } = useQuery({
         queryKey: ['agents'],
         queryFn: getAgents,
-        enabled: user?.role === 'ADMIN' || user?.role === 'AGRICULTURE_OFFICER'
+        enabled: user?.role === 'ADMIN' || user?.role === 'FIELD_OFFICER'
     });
 
 
-    const canAdd = user?.role === 'AGRICULTURE_OFFICER';
+    const canAdd = user?.role === 'FIELD_OFFICER';
 
     const navigate = useNavigate();
 
@@ -102,7 +102,7 @@ export default function AgentsPage() {
         <>
             <PageMeta title={user?.role === 'AGENT' ? "Lands Status | Landify" : "Agents Management | Landify"} description="Manage Agents" />
             <div className="space-y-6">
-                {(user?.role === 'ADMIN' || user?.role === 'AGRICULTURE_OFFICER') && (
+                {(user?.role === 'ADMIN' || user?.role === 'FIELD_OFFICER') && (
                     <>
                         {/* Search & Stats Header Section */}
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">

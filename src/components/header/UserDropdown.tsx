@@ -77,7 +77,7 @@ export default function UserDropdown() {
               {user.officer_count} Officers Added
             </span>
           )}
-          {user?.role === 'AGRICULTURE_OFFICER' && user.agent_count !== undefined && (
+          {user?.role === 'FIELD_OFFICER' && user.agent_count !== undefined && (
             <span className="mt-1 block text-theme-xs font-medium text-blue-500">
               {user.agent_count} Agents Added
             </span>

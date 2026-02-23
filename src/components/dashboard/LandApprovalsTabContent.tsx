@@ -66,7 +66,7 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
     const canApprove = (
         (activeSubTab === 'pending' || activeSubTab === 'admin_pending') && (
             (isAdminView && user?.role === 'ADMIN') ||
-            (!isAdminView && user?.role === 'AGRICULTURE_OFFICER' && activeSubTab === 'pending')
+            (!isAdminView && user?.role === 'FIELD_OFFICER' && activeSubTab === 'pending')
         )
     );
 

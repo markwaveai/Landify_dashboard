@@ -155,7 +155,7 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                                         const role = user.role?.toUpperCase();
                                         let route = 'farmers';
                                         if (role === 'AGENT') route = 'agents';
-                                        else if (role === 'AGRICULTURE_OFFICER' || role === 'FIELD_OFFICER') route = 'aos';
+                                        else if (role === 'FIELD_OFFICER') route = 'aos';
 
                                         navigate(`/${route}/${user.unique_id}`);
                                     }
@@ -233,7 +233,7 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                                                 const role = user.role?.toUpperCase();
                                                 let route = 'farmers';
                                                 if (role === 'AGENT') route = 'agents';
-                                                else if (role === 'AGRICULTURE_OFFICER' || role === 'FIELD_OFFICER') route = 'aos';
+                                                else if (role === 'FIELD_OFFICER') route = 'aos';
                                                 return `/${route}/${user.unique_id}`;
                                             })()}
                                             className="text-gray-400 hover:text-primary-600 transition-colors"

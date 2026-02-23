@@ -27,6 +27,14 @@ interface OfficerData {
     gender: string;
     aadhar_image_url: string;
     pan_image_url: string;
+    aadhar_card_number?: string;
+    pan_card_number?: string;
+    bank_account_name?: string;
+    bank_account_number?: string;
+    bank_name?: string;
+    bank_ifsc_code?: string;
+    bank_branch_name?: string;
+    bank_passbook_image_url?: string;
     reference_id: string;
 }
 
@@ -74,6 +82,14 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
         gender: "",
         aadhar_image_url: "",
         pan_image_url: "",
+        aadhar_card_number: "",
+        pan_card_number: "",
+        bank_account_name: "",
+        bank_account_number: "",
+        bank_name: "",
+        bank_ifsc_code: "",
+        bank_branch_name: "",
+        bank_passbook_image_url: "",
         reference_id: getAdminId(),
     });
 
@@ -81,6 +97,8 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
     const [panFile, setPanFile] = useState<File | null>(null);
     const [aadharPreview, setAadharPreview] = useState<string | null>(null);
     const [panPreview, setPanPreview] = useState<string | null>(null);
+    const [passbookFile, setPassbookFile] = useState<File | null>(null);
+    const [passbookPreview, setPassbookPreview] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
 
     // Geography state
@@ -110,12 +128,21 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 gender: user.gender || "",
                 aadhar_image_url: user.aadhar_image_url || "",
                 pan_image_url: user.pan_image_url || "",
+                aadhar_card_number: user.aadhar_card_number || "",
+                pan_card_number: user.pan_card_number || "",
+                bank_account_name: user.bank_account_name || "",
+                bank_account_number: user.bank_account_number || "",
+                bank_name: user.bank_name || "",
+                bank_ifsc_code: user.bank_ifsc_code || "",
+                bank_branch_name: user.bank_branch_name || "",
+                bank_passbook_image_url: user.bank_passbook_image_url || "",
                 reference_id: user.reference_id || "",
             });
             setAadharFile(null);
             setPanFile(null);
             setAadharPreview(user.aadhar_image_url || null);
             setPanPreview(user.pan_image_url || null);
+            setPassbookPreview(user.bank_passbook_image_url || null);
         } else if (!user && isOpen) {
             setFormData({
                 first_name: "",
@@ -131,12 +158,22 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 gender: "",
                 aadhar_image_url: "",
                 pan_image_url: "",
+                aadhar_card_number: "",
+                pan_card_number: "",
+                bank_account_name: "",
+                bank_account_number: "",
+                bank_name: "",
+                bank_ifsc_code: "",
+                bank_branch_name: "",
+                bank_passbook_image_url: "",
                 reference_id: getAdminId(),
             });
             setAadharFile(null);
             setPanFile(null);
+            setPassbookFile(null);
             setAadharPreview(null);
             setPanPreview(null);
+            setPassbookPreview(null);
             setSelectedStateId("");
             setSelectedDistrictId("");
             setSelectedMandalId("");
@@ -277,6 +314,35 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
         }
     }, [panFile]);
 
+    useEffect(() => {
+        if (passbookFile) {
+            const objectUrl = URL.createObjectURL(passbookFile);
+            setPassbookPreview(objectUrl);
+            return () => URL.revokeObjectURL(objectUrl);
+        }
+    }, [passbookFile]);
+
+    // Auto-fetch Bank Name and Branch based on IFSC Code
+    useEffect(() => {
+        const fetchIfscDetails = async () => {
+            if (formData.bank_ifsc_code && formData.bank_ifsc_code.length === 11) {
+                try {
+                    const response = await axios.get(`https://ifsc.razorpay.com/${formData.bank_ifsc_code}`);
+                    setFormData(prev => ({
+                        ...prev,
+                        bank_name: prev.bank_name || response.data.BANK || "",
+                        bank_branch_name: prev.bank_branch_name || response.data.BRANCH || ""
+                    }));
+                    if (errors.bank_ifsc_code) setErrors(prev => ({ ...prev, bank_ifsc_code: "" }));
+                } catch (error) {
+                    console.error("Failed to fetch IFSC details:", error);
+                    setErrors(prev => ({ ...prev, bank_ifsc_code: "Invalid IFSC Code or not found" }));
+                }
+            }
+        };
+        fetchIfscDetails();
+    }, [formData.bank_ifsc_code]);
+
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const validate = () => {
@@ -307,6 +373,15 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
         }
 
         if (!formData.state.trim()) newErrors.state = "Required";
+        if (!formData.aadhar_card_number.trim()) {
+            newErrors.aadhar_card_number = "Required";
+        } else if (!/^\d{12}$/.test(formData.aadhar_card_number)) {
+            newErrors.aadhar_card_number = "Must be 12 digits";
+        }
+
+        if (formData.pan_card_number.trim() && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan_card_number)) {
+            newErrors.pan_card_number = "Invalid PAN format";
+        }
         if (!formData.district.trim()) newErrors.district = "Required";
         if (!formData.mandal.trim()) newErrors.mandal = "Required";
         if (!formData.village.trim()) newErrors.village = "Required";
@@ -346,6 +421,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
             try {
                 let aadharUrl = formData.aadhar_image_url;
                 let panUrl = formData.pan_image_url;
+                let passbookUrl = formData.bank_passbook_image_url;
 
                 if (aadharFile) {
                     aadharUrl = await uploadFile(aadharFile, 'aadhar', formData.phone_number);
@@ -353,11 +429,15 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 if (panFile) {
                     panUrl = await uploadFile(panFile, 'pan', formData.phone_number);
                 }
+                if (passbookFile) {
+                    passbookUrl = await uploadFile(passbookFile, 'passbook', formData.phone_number);
+                }
 
                 mutation.mutate({
                     ...formData,
                     aadhar_image_url: aadharUrl,
-                    pan_image_url: panUrl
+                    pan_image_url: panUrl,
+                    bank_passbook_image_url: passbookUrl
                 });
             } catch (error: unknown) {
                 console.error("Upload failed", error);
@@ -371,9 +451,14 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
-        if (name === "phone_number" || name === "pincode") {
-            const numericValue = value.replace(/\D/g, "").slice(0, name === "phone_number" ? 10 : 6);
+        if (name === "phone_number" || name === "pincode" || name === "aadhar_card_number" || name === "bank_account_number") {
+            const maxLength = name === "phone_number" ? 10 : name === "pincode" ? 6 : name === "aadhar_card_number" ? 12 : 20;
+            const numericValue = value.replace(/\D/g, "").slice(0, maxLength);
             setFormData(prev => ({ ...prev, [name]: numericValue }));
+        } else if (name === "pan_card_number") {
+            setFormData(prev => ({ ...prev, [name]: value.toUpperCase().slice(0, 10) }));
+        } else if (name === "bank_ifsc_code") {
+            setFormData(prev => ({ ...prev, [name]: value.toUpperCase().slice(0, 11) }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -594,11 +679,21 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
 
                     {/* Section 3: Identity Documents */}
                     <div>
-                        <SectionTitle title="Documents (Optional)" />
+                        <SectionTitle title="Documents" />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             {/* Aadhaar Card Upload */}
                             <div>
-                                <Label>Aadhaar Card</Label>
+                                <Label>Aadhaar Number <span className="text-error-500">*</span></Label>
+                                <Input
+                                    name="aadhar_card_number"
+                                    value={formData.aadhar_card_number}
+                                    onChange={handleChange}
+                                    placeholder="12-digit Aadhaar Number"
+                                    error={!!errors.aadhar_card_number}
+                                    hint={errors.aadhar_card_number}
+                                />
+                                <div className="mt-4"></div>
+                                <Label>Aadhaar Card Document</Label>
                                 <div className="mt-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50 dark:bg-gray-800/30">
                                     {(aadharPreview || formData.aadhar_image_url) ? (
                                         <div className="relative group rounded-lg overflow-hidden h-32 bg-gray-100 dark:bg-gray-800 border-2 border-transparent hover:border-brand-500 transition-colors">
@@ -631,7 +726,17 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
 
                             {/* PAN Card Upload */}
                             <div>
-                                <Label>PAN Card</Label>
+                                <Label>PAN Number</Label>
+                                <Input
+                                    name="pan_card_number"
+                                    value={formData.pan_card_number}
+                                    onChange={handleChange}
+                                    placeholder="10-character PAN Number"
+                                    error={!!errors.pan_card_number}
+                                    hint={errors.pan_card_number}
+                                />
+                                <div className="mt-4"></div>
+                                <Label>PAN Card Document</Label>
                                 <div className="mt-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50 dark:bg-gray-800/30">
                                     {(panPreview || formData.pan_image_url) ? (
                                         <div className="relative group rounded-lg overflow-hidden h-32 bg-gray-100 dark:bg-gray-800 border-2 border-transparent hover:border-brand-500 transition-colors">
@@ -655,6 +760,99 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                                                 type="file"
                                                 accept="image/*,.pdf"
                                                 onChange={(e) => setPanFile(e.target.files?.[0] || null)}
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Section 4: Bank Details */}
+                    <div>
+                        <SectionTitle title="Bank Details" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <Label>Account Holder Name</Label>
+                                <Input
+                                    name="bank_account_name"
+                                    value={formData.bank_account_name}
+                                    onChange={handleChange}
+                                    placeholder="Enter account holder name"
+                                    error={!!errors.bank_account_name}
+                                    hint={errors.bank_account_name}
+                                />
+                            </div>
+                            <div>
+                                <Label>Bank Name</Label>
+                                <Input
+                                    name="bank_name"
+                                    value={formData.bank_name}
+                                    onChange={handleChange}
+                                    placeholder="Enter bank name"
+                                    error={!!errors.bank_name}
+                                    hint={errors.bank_name}
+                                />
+                            </div>
+                            <div>
+                                <Label>Account Number</Label>
+                                <Input
+                                    name="bank_account_number"
+                                    value={formData.bank_account_number}
+                                    onChange={handleChange}
+                                    placeholder="Enter account number"
+                                    error={!!errors.bank_account_number}
+                                    hint={errors.bank_account_number}
+                                />
+                            </div>
+                            <div>
+                                <Label>IFSC Code</Label>
+                                <Input
+                                    name="bank_ifsc_code"
+                                    value={formData.bank_ifsc_code}
+                                    onChange={handleChange}
+                                    placeholder="Enter 11-character IFSC code"
+                                    error={!!errors.bank_ifsc_code}
+                                    hint={errors.bank_ifsc_code}
+                                />
+                            </div>
+                            <div>
+                                <Label>Branch Name</Label>
+                                <Input
+                                    name="bank_branch_name"
+                                    value={formData.bank_branch_name}
+                                    onChange={handleChange}
+                                    placeholder="Enter branch name"
+                                    error={!!errors.bank_branch_name}
+                                    hint={errors.bank_branch_name}
+                                />
+                            </div>
+                            <div className="md:col-span-2">
+                                <Label>Passbook Document</Label>
+                                <div className="mt-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50 dark:bg-gray-800/30">
+                                    {(passbookPreview || formData.bank_passbook_image_url) ? (
+                                        <div className="relative group rounded-lg overflow-hidden h-32 bg-gray-100 dark:bg-gray-800 border-2 border-transparent hover:border-brand-500 transition-colors">
+                                            <img src={passbookPreview || formData.bank_passbook_image_url} alt="Passbook" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => { e.preventDefault(); setPassbookFile(null); setPassbookPreview(null); setFormData(prev => ({ ...prev, bank_passbook_image_url: "" })); }}
+                                                    className="bg-red-500 text-white p-2 rounded-lg text-xs font-semibold hover:bg-red-600 shadow-lg flex items-center gap-1"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg h-32 flex flex-col items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                            <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                            <span className="text-gray-500 text-sm font-medium">Click to upload image</span>
+                                            <input
+                                                type="file"
+                                                accept="image/*,.pdf"
+                                                onChange={(e) => setPassbookFile(e.target.files?.[0] || null)}
                                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                             />
                                         </div>
