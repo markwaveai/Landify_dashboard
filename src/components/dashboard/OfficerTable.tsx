@@ -91,7 +91,6 @@ export default function OfficerTable({
     users,
     isLoading,
     onEdit,
-    onDelete,
     onView,
 }: OfficerTableProps) {
     const [searchTerm, setSearchTerm] = useState("");
