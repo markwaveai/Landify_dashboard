@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { useQuery } from "@tanstack/react-query";
@@ -35,13 +35,28 @@ export default function AgentsPage() {
     const { user } = useSelector((state: RootState) => state.auth);
     const [showModal, setShowModal] = useState(false);
     const [selectedAgent, setSelectedAgent] = useState<any>(null);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const currentPage = parseInt(searchParams.get("page") || "1");
+    const searchQuery = searchParams.get("q") || "";
 
     const { data: agents, isLoading: isLoadingAgents } = useQuery({
         queryKey: ['agents'],
         queryFn: getAgents,
         enabled: user?.role === 'ADMIN' || user?.role === 'FIELD_OFFICER'
     });
+
+    const handlePageChange = (page: number) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set("page", page.toString());
+        setSearchParams(newParams, { replace: true });
+    };
+
+    const handleSearchChange = (query: string) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set("q", query);
+        newParams.set("page", "1"); // Reset to page 1 on new search
+        setSearchParams(newParams, { replace: true });
+    };
 
 
     const canAdd = user?.role === 'FIELD_OFFICER';
@@ -117,7 +132,7 @@ export default function AgentsPage() {
                                         className="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg leading-5 bg-transparent placeholder-gray-400 focus:outline-none text-gray-900 dark:text-gray-100 sm:text-sm"
                                         placeholder="Search by name, village, or officer..."
                                         value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        onChange={(e) => handleSearchChange(e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -163,6 +178,8 @@ export default function AgentsPage() {
                             addLabel={canAdd ? "Add Agent" : undefined}
                             onAddClick={canAdd ? () => { setSelectedAgent(null); setShowModal(true); } : undefined}
                             onRowClick={handleAgentClick}
+                            currentPage={currentPage}
+                            onPageChange={handlePageChange}
                         />
                     </>
                 )}

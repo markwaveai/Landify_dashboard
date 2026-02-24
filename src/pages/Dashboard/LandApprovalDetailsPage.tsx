@@ -119,7 +119,10 @@ const LandApprovalDetailsPage: React.FC = () => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-4">
-                    <button onClick={() => navigate(-1)} className="p-2.5 rounded-xl border border-gray-200 bg-white dark:bg-white/[0.03] shadow-sm hover:bg-gray-50 transition-colors">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="p-2.5 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 hover:border-brand-200 transition-all text-gray-600"
+                    >
                         <AngleLeftIcon className="size-5" />
                     </button>
                     <div>

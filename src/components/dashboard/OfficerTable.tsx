@@ -85,6 +85,8 @@ interface OfficerTableProps {
     onEdit?: (user: User) => void;
     onDelete?: (user: User) => void;
     onView?: (user: User) => void;
+    currentPage?: number;
+    onPageChange?: (page: number) => void;
 }
 
 export default function OfficerTable({
@@ -92,10 +94,15 @@ export default function OfficerTable({
     isLoading,
     onEdit,
     onView,
+    currentPage: propsPage,
+    onPageChange: propsOnPageChange,
 }: OfficerTableProps) {
     const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
+    const [localPage, setLocalPage] = useState(1);
     const itemsPerPage = 5;
+
+    const currentPage = propsPage !== undefined ? propsPage : localPage;
+    const setCurrentPage = propsOnPageChange !== undefined ? propsOnPageChange : setLocalPage;
 
     // Helper for null display
     const format = (val: any) => (val === undefined || val === null || val === "" || val === 0) ? "-" : val;
@@ -151,10 +158,10 @@ export default function OfficerTable({
                 header: "FO ID",
                 minWidth: "140px",
                 render: (user: User) => (
-                    <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md shadow-sm border border-gray-200/50 dark:border-gray-700 text-center">{format(user.unique_id)}</span>
-                        </div>
+                    <div className="flex items-center">
+                        <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
+                            {format(user.unique_id)}
+                        </span>
                     </div>
                 )
             },
@@ -163,10 +170,10 @@ export default function OfficerTable({
                 header: "ADMIN ID",
                 minWidth: "160px",
                 render: (user: User) => (
-                    <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/10 px-2 py-0.5 rounded-md shadow-sm border border-blue-200/50 dark:border-blue-700/50 text-center">{format(user.reference_id)}</span>
-                        </div>
+                    <div className="flex items-center font-mono">
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tight">
+                            {format(user.reference_id)}
+                        </span>
                     </div>
                 )
             },
@@ -175,8 +182,8 @@ export default function OfficerTable({
                 header: "MANDAL",
                 minWidth: "140px",
                 render: (user: User) => (
-                    <div className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-brand-50 to-white border border-brand-100 shadow-sm dark:from-brand-900/20 dark:to-gray-800 dark:border-brand-800/50">
-                        <span className="text-xs font-black text-brand-700 dark:text-brand-400 uppercase tracking-widest">
+                    <div className="inline-flex items-center">
+                        <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">
                             {format(user.mandal)}
                         </span>
                     </div>
@@ -188,8 +195,8 @@ export default function OfficerTable({
                 header: "ROLE",
                 minWidth: "100px",
                 render: (user: User) => (
-                    <div className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 shadow-sm">
-                        <span className="text-[10px] font-black uppercase tracking-widest">{format(user.role)}</span>
+                    <div className="inline-flex items-center text-blue-600 dark:text-blue-400">
+                        <span className="text-[10px] font-bold uppercase tracking-widest">{format(user.role?.replace(/_/g, " "))}</span>
                     </div>
                 )
             },
@@ -198,9 +205,9 @@ export default function OfficerTable({
                 header: "STATUS",
                 minWidth: "100px",
                 render: (user: User) => (
-                    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border shadow-sm ${user.is_active !== false ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50' : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50'}`}>
-                        <div className={`size-1.5 rounded-full ${user.is_active !== false ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
-                        <span className="text-[10px] font-black uppercase tracking-widest">{user.is_active !== false ? 'ACTIVE' : 'INACTIVE'}</span>
+                    <div className="inline-flex items-center gap-1.5">
+                        <div className={`size-1.5 rounded-full ${user.is_active !== false ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]'}`}></div>
+                        <span className={`text-[10px] font-bold uppercase tracking-widest ${user.is_active !== false ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{user.is_active !== false ? 'ACTIVE' : 'INACTIVE'}</span>
                     </div>
                 )
             },
@@ -366,7 +373,7 @@ export default function OfficerTable({
                     </p>
                     <div className="flex items-center gap-2">
                         <button
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                             disabled={currentPage === 1}
                             className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                         >
@@ -406,7 +413,7 @@ export default function OfficerTable({
                         })()}
 
                         <button
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
                             disabled={currentPage === totalPages || totalPages === 0}
                             className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                         >

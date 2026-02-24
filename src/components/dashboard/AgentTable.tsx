@@ -71,15 +71,18 @@ interface AgentTableProps {
     onRowClick?: (agent: Agent) => void;
     addLabel?: string;
     isLoading?: boolean;
+    currentPage?: number;
+    onPageChange?: (page: number) => void;
 }
 
 const ITEMS_PER_PAGE = 5;
 
-
-
-export default function AgentTable({ title, users, onAddClick, onRowClick, addLabel, isLoading }: AgentTableProps) {
+export default function AgentTable({ title, users, onAddClick, onRowClick, addLabel, isLoading, currentPage: propsPage, onPageChange: propsOnPageChange }: AgentTableProps) {
     const navigate = useNavigate();
-    const [currentPage, setCurrentPage] = useState(1);
+    const [localPage, setLocalPage] = useState(1);
+
+    const currentPage = propsPage !== undefined ? propsPage : localPage;
+    const setCurrentPage = propsOnPageChange !== undefined ? propsOnPageChange : setLocalPage;
 
     // Dynamic columns logic
     const columns = useMemo(() => {
@@ -139,8 +142,8 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                 minWidth: "140px",
                 show: hasData("role"),
                 render: (user: Agent) => (
-                    <div className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 shadow-sm">
-                        <span className="text-[10px] font-black uppercase tracking-widest">{format(user.role ? user.role.replace(/_/g, " ") : undefined)}</span>
+                    <div className="inline-flex items-center text-blue-600 dark:text-blue-400">
+                        <span className="text-[10px] font-bold uppercase tracking-widest">{format(user.role ? user.role.replace(/_/g, " ") : undefined)}</span>
                     </div>
                 )
             },
@@ -153,10 +156,10 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                 minWidth: "120px",
                 show: hasData("unique_id"),
                 render: (user: Agent) => (
-                    <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md shadow-sm border border-gray-200/50 dark:border-gray-700 text-center">{format(user.unique_id)}</span>
-                        </div>
+                    <div className="flex items-center">
+                        <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
+                            {format(user.unique_id)}
+                        </span>
                     </div>
                 )
             },
@@ -168,10 +171,10 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                 minWidth: "120px",
                 show: hasData("reference_id"),
                 render: (user: Agent) => (
-                    <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md shadow-sm border border-gray-200/50 dark:border-gray-700 text-center">{format(user.reference_id)}</span>
-                        </div>
+                    <div className="flex items-center">
+                        <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
+                            {format(user.reference_id)}
+                        </span>
                     </div>
                 )
             },
@@ -254,9 +257,9 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                 render: (user: Agent) => {
                     const isActive = user.is_active !== false && (user.status_label === 'ACTIVE' || !user.status_label && user.is_active);
                     return (
-                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border shadow-sm ${isActive ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50' : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50'}`}>
-                            <div className={`size-1.5 rounded-full ${isActive ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
-                            <span className="text-[10px] font-black uppercase tracking-widest">{isActive ? 'ACTIVE' : 'INACTIVE'}</span>
+                        <div className="inline-flex items-center gap-1.5">
+                            <div className={`size-1.5 rounded-full ${isActive ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]'}`}></div>
+                            <span className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{isActive ? 'ACTIVE' : 'INACTIVE'}</span>
                         </div>
                     );
                 }

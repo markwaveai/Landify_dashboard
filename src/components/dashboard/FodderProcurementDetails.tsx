@@ -61,7 +61,7 @@ const MiniCalendar: React.FC<MiniCalendarProps> = ({ selectedDate, onSelect, onC
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     return (
-        <div className="absolute right-0 top-full mt-2 z-50 w-64 rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+        <div className="absolute right-0 bottom-full mb-2 z-[9999] w-64 rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800">
             <div className="mb-4 flex items-center justify-between">
                 <button onClick={prevMonth} className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700">
                     <svg className="h-4 w-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -555,8 +555,8 @@ const ProcurementDetails: React.FC<ProcurementDetailsProps> = ({ requestId, onBa
             </div>
 
             {/* Harvest Schedule Table */}
-            <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden dark:border-gray-800 dark:bg-gray-900 shadow-sm">
-                <div className="flex items-center justify-between bg-gray-50 px-6 py-4 border-b border-gray-100 dark:bg-gray-800/50 dark:border-gray-800">
+            <div className="rounded-2xl border border-gray-200 bg-white overflow-visible dark:border-gray-800 dark:bg-gray-900 shadow-sm">
+                <div className="flex items-center justify-between bg-gray-50 px-6 py-4 border-b border-gray-100 dark:bg-gray-800/50 dark:border-gray-800 overflow-visible rounded-t-2xl">
                     <div>
                         <h4 className="text-base font-semibold text-gray-800 dark:text-white">Harvest Schedule</h4>
                         <p className="text-xs text-gray-500 mt-1">Scheduled farmers for selected date</p>
@@ -590,7 +590,7 @@ const ProcurementDetails: React.FC<ProcurementDetailsProps> = ({ requestId, onBa
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto rounded-b-2xl">
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
                         <thead className="bg-gray-50 dark:bg-gray-800/50">
                             <tr>

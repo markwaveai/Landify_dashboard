@@ -196,8 +196,8 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                 id: 'land_id',
                 header: 'LAND ID',
                 render: (land: any) => (
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md shadow-sm border border-gray-200/50 dark:border-gray-700 text-center">
+                    <div className="flex items-center">
+                        <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
                             #{formatValue(land.landId || land.id)}
                         </span>
                     </div>
@@ -294,20 +294,20 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                     let dotClass = 'bg-gray-500';
 
                     if (isRejected) {
-                        badgeClass = 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50';
-                        dotClass = 'bg-red-500';
+                        dotClass = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]';
+                        badgeClass = 'text-red-600 dark:text-red-400';
                     } else if (isApproved) {
-                        badgeClass = 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50';
-                        dotClass = 'bg-green-500';
+                        dotClass = 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]';
+                        badgeClass = 'text-green-600 dark:text-green-400';
                     } else if (statusStr.includes('PENDING')) {
-                        badgeClass = 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800/50';
-                        dotClass = 'bg-amber-500';
+                        dotClass = 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]';
+                        badgeClass = 'text-amber-600 dark:text-amber-400';
                     }
 
                     return (
-                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border shadow-sm ${badgeClass}`}>
-                            <div className={`size-1.5 rounded-full ${dotClass} animate-pulse`}></div>
-                            <span className="text-[10px] font-black uppercase tracking-widest">{formatValue(statusStr.replace(/_/g, ' '))}</span>
+                        <div className="inline-flex items-center gap-1.5">
+                            <div className={`size-1.5 rounded-full ${dotClass}`}></div>
+                            <span className={`text-[10px] font-bold uppercase tracking-widest ${badgeClass}`}>{formatValue(statusStr.replace(/_/g, ' '))}</span>
                         </div>
                     );
                 }
@@ -325,8 +325,8 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                 id: 'land_status',
                 header: 'LAND_STATUS',
                 render: (land: any) => (
-                    <div className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-brand-50 to-white border border-brand-100 shadow-sm dark:from-brand-900/20 dark:to-gray-800 dark:border-brand-800/50">
-                        <span className="text-xs font-black text-brand-700 dark:text-brand-400 uppercase tracking-widest">
+                    <div className="inline-flex items-center text-brand-600 dark:text-brand-400">
+                        <span className="text-xs font-bold uppercase tracking-wider">
                             {formatValue(land.land_status)}
                         </span>
                     </div>
@@ -336,8 +336,8 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                 id: 'is_active',
                 header: 'IS_ACTIVE',
                 render: (land: any) => (
-                    <div className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 shadow-sm">
-                        <span className="text-[10px] font-black uppercase tracking-widest">{land.is_active ? 'YES' : 'NO'}</span>
+                    <div className="inline-flex items-center text-blue-600 dark:text-blue-400">
+                        <span className="text-[10px] font-bold uppercase tracking-widest">{land.is_active ? 'YES' : 'NO'}</span>
                     </div>
                 )
             },

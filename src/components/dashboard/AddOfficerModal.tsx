@@ -459,6 +459,10 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
             const maxLength = name === "phone_number" ? 10 : name === "pincode" ? 6 : name === "aadhar_card_number" ? 12 : 20;
             const numericValue = value.replace(/\D/g, "").slice(0, maxLength);
             setFormData(prev => ({ ...prev, [name]: numericValue }));
+        } else if (name === "first_name" || name === "last_name" || name === "bank_account_name") {
+            // Remove numbers from name fields
+            const alphaValue = value.replace(/[0-9]/g, "");
+            setFormData(prev => ({ ...prev, [name]: alphaValue }));
         } else if (name === "pan_card_number") {
             setFormData(prev => ({ ...prev, [name]: value.toUpperCase().slice(0, 10) }));
         } else if (name === "bank_ifsc_code") {

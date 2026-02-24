@@ -75,7 +75,7 @@ const FarmerDetailsPage: React.FC = () => {
                     <div className="flex items-center gap-5">
                         <button
                             onClick={() => navigate(-1)}
-                            className="p-3 rounded-2xl border border-gray-100 bg-white text-gray-400 hover:text-primary-600 hover:border-primary-100 dark:border-gray-800 dark:bg-white/5 transition-all shadow-sm"
+                            className="p-2.5 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 hover:border-brand-200 transition-all text-gray-600"
                         >
                             <AngleLeftIcon className="size-5" />
                         </button>
@@ -197,9 +197,9 @@ const FarmerDetailsPage: React.FC = () => {
                             </div>
                         </DetailCard>
 
-                        <DetailCard title="Summary Stats">
+                        <DetailCard title="Summary Status">
                             <div className="grid grid-cols-1 gap-4">
-                                <div className="flex items-center justify-between p-4 bg-primary-600 rounded-2xl text-white shadow-lg shadow-primary-500/20">
+                                <div className="flex items-center justify-between p-4 bg-primary-600 rounded-2xl text-black shadow-lg shadow-primary-500/20">
                                     <div>
                                         <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Total Lands</p>
                                         <p className="text-3xl font-black mt-1">{isLoadingLands ? "..." : (lands?.length || profile.land_count || 0)}</p>
@@ -271,7 +271,7 @@ const FarmerDetailsPage: React.FC = () => {
                                                             {land.status}
                                                         </Badge>
                                                     </div>
-                                                    <p className="text-sm text-gray-500 font-medium">{land.village}, {land.mandal}, {land.district}</p>
+
                                                 </div>
                                                 <div className="flex flex-wrap gap-2">
                                                     <div className="px-3 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center min-w-[50px]">

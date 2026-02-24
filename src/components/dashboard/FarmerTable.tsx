@@ -9,6 +9,8 @@ import {
 import { useNavigate } from "react-router";
 import Badge from "../ui/badge/Badge";
 import { ChevronLeftIcon, UserIcon } from "../../icons";
+import { getFarmerLands } from "../../services/landService";
+import { useQuery } from "@tanstack/react-query";
 
 const format = (val: any) => (val === undefined || val === null || val === "" || val === 0) ? "-" : val;
 
@@ -50,6 +52,7 @@ interface Farmer {
 
     status?: string; // e.g. "Pending Step 1"
     land_count?: number;
+    total_acres?: number | string;
     bond_duration?: string;
     payment_status?: 'Paid' | 'Pending';
 }
@@ -59,29 +62,44 @@ interface FarmerTableProps {
     users: Farmer[];
     onRowClick?: (farmer: Farmer) => void;
     isLoading?: boolean;
+    currentPage?: number;
+    onPageChange?: (page: number) => void;
 }
-
 const ITEMS_PER_PAGE = 5;
 
-// Helper to render image link
-const ImageLink = ({ url, label }: { url?: string, label: string }) => {
-    if (!url) return <span className="text-gray-400">-</span>;
+const LandCountCell = ({ userId, initialCount, initialAcres }: { userId?: string, initialCount?: number, initialAcres?: number | string }) => {
+    const { data: lands, isLoading } = useQuery({
+        queryKey: ['farmer-lands', userId],
+        queryFn: () => userId ? getFarmerLands(userId) : Promise.resolve([]),
+        enabled: !!userId,
+        staleTime: 300000,
+    });
+
+    if (isLoading && initialCount === undefined) {
+        return <div className="animate-pulse h-4 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>;
+    }
+
+    const landCount = lands?.length ?? initialCount ?? 0;
+    const totalAcres = lands ? lands.reduce((sum: number, land: any) => sum + (Number(land.acres) || 0), 0) : initialAcres || 0;
+
     return (
-        <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] font-black uppercase tracking-wider text-brand-600 hover:text-brand-700 dark:text-brand-400 hover:underline transition-all"
-            onClick={(e) => e.stopPropagation()}
-        >
-            {label}
-        </a>
+        <div className="flex flex-col gap-0.5">
+            <span className="text-sm font-bold text-gray-900 dark:text-white">
+                {landCount} Lands
+            </span>
+            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">
+                {totalAcres} Acres
+            </span>
+        </div>
     );
 };
 
-export default function FarmerTable({ title, users, onRowClick, isLoading }: FarmerTableProps) {
+export default function FarmerTable({ title, users, onRowClick, isLoading, currentPage: propsPage, onPageChange: propsOnPageChange }: FarmerTableProps) {
     const navigate = useNavigate();
-    const [currentPage, setCurrentPage] = useState(1);
+    const [localPage, setLocalPage] = useState(1);
+
+    const currentPage = propsPage !== undefined ? propsPage : localPage;
+    const setCurrentPage = propsOnPageChange !== undefined ? propsOnPageChange : setLocalPage;
 
     // Dynamic columns logic
     const columns = useMemo(() => {
@@ -140,46 +158,40 @@ export default function FarmerTable({ title, users, onRowClick, isLoading }: Far
                 show: hasData("unique_id"),
                 render: (user: Farmer) => (
                     <div className="flex items-center">
-                        <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md shadow-sm border border-gray-200/50 dark:border-gray-700 text-center">
+                        <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
                             {format(user.unique_id)}
                         </span>
                     </div>
                 )
             },
             {
-                id: "bank_details",
-                header: "BANK DETAILS",
-                minWidth: "180px",
-                show: hasData("bank_name") || hasData("account_number") || hasData("ifsc_code"),
+                id: "reference_id",
+                header: "REFERENCE ID",
+                minWidth: "120px",
+                show: hasData("reference_id"),
                 render: (user: Farmer) => (
-                    <div className="flex flex-col gap-1">
-                        {user.bank_name ? (
-                            <span className="text-xs font-bold text-gray-800 dark:text-white/90 uppercase truncate max-w-[150px]">{user.bank_name}</span>
-                        ) : "-"}
-                        {user.account_number && (
-                            <span className="text-[10px] font-mono font-bold text-gray-400">A/C: {user.account_number}</span>
-                        )}
+                    <div className="flex items-center">
+                        <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
+                            {format(user.reference_id)}
+                        </span>
                     </div>
                 )
             },
             {
-                id: "verification",
-                header: "VERIFICATION",
-                minWidth: "160px",
+                id: "land",
+                header: "LAND",
+                minWidth: "120px",
                 show: true,
                 render: (user: Farmer) => (
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                        <div className="flex flex-col">
-                            <span className="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Passbook</span>
-                            <ImageLink url={user.bank_passbook_image_url} label="Passbook" />
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Agreement</span>
-                            <ImageLink url={user.agreement_url} label="File" />
-                        </div>
-                    </div>
+                    <LandCountCell
+                        userId={user.unique_id}
+                        initialCount={user.land_count}
+                        initialAcres={user.total_acres}
+                    />
                 )
             },
+
+
             {
                 id: "otp_verified",
                 header: "VERIFIED",
@@ -201,12 +213,9 @@ export default function FarmerTable({ title, users, onRowClick, isLoading }: Far
                 render: (user: Farmer) => {
                     const isActive = user.is_active !== false && (!user.status || !user.status.toLowerCase().includes('pending'));
                     return (
-                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border shadow-sm ${isActive
-                                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50'
-                                : 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800/50'
-                            }`}>
-                            <div className={`size-1.5 rounded-full ${isActive ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`}></div>
-                            <span className="text-[10px] font-black uppercase tracking-widest">
+                        <div className="inline-flex items-center gap-1.5">
+                            <div className={`size-1.5 rounded-full ${isActive ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-yellow-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]'}`}></div>
+                            <span className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
                                 {user.status || (isActive ? 'ACTIVE' : 'PENDING')}
                             </span>
                         </div>

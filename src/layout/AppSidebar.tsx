@@ -357,6 +357,13 @@ const AppSidebar: React.FC = () => {
           </div>
         </nav>
       </div>
+
+      {/* Version Info */}
+      <div className={`py-4 mt-auto border-t border-white/10 ${!isExpanded ? "lg:flex lg:justify-center" : "px-2"}`}>
+        <p className={`text-[10px] font-bold text-white/40 tracking-widest uppercase ${!isExpanded ? "text-center" : ""}`}>
+          {isExpanded || isMobileOpen ? `Version 0.0.4` : `v0.0.4`}
+        </p>
+      </div>
     </aside>
   );
 };

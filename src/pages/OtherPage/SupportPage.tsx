@@ -150,10 +150,15 @@ export default function SupportPage() {
                                         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">First Name</label>
                                         <input
                                             type="text"
-                                            placeholder="John"
+                                            placeholder="Enter First Name"
                                             required
                                             value={formData.firstName}
-                                            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (/^[a-zA-Z\s]*$/.test(val)) {
+                                                    setFormData({ ...formData, firstName: val });
+                                                }
+                                            }}
                                             className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all text-sm font-medium"
                                         />
                                     </div>
@@ -161,10 +166,15 @@ export default function SupportPage() {
                                         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Last Name</label>
                                         <input
                                             type="text"
-                                            placeholder="Doe"
+                                            placeholder="Enter Last Name"
                                             required
                                             value={formData.lastName}
-                                            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (/^[a-zA-Z\s]*$/.test(val)) {
+                                                    setFormData({ ...formData, lastName: val });
+                                                }
+                                            }}
                                             className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all text-sm font-medium"
                                         />
                                     </div>
@@ -174,7 +184,7 @@ export default function SupportPage() {
                                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Email Address</label>
                                     <input
                                         type="email"
-                                        placeholder="john@example.com"
+                                        placeholder="Enter Email Address"
                                         required
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -186,10 +196,17 @@ export default function SupportPage() {
                                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Phone Number</label>
                                     <input
                                         type="tel"
-                                        placeholder="+91 88765 43210"
+                                        placeholder="Enter Phone Number"
                                         required
+                                        maxLength={10}
                                         value={formData.phone}
-                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            // Allow only digits, max 10
+                                            if (/^\d*$/.test(val) && val.length <= 10) {
+                                                setFormData({ ...formData, phone: val });
+                                            }
+                                        }}
                                         className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all text-sm font-medium"
                                     />
                                 </div>
@@ -220,12 +237,12 @@ export default function SupportPage() {
                                 <div className="flex flex-col items-center text-center p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
                                     <EnvelopeIcon className="size-5 text-green-600 mb-2" />
                                     <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">Support Email</span>
-                                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 mt-1">help@landify.com</span>
+                                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 mt-1">contact@markwave.ai</span>
                                 </div>
                                 <div className="flex flex-col items-center text-center p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
                                     <GroupIcon className="size-5 text-green-600 mb-2" />
                                     <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">Office Contact</span>
-                                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 mt-1">+91 1800 555 010</span>
+                                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 mt-1">+917702710290</span>
                                 </div>
                             </div>
                         </div>

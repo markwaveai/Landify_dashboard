@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getFarmers } from "../../services/userService";
 import FarmerTable from "../../components/dashboard/FarmerTable";
@@ -14,14 +15,28 @@ const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default function FarmersPage() {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [villageFilter, setVillageFilter] = useState("All Villages");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const currentPage = parseInt(searchParams.get("page") || "1");
+    const searchQuery = searchParams.get("q") || "";
 
     const { data: farmers, isLoading: isLoadingFarmers } = useQuery({
         queryKey: ['farmers'],
         queryFn: getFarmers,
         refetchInterval: 10000,
     });
+
+    const handlePageChange = (page: number) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set("page", page.toString());
+        setSearchParams(newParams, { replace: true });
+    };
+
+    const handleSearchChange = (query: string) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set("q", query);
+        newParams.set("page", "1"); // Reset on search
+        setSearchParams(newParams, { replace: true });
+    };
 
     // Filtering
     const filteredFarmers = useMemo(() => {
@@ -38,19 +53,10 @@ export default function FarmersPage() {
             );
         }
 
-        if (villageFilter !== "All Villages") {
-            data = data.filter((f: any) => f.village === villageFilter);
-        }
-
         return data;
-    }, [farmers, searchQuery, villageFilter]);
+    }, [farmers, searchQuery]);
 
-    // Unique Villages for Filter
-    const villages = useMemo(() => {
-        if (!farmers || !Array.isArray(farmers)) return ["All Villages"];
-        const v = new Set(farmers.map((f: any) => f.village).filter(Boolean));
-        return ["All Villages", ...Array.from(v)];
-    }, [farmers]);
+
 
     const stats = useMemo(() => {
         if (!farmers || !Array.isArray(farmers)) return { total: 0, active: 0, pending: 0 };
@@ -82,20 +88,8 @@ export default function FarmersPage() {
                                 className="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg leading-5 bg-transparent placeholder-gray-400 focus:outline-none text-gray-900 dark:text-gray-100 sm:text-sm"
                                 placeholder="Search by name, ID or village..."
                                 value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onChange={(e) => handleSearchChange(e.target.value)}
                             />
-                        </div>
-
-                        <div className="flex items-center gap-2 pr-2">
-                            <select
-                                className="bg-transparent border-none text-xs font-bold text-gray-500 focus:ring-0 cursor-pointer"
-                                value={villageFilter}
-                                onChange={(e) => setVillageFilter(e.target.value)}
-                            >
-                                {villages.map(v => (
-                                    <option key={v} value={v} className="bg-white dark:bg-gray-800">{v}</option>
-                                ))}
-                            </select>
                         </div>
                     </div>
 
@@ -120,6 +114,8 @@ export default function FarmersPage() {
                     title="Farmers Management"
                     users={filteredFarmers}
                     isLoading={isLoadingFarmers}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
                 />
             </div>
         </>

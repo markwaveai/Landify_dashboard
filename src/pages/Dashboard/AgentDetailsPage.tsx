@@ -9,10 +9,8 @@ import UserTable from "../../components/dashboard/UserTable";
 import DetailCard from "../../components/common/DetailCard";
 import InfoItem from "../../components/common/InfoItem";
 
-// Icons mapping 
 const PhoneIcon = UserIcon;
 const LocationIcon = GridIcon;
-const ArrowLeftIcon = AngleLeftIcon;
 
 export default function AgentDetailsPage() {
     const { userId } = useParams<{ userId: string }>();
@@ -58,9 +56,9 @@ export default function AgentDetailsPage() {
             <div className="flex items-center gap-4 mb-2">
                 <button
                     onClick={() => navigate(-1)}
-                    className="p-2.5 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 hover:bg-gray-50 transition-colors"
+                    className="p-2.5 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 hover:border-brand-200 transition-all text-gray-600"
                 >
-                    <ArrowLeftIcon className="size-5" />
+                    <AngleLeftIcon className="size-5" />
                 </button>
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Agent Profile</h1>
@@ -73,15 +71,15 @@ export default function AgentDetailsPage() {
                 <div className="px-8 py-8">
                     <div className="flex flex-col md:flex-row gap-6 items-start mb-6">
                         <div className="size-32 rounded-3xl border-4 border-white dark:border-gray-900 overflow-hidden bg-white shadow-xl min-w-[120px]">
-                            {profile.user_photo_url ? (
+                            {(profile.user_image_url || profile.user_photo_url) ? (
                                 <img
-                                    src={profile.user_photo_url}
+                                    src={profile.user_image_url || profile.user_photo_url}
                                     alt="Profile"
-                                    className="size-full object-cover"
-                                    onError={(e) => (e.currentTarget.src = "/images/user/owner.jpg")}
+                                    className="size-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    onError={(e) => (e.currentTarget.src = `https://ui-avatars.com/api/?name=${profile.first_name}+${profile.last_name}&background=random`)}
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-brand-50 text-brand-500 text-4xl font-bold">
+                                <div className="w-full h-full flex items-center justify-center bg-brand-50 text-brand-500 text-4xl font-black uppercase">
                                     {profile.first_name?.[0]}
                                 </div>
                             )}

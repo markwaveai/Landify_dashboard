@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { useQuery } from "@tanstack/react-query";
@@ -15,6 +15,14 @@ export default function AosPage() {
     const { user } = useSelector((state: RootState) => state.auth);
     const [showModal, setShowModal] = useState(false);
     const [selectedOfficer, setSelectedOfficer] = useState<any>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const currentPage = parseInt(searchParams.get("page") || "1");
+
+    const handlePageChange = (page: number) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set("page", page.toString());
+        setSearchParams(newParams, { replace: true });
+    };
 
     const { data: aos, isLoading } = useQuery({
         queryKey: ['aos', user?.unique_id],
@@ -71,6 +79,8 @@ export default function AosPage() {
                     onEdit={handleEdit}
                     onDelete={(user) => console.log("Delete", user)}
                     onView={(user) => navigate(`/aos/${user.unique_id}`)}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
                 />
             </div>
             <AddOfficerModal
