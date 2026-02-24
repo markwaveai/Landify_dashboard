@@ -90,7 +90,7 @@ const FarmerDetailsPage: React.FC = () => {
                             </div>
                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-gray-500">
                                 <span className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-primary-600 font-bold font-mono uppercase tracking-wider">
-                                    ID: {profile.unique_id || "N/A"}
+                                    ID: {profile.unique_id || "-"}
                                 </span>
                                 <span className="w-1 h-1 rounded-full bg-gray-300"></span>
                                 <span className="flex items-center gap-1.5">
@@ -178,7 +178,7 @@ const FarmerDetailsPage: React.FC = () => {
                             <div className="space-y-4">
                                 <div className="p-4 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-gray-100 dark:border-gray-800/60 transition-all hover:border-primary-200">
                                     <p className="text-[10px] text-gray-400 uppercase font-black mb-1">Bank Name</p>
-                                    <p className="text-lg font-bold text-gray-800 dark:text-white">{profile.bank_name || "N/A"}</p>
+                                    <p className="text-lg font-bold text-gray-800 dark:text-white">{profile.bank_name || "-"}</p>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-2xl border border-gray-100 dark:border-gray-800/60">
@@ -192,7 +192,7 @@ const FarmerDetailsPage: React.FC = () => {
                                 </div>
                                 <div className="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-2xl border border-gray-100 dark:border-gray-800/60">
                                     <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Branch</p>
-                                    <p className="text-sm font-bold text-gray-800 dark:text-white">{profile.bank_branch || "N/A"}</p>
+                                    <p className="text-sm font-bold text-gray-800 dark:text-white">{profile.bank_branch || "-"}</p>
                                 </div>
                             </div>
                         </DetailCard>

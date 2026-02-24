@@ -42,6 +42,7 @@ import { ReactComponent as List } from "./list.svg?react";
 import { ReactComponent as Lock } from "./lock.svg?react";
 import { ReactComponent as Logout } from "./logout.svg?react";
 import { ReactComponent as User } from "./user.svg?react";
+import { ReactComponent as PencilSvg } from "./pencil.svg?react";
 
 export {
   AlertHexa as AlertHexaIcon,
@@ -87,10 +88,10 @@ export {
   Lock as LockIcon,
   Logout as LogoutIcon,
   User as UserIconComponent,
+  PencilSvg as PencilIcon,
 };
 
 // Aliases and Fallbacks
-export const PencilIcon = Copy;
 export const TrashBinIcon = Close;
 export const UserCircleIcon = User;
 export const UserIcon = User;

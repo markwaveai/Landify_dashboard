@@ -11,7 +11,7 @@ const Section = ({ title, icon, children }: { title: string; icon: React.ReactNo
             <h3 className="font-bold text-gray-800 dark:text-gray-100 text-lg uppercase tracking-tight">{title}</h3>
         </div>
         <div className="p-6">
-            <div className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 leading-relaxed font-medium space-y-4">
+            <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium space-y-4">
                 {children}
             </div>
         </div>
@@ -19,11 +19,11 @@ const Section = ({ title, icon, children }: { title: string; icon: React.ReactNo
 );
 
 const ListItem = ({ children }: { children: React.ReactNode }) => (
-    <div className="flex gap-3 mb-3">
+    <div className="flex gap-3 mb-2">
         <div className="mt-1 flex-shrink-0">
             <CheckCircleIcon className="size-4 text-green-500" />
         </div>
-        <div className="text-sm font-medium">{children}</div>
+        <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">{children}</div>
     </div>
 );
 
@@ -59,8 +59,8 @@ export default function LegalPage() {
                 <button
                     onClick={() => setActiveTab('terms')}
                     className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all ${activeTab === 'terms'
-                            ? 'bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-white/5'
+                        ? 'bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-white/5'
                         }`}
                 >
                     <DocsIcon className="size-4" />
@@ -69,8 +69,8 @@ export default function LegalPage() {
                 <button
                     onClick={() => setActiveTab('privacy')}
                     className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all ${activeTab === 'privacy'
-                            ? 'bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-white/5'
+                        ? 'bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-white/5'
                         }`}
                 >
                     <LockIcon className="size-4" />
@@ -86,7 +86,7 @@ export default function LegalPage() {
                             <Section title="1. Scope of Services" icon={<BoxCubeIcon className="size-5" />}>
                                 <p>
                                     The platform facilitates fodder procurement, aggregation, logistics coordination, and supply management for the
-                                    <span className="text-green-600 dark:text-green-400 font-bold"> Kurnool sub-branch farm</span> and its associated sourcing locations including
+                                    <span className="text-green-600 dark:text-green-400"> Kurnool sub-branch farm</span> and its associated sourcing locations including
                                     Adoni, Veldurthi, and Krishnagiri.
                                 </p>
                             </Section>
@@ -98,7 +98,7 @@ export default function LegalPage() {
                             <ListItem>Authorized field agents</ListItem>
                             <ListItem>Logistics partners</ListItem>
                             <ListItem>Internal operational staff</ListItem>
-                            <p className="text-xs italic mt-2 opacity-70">Requires onboarding and verification requirements defined by the company.</p>
+                            <p className="text-sm opacity-70">Requires onboarding and verification requirements defined by the company.</p>
                         </Section>
 
                         <Section title="3. Farmer Responsibilities" icon={<DocsIcon className="size-5" />}>
@@ -124,7 +124,7 @@ export default function LegalPage() {
                         <Section title="6. Quality Control" icon={<CheckCircleIcon className="size-5" />}>
                             <p>
                                 The company reserves the right to inspect, test, accept, or reject fodder based on internal quality benchmarks.
-                                <span className="font-bold text-red-500 ml-1">Rejected fodder will not be eligible for payment.</span>
+                                <span className="text-red-500 ml-1">Rejected fodder will not be eligible for payment.</span>
                             </p>
                         </Section>
 
@@ -176,7 +176,7 @@ export default function LegalPage() {
                         <Section title="3. Data Sharing" icon={<GroupIcon className="size-5" />}>
                             <p>
                                 Data shared only with authorized personnel, logistics, or payment partners.
-                                <span className="font-bold text-green-600 block mt-2 underline">We do not sell or rent personal data.</span>
+                                <span className="text-green-600 dark:text-green-400 block mt-2">We do not sell or rent personal data.</span>
                             </p>
                         </Section>
 

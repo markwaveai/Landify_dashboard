@@ -110,7 +110,7 @@ const LandApprovalDetailsPage: React.FC = () => {
         ? `${owner.surname || ''} ${owner.first_name || ''}`.trim()
         : (land.owner_first_name
             ? `${land.surname || ''} ${land.owner_first_name}`.trim()
-            : (land.land_holder_name || land.land_holder_aadharName || land.owner_aadharName || land.owner_name || "N/A"));
+            : (land.land_holder_name || land.land_holder_aadharName || land.owner_aadharName || land.owner_name || "-"));
 
     return (
         <div className="space-y-6 pb-20 max-w-[1400px] mx-auto px-4 sm:px-6">
@@ -136,7 +136,7 @@ const LandApprovalDetailsPage: React.FC = () => {
                     <div className="text-right hidden sm:block">
                         <p className="text-[10px] uppercase font-bold text-gray-400">Application Status</p>
                         <Badge variant="solid" color={String(land.status || '').includes('PENDING') ? 'warning' : String(land.status || '').includes('APPROVED') ? 'success' : 'error'}>
-                            {String(land.status || 'N/A')}
+                            {String(land.status || '-')}
                         </Badge>
                     </div>
                 </div>
@@ -149,7 +149,7 @@ const LandApprovalDetailsPage: React.FC = () => {
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 p-4 bg-primary-50/50 dark:bg-primary-500/5 rounded-2xl border border-primary-100 dark:border-primary-800">
                                 <div className="h-12 w-12 rounded-xl bg-primary-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary-500/20">
-                                    {(ownerNameStr === "N/A" ? (String(land.user_id || "U")) : ownerNameStr).charAt(0).toUpperCase()}
+                                    {(ownerNameStr === "-" ? (String(land.user_id || "U")) : ownerNameStr).charAt(0).toUpperCase()}
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-gray-800 dark:text-white truncate max-w-[200px]">{ownerNameStr}</h3>
@@ -165,17 +165,17 @@ const LandApprovalDetailsPage: React.FC = () => {
 
                     <DetailCard title="Agent Information">
                         <div className="space-y-3">
-                            <InfoItem label="Assigned Agent" value={land.agent_name || land.added_by_name || "N/A"} icon={<UserIcon className="size-4" />} />
-                            <InfoItem label="Agent Contact" value={land.agent_contact || land.agent_phone || land.added_by_phone || "N/A"} icon={<UserIcon className="size-4" />} />
+                            <InfoItem label="Assigned Agent" value={land.agent_name || land.added_by_name || "-"} icon={<UserIcon className="size-4" />} />
+                            <InfoItem label="Agent Contact" value={land.agent_contact || land.agent_phone || land.added_by_phone || "-"} icon={<UserIcon className="size-4" />} />
                         </div>
                     </DetailCard>
 
                     <DetailCard title="Location Details">
                         <div className="space-y-3">
-                            <InfoItem label="State" value={land.state || "N/A"} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="District" value={land.district || "N/A"} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="Mandal" value={land.mandal || "N/A"} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="Village" value={land.village || "N/A"} icon={<GridIcon className="size-4" />} />
+                            <InfoItem label="State" value={land.state || "-"} icon={<GridIcon className="size-4" />} />
+                            <InfoItem label="District" value={land.district || "-"} icon={<GridIcon className="size-4" />} />
+                            <InfoItem label="Mandal" value={land.mandal || "-"} icon={<GridIcon className="size-4" />} />
+                            <InfoItem label="Village" value={land.village || "-"} icon={<GridIcon className="size-4" />} />
                             {land.division && <InfoItem label="Division" value={land.division} icon={<GridIcon className="size-4" />} />}
                         </div>
                     </DetailCard>
@@ -216,15 +216,15 @@ const LandApprovalDetailsPage: React.FC = () => {
                             <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
                                 <p className="text-[10px] text-gray-400 font-bold uppercase mb-2">North-East Points</p>
                                 <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Top Left:</span> {land.tf_latlng || "N/A"}</div>
-                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Top Right:</span> {land.tr_latlng || "N/A"}</div>
+                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Top Left:</span> {land.tf_latlng || "-"}</div>
+                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Top Right:</span> {land.tr_latlng || "-"}</div>
                                 </div>
                             </div>
                             <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
                                 <p className="text-[10px] text-gray-400 font-bold uppercase mb-2">South-West Points</p>
                                 <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Bottom Left:</span> {land.bl_latlng || "N/A"}</div>
-                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Bottom Right:</span> {land.br_latlng || "N/A"}</div>
+                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Bottom Left:</span> {land.bl_latlng || "-"}</div>
+                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Bottom Right:</span> {land.br_latlng || "-"}</div>
                                 </div>
                             </div>
                         </div>

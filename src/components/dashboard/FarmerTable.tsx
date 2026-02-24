@@ -1,7 +1,16 @@
 import { useState, useMemo } from "react";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHeader,
+    TableRow,
+} from "../ui/table";
 import { useNavigate } from "react-router";
 import Badge from "../ui/badge/Badge";
-import { UserIcon } from "../../icons";
+import { ChevronLeftIcon, UserIcon } from "../../icons";
+
+const format = (val: any) => (val === undefined || val === null || val === "" || val === 0) ? "-" : val;
 
 interface Farmer {
     first_name: string;
@@ -58,13 +67,19 @@ const ITEMS_PER_PAGE = 5;
 const ImageLink = ({ url, label }: { url?: string, label: string }) => {
     if (!url) return <span className="text-gray-400">-</span>;
     return (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-brand-500 hover:text-brand-600 hover:underline dark:text-brand-400" onClick={(e) => e.stopPropagation()}>
-            View {label}
+        <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[10px] font-black uppercase tracking-wider text-brand-600 hover:text-brand-700 dark:text-brand-400 hover:underline transition-all"
+            onClick={(e) => e.stopPropagation()}
+        >
+            {label}
         </a>
     );
 };
 
-export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTableProps) {
+export default function FarmerTable({ title, users, onRowClick, isLoading }: FarmerTableProps) {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -81,7 +96,7 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 minWidth: "60px",
                 show: true,
                 render: (_: Farmer, idx: number) => (
-                    <div className="flex items-center">
+                    <div className="flex items-center h-12">
                         <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
                             {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
                         </span>
@@ -94,64 +109,28 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 minWidth: "200px",
                 show: true,
                 render: (user: Farmer) => (
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative transition-colors flex items-center justify-center">
+                    <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-2xl bg-gray-50 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative group-hover:border-brand-300 transition-colors flex items-center justify-center">
                             {user.user_image_url ? (
-                                <img src={user.user_image_url} alt="" className="w-full h-full object-cover" />
+                                <img
+                                    src={user.user_image_url}
+                                    alt="avatar"
+                                    className="w-full h-full object-cover"
+                                />
                             ) : (
-                                <UserIcon className="size-5 text-gray-400 dark:text-gray-500" />
+                                <UserIcon className="size-6 text-gray-400 dark:text-gray-500" />
                             )}
+                            <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-2xl pointer-events-none"></div>
                         </div>
-                        <div className="min-w-0">
-                            <p className="font-semibold text-gray-800 text-sm dark:text-white/90 truncate">
+                        <div className="flex flex-col">
+                            <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                                 {user.first_name} {user.last_name}
-                            </p>
+                            </span>
+                            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
+                                {user.phone_number}
+                            </span>
                         </div>
                     </div>
-                )
-            },
-            {
-                id: "phone_number",
-                header: "MOBILE NUMBER",
-                minWidth: "140px",
-                show: hasData("phone_number"),
-                render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
-                        {user.phone_number}
-                    </div>
-                )
-            },
-            {
-                id: "alt_phone",
-                header: "ALT PHONE",
-                minWidth: "140px",
-                show: hasData("alternate_phone_number"),
-                render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
-                        {user.alternate_phone_number || "-"}
-                    </div>
-                )
-            },
-            {
-                id: "email",
-                header: "EMAIL",
-                minWidth: "180px",
-                show: hasData("email"),
-                render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400">
-                        {user.email || "-"}
-                    </div>
-                )
-            },
-            {
-                id: "role",
-                header: "ROLE",
-                minWidth: "140px",
-                show: hasData("role"),
-                render: (user: Farmer) => (
-                    <Badge size="sm" color="info">
-                        {user.role ? user.role.replace(/_/g, " ") : "FARMER"}
-                    </Badge>
                 )
             },
             {
@@ -160,89 +139,10 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 minWidth: "120px",
                 show: hasData("unique_id"),
                 render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-400 font-mono">
-                        {user.unique_id || "-"}
-                    </div>
-                )
-            },
-            {
-                id: "reference_id",
-                header: "REF ID",
-                minWidth: "120px",
-                show: hasData("reference_id"),
-                render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-300 font-mono">
-                        {user.reference_id || "-"}
-                    </div>
-                )
-            },
-            {
-                id: "gender",
-                header: "GENDER",
-                minWidth: "100px",
-                show: hasData("gender"),
-                render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-300 capitalize">
-                        {user.gender?.toLowerCase() || "-"}
-                    </div>
-                )
-            },
-            {
-                id: "dob",
-                header: "DOB",
-                minWidth: "120px",
-                show: hasData("date_of_birth"),
-                render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-300">
-                        {user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : "-"}
-                    </div>
-                )
-            },
-
-            {
-                id: "address",
-                header: "ADDRESS",
-                minWidth: "250px",
-                show: hasData("village") || hasData("mandal") || hasData("district") || hasData("state") || hasData("address") || hasData("city") || hasData("pincode"),
-                render: (user: Farmer) => {
-                    const parts = [
-                        user.address,
-                        user.village,
-                        user.mandal,
-                        user.city,
-                        user.district,
-                        user.state,
-                        user.pincode
-                    ].filter(p => p && p.trim() !== "");
-                    const displayAddress = parts.length > 0 ? parts.join(", ") : "-";
-                    return (
-                        <div className="text-gray-500 text-sm dark:text-gray-300 truncate max-w-[250px]" title={displayAddress}>
-                            {displayAddress}
-                        </div>
-                    )
-                }
-            },
-
-            // Extra Details
-            {
-                id: "aadhar",
-                header: "AADHAR NO",
-                minWidth: "140px",
-                show: hasData("aadhar_card_number"),
-                render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-300 font-mono">
-                        {user.aadhar_card_number || "-"}
-                    </div>
-                )
-            },
-            {
-                id: "pan",
-                header: "PAN NO",
-                minWidth: "140px",
-                show: hasData("pan_number"),
-                render: (user: Farmer) => (
-                    <div className="text-gray-500 text-sm dark:text-gray-300 font-mono">
-                        {user.pan_number || "-"}
+                    <div className="flex items-center">
+                        <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md shadow-sm border border-gray-200/50 dark:border-gray-700 text-center">
+                            {format(user.unique_id)}
+                        </span>
                     </div>
                 )
             },
@@ -250,61 +150,33 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 id: "bank_details",
                 header: "BANK DETAILS",
                 minWidth: "180px",
-                show: hasData("bank_name") || hasData("account_number") || hasData("ifsc_code") || hasData("bank_branch") || hasData("bank_passbook_image_url"),
+                show: hasData("bank_name") || hasData("account_number") || hasData("ifsc_code"),
                 render: (user: Farmer) => (
-                    <div className="text-gray-500 text-xs dark:text-gray-300 space-y-1">
-                        {user.bank_name && <div className="font-semibold text-gray-800 dark:text-white/90 uppercase">{user.bank_name}</div>}
-                        {user.account_number && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">A/C:</span> {user.account_number}</div>}
-                        {user.ifsc_code && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">IFSC:</span> {user.ifsc_code}</div>}
-                        {user.bank_branch && <div><span className="text-[10px] text-gray-400 dark:text-gray-400">Branch:</span> {user.bank_branch}</div>}
-                        {user.bank_passbook_image_url && (
-                            <div className="pt-1">
-                                <ImageLink url={user.bank_passbook_image_url} label="Passbook" />
-                            </div>
+                    <div className="flex flex-col gap-1">
+                        {user.bank_name ? (
+                            <span className="text-xs font-bold text-gray-800 dark:text-white/90 uppercase truncate max-w-[150px]">{user.bank_name}</span>
+                        ) : "-"}
+                        {user.account_number && (
+                            <span className="text-[10px] font-mono font-bold text-gray-400">A/C: {user.account_number}</span>
                         )}
-                        {!user.bank_name && !user.account_number && !user.ifsc_code && !user.bank_branch && !user.bank_passbook_image_url && "-"}
                     </div>
                 )
             },
-
             {
                 id: "verification",
                 header: "VERIFICATION",
                 minWidth: "160px",
                 show: true,
                 render: (user: Farmer) => (
-                    <div className="text-xs space-y-1">
-                        <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Photo:</span>
-                            {user.user_image_url ? <ImageLink url={user.user_image_url} label="Image" /> : <span className="text-gray-400 dark:text-gray-400">-</span>}
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Passbook</span>
+                            <ImageLink url={user.bank_passbook_image_url} label="Passbook" />
                         </div>
-                        <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Aadhar:</span>
-                            {user.aadhar_image_url ? <ImageLink url={user.aadhar_image_url} label="Card" /> : <span className="text-gray-400 dark:text-gray-400">-</span>}
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Agreement</span>
+                            <ImageLink url={user.agreement_url} label="File" />
                         </div>
-                        <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">PAN:</span>
-                            {user.pan_image_url ? <ImageLink url={user.pan_image_url} label="Card" /> : <span className="text-gray-400 dark:text-gray-400">-</span>}
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Passbook:</span>
-                            {user.bank_passbook_image_url ? <ImageLink url={user.bank_passbook_image_url} label="Passbook" /> : <span className="text-gray-400 dark:text-gray-400">-</span>}
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-400 dark:text-gray-400 text-[10px] uppercase">Agreement:</span>
-                            {user.agreement_url ? <ImageLink url={user.agreement_url} label="File" /> : <span className="text-gray-400 dark:text-gray-400">-</span>}
-                        </div>
-                    </div>
-                )
-            },
-            {
-                id: "land_count",
-                header: "LANDS",
-                minWidth: "100px",
-                show: true,
-                render: (user: Farmer) => (
-                    <div className="text-gray-900 font-medium text-sm dark:text-white/90">
-                        {user.land_count || 0}
                     </div>
                 )
             },
@@ -312,28 +184,13 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 id: "otp_verified",
                 header: "VERIFIED",
                 minWidth: "120px",
-                show: hasData("otp_verified"),
-                render: (user: Farmer) => (
-                    user.otp_verified !== undefined && user.otp_verified !== null ? (
-                        user.otp_verified ? (
-                            <Badge size="sm" color="info">VERIFIED</Badge>
-                        ) : (
-                            <Badge size="sm" color="warning">PENDING</Badge>
-                        )
-                    ) : <span className="text-gray-400">-</span>
-                )
-            },
-            {
-                id: "is_active",
-                header: "IS ACTIVE",
-                minWidth: "120px",
                 show: true,
                 render: (user: Farmer) => (
-                    user.is_active !== undefined && user.is_active !== null ? (
-                        <Badge size="sm" color={user.is_active ? 'success' : 'light'}>
-                            {user.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                    ) : <span className="text-gray-400">-</span>
+                    user.otp_verified ? (
+                        <Badge size="sm" color="info">VERIFIED</Badge>
+                    ) : (
+                        <Badge size="sm" color="warning">PENDING</Badge>
+                    )
                 )
             },
             {
@@ -341,23 +198,27 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
                 header: "STATUS",
                 minWidth: "140px",
                 show: true,
-                render: (user: Farmer) => (
-                    user.status ? (
-                        <Badge size="sm" color={
-                            user.status.toLowerCase().includes('pending') ? 'warning' : 'info'
-                        }>
-                            {user.status}
-                        </Badge>
-                    ) : <span className="text-gray-400">-</span>
-                )
-            },
-
+                render: (user: Farmer) => {
+                    const isActive = user.is_active !== false && (!user.status || !user.status.toLowerCase().includes('pending'));
+                    return (
+                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border shadow-sm ${isActive
+                                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50'
+                                : 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800/50'
+                            }`}>
+                            <div className={`size-1.5 rounded-full ${isActive ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`}></div>
+                            <span className="text-[10px] font-black uppercase tracking-widest">
+                                {user.status || (isActive ? 'ACTIVE' : 'PENDING')}
+                            </span>
+                        </div>
+                    );
+                }
+            }
         ];
 
         return allPossibleColumns.filter(col => col.show);
-    }, [users]);
+    }, [users, currentPage]);
 
-    // Pagination logic
+    // Calculate pagination values
     const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const currentUsers = users.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -369,97 +230,117 @@ export default function FarmerTable({ users, onRowClick, isLoading }: FarmerTabl
     };
 
     return (
-        <div className="w-full">
-            <div className="min-w-full overflow-x-auto">
-                <table className="w-full border-separate border-spacing-y-3">
-                    <thead>
-                        <tr>
-                            <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                <input type="checkbox" className="rounded border-gray-300 text-green-600 focus:ring-green-500" />
-                            </th>
-                            {columns.map((col) => (
-                                <th
-                                    key={col.id}
-                                    className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap"
-                                    style={{ minWidth: col.minWidth }}
-                                >
-                                    {col.header}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody className="space-y-4">
-                        {currentUsers.map((user, index) => (
-                            <tr
-                                key={index}
-                                className="bg-white dark:bg-gray-800 shadow-sm rounded-lg hover:shadow-md transition-shadow cursor-pointer group"
-                                onClick={() => onRowClick ? onRowClick(user) : navigate(`/farmers/${user.unique_id}`)}
-                            >
-                                <td className="px-4 py-4 whitespace-nowrap rounded-l-lg border-y border-l border-gray-100 dark:border-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                                        onClick={(e) => e.stopPropagation()}
-                                    />
-                                </td>
-                                {columns.map((col, colIndex) => (
-                                    <td
-                                        key={col.id}
-                                        className={`px-4 py-4 whitespace-nowrap border-y border-gray-100 dark:border-gray-700 ${colIndex === columns.length - 1 ? "rounded-r-lg border-r" : ""
-                                            }`}
-                                    >
-                                        {col.render(user, index)}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                        {isLoading && (
-                            <tr>
-                                <td colSpan={columns.length + 1} className="text-center py-8 text-gray-500">Loading...</td>
-                            </tr>
-                        )}
-                        {!isLoading && users.length === 0 && (
-                            <tr>
-                                <td colSpan={columns.length + 1} className="text-center py-8 text-gray-500">No farmers found</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+        <div className="space-y-6 font-outfit">
+            <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                        {title}
+                    </h3>
+                </div>
             </div>
 
-            {!isLoading && users.length > ITEMS_PER_PAGE && (
-                <div className="flex items-center justify-between mt-4 px-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+            {/* Main Table Card */}
+            <div className="bg-white dark:bg-gray-800 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-2xl shadow-gray-200/40 dark:shadow-none overflow-hidden mt-8">
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader className="bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-700">
+                            <TableRow>
+                                {columns.map((col, idx) => (
+                                    <TableCell key={col.id} isHeader className={`py-5 ${idx === 0 ? 'pl-8' : 'px-4'} text-[10px] font-black text-gray-400 uppercase tracking-widest text-left`}>
+                                        <div style={{ minWidth: col.minWidth }}>{col.header}</div>
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        </TableHeader>
+
+                        <TableBody className="divide-y divide-gray-50 dark:divide-gray-700/50">
+                            {isLoading ? (
+                                <TableRow>
+                                    <TableCell className="py-8 text-center text-gray-500" colSpan={columns.length}>
+                                        Loading farmers...
+                                    </TableCell>
+                                </TableRow>
+                            ) : currentUsers.length === 0 ? (
+                                <TableRow>
+                                    <TableCell className="py-8 text-center text-gray-500" colSpan={columns.length}>
+                                        No farmers found.
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                currentUsers.map((user, index) => (
+                                    <TableRow
+                                        key={index}
+                                        className="hover:bg-brand-50/30 dark:hover:bg-brand-900/10 transition-all duration-200 group cursor-pointer"
+                                        onClick={() => onRowClick ? onRowClick(user) : navigate(`/farmers/${user.unique_id}`)}
+                                    >
+                                        {columns.map((col, colIdx) => (
+                                            <TableCell key={col.id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'}`}>
+                                                {col.render(user, index)}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 px-8 bg-gray-50/30 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-300 font-medium">
                         Showing <span className="text-gray-800 dark:text-white font-bold">{users.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}</span> to <span className="text-gray-800 dark:text-white font-bold">{Math.min(currentPage * ITEMS_PER_PAGE, users.length)}</span> of <span className="text-gray-800 dark:text-white font-bold">{users.length}</span> entries
                     </p>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2">
                         <button
-                            onClick={() => handlePageChange(currentPage - 1)}
+                            onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
                             disabled={currentPage === 1}
-                            className={`px-4 py-2 border rounded-md text-sm font-medium transition-colors ${currentPage === 1
-                                ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
-                                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                                }`}
+                            className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                         >
-                            &lt;
+                            <ChevronLeftIcon className="w-4 h-4" />
                         </button>
-                        {/* Simple pagination for now */}
-                        <div className="flex items-center gap-1">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Page {currentPage} of {totalPages}</span>
-                        </div>
+
+                        {(() => {
+                            const pages = [];
+                            if (totalPages <= 7) {
+                                for (let i = 1; i <= totalPages; i++) pages.push(i);
+                            } else {
+                                pages.push(1);
+                                if (currentPage > 3) pages.push("...");
+                                const start = Math.max(2, currentPage - 1);
+                                const end = Math.min(totalPages - 1, currentPage + 1);
+                                for (let i = start; i <= end; i++) {
+                                    if (!pages.includes(i)) pages.push(i);
+                                }
+                                if (currentPage < totalPages - 2) pages.push("...");
+                                pages.push(totalPages);
+                            }
+                            return pages.map((page, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => typeof page === 'number' && handlePageChange(page)}
+                                    disabled={typeof page !== 'number'}
+                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all shadow-sm ${currentPage === page
+                                        ? 'bg-brand-600 text-white border border-brand-600'
+                                        : typeof page === 'number'
+                                            ? 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:bg-gray-50'
+                                            : 'bg-transparent text-gray-400 border-transparent cursor-default'
+                                        }`}
+                                >
+                                    {page}
+                                </button>
+                            ));
+                        })()}
+
                         <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className={`px-4 py-2 border rounded-md text-sm font-medium transition-colors ${currentPage === totalPages
-                                ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
-                                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                                }`}
+                            onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                         >
-                            &gt;
+                            <ChevronLeftIcon className="w-4 h-4 rotate-180" />
                         </button>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

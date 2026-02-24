@@ -264,7 +264,7 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
         ];
 
         return allPossibleColumns.filter(col => col.show);
-    }, [users]);
+    }, [users, currentPage]);
 
 
     // Calculate pagination values

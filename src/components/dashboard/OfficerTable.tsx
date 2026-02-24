@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getUsersByReferenceId } from "../../services/userService";
 import {
     Table,
     TableBody,
@@ -10,15 +12,24 @@ import {
     ChevronLeftIcon,
     UserIcon,
     PencilIcon,
-    EyeIcon,
-    TrashBinIcon,
 } from "../../icons";
 
 
-const AgentCountCell = () => {
+const AgentCountCell = ({ userId, initialCount }: { userId?: string, initialCount?: number }) => {
+    const { data: agents, isLoading } = useQuery({
+        queryKey: ['officer-agents', userId],
+        queryFn: () => userId ? getUsersByReferenceId(userId) : Promise.resolve([]),
+        enabled: !!userId,
+        staleTime: 300000, // 5 minutes
+    });
+
+    if (isLoading && initialCount === undefined) {
+        return <div className="animate-pulse h-4 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>;
+    }
+
     return (
-        <div className="text-sm font-bold text-gray-400 dark:text-gray-500">
-            -
+        <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
+            {agents?.length ?? initialCount ?? 0}
         </div>
     );
 };
@@ -63,6 +74,9 @@ interface User {
     bank_passbook_image_url?: string;
     agreement_url?: string;
     address?: string;
+    agent_count?: number;
+    land_count?: number;
+    total_acres?: number;
 }
 
 interface OfficerTableProps {
@@ -195,36 +209,22 @@ export default function OfficerTable({
                 id: "agents",
                 header: "AGENTS",
                 minWidth: "120px",
-                render: (_: User) => (
-                    <AgentCountCell />
+                render: (user: User) => (
+                    <AgentCountCell userId={user.unique_id} initialCount={user.agent_count} />
                 )
             },
             {
                 id: "update",
                 header: "UPDATE",
-                minWidth: "100px",
+                minWidth: "80px",
                 render: (user: User) => (
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={(e) => { e.stopPropagation(); onView && onView(user); }}
-                            className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-all shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800"
-                            title="View Details"
-                        >
-                            <EyeIcon className="size-4" />
-                        </button>
+                    <div className="flex items-center justify-center pr-4">
                         <button
                             onClick={(e) => { e.stopPropagation(); onEdit && onEdit(user); }}
-                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-all shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800"
-                            title="Edit Officer"
+                            className="p-2.5 text-blue-600 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 rounded-xl transition-all shadow-sm border border-blue-100 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-900/20"
+                            title="Update Officer"
                         >
                             <PencilIcon className="size-4" />
-                        </button>
-                        <button
-                            onClick={(e) => { e.stopPropagation(); onDelete && onDelete(user); }}
-                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-all shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800"
-                            title="Delete Officer"
-                        >
-                            <TrashBinIcon className="size-4" />
                         </button>
                     </div>
                 )

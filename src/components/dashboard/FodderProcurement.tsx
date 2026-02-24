@@ -296,7 +296,7 @@ const FodderProcurement: React.FC = () => {
                     className="cursor-pointer transition-colors hover:bg-green-50 dark:hover:bg-green-900/10"
                   >
                     <td className="px-6 py-4 font-mono text-gray-500">#{req.id.slice(0, 8)}</td>
-                    <td className="px-6 py-4 font-semibold text-gray-800 dark:text-white">{req.farm || "N/A"}</td>
+                    <td className="px-6 py-4 font-semibold text-gray-800 dark:text-white">{req.farm || "-"}</td>
                     <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{req.buffaloes.toLocaleString()}</td>
                     <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{req.startDate}</td>
                     <td className="px-6 py-4 text-right">

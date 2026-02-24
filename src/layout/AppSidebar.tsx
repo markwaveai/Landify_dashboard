@@ -15,6 +15,7 @@ import {
   DocsIcon,
   ChatIcon,
   AlertIcon,
+  ListIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 
@@ -45,13 +46,12 @@ const navItems: NavItem[] = [
     path: "/agents",
     roles: ["ADMIN", "FIELD_OFFICER"],
   },
-  // {
-  //   icon: <ListIcon />,
-  //   name: "Farmers",
-  //   path: "/farmers",
-  //   roles: ["ADMIN", "FIELD_OFFICER", "AGENT"],
-  //   disabled: true,
-  // },
+  {
+    icon: <ListIcon />,
+    name: "Farmers",
+    path: "/farmers",
+    roles: ["ADMIN", "FIELD_OFFICER", "AGENT"],
+  },
   {
     icon: <CheckCircleIcon />,
     name: "Approvals",

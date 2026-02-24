@@ -103,6 +103,14 @@ export default function OfficerDetailsPage() {
 
     const assignedAgents = agents?.filter((u: any) => u.role === 'AGENT') || [];
 
+    // Aggregate statistics from assigned agents
+    const totalLandCount = assignedAgents.reduce((sum: number, agent: any) => sum + (agent.land_count || 0), 0);
+    const totalAcresCount = assignedAgents.reduce((sum: number, agent: any) => sum + (agent.total_acres || 0), 0);
+
+    // Use profile values as primary, but fallback to aggregated totals if they seem more accurate (greater than zero)
+    const displayLandCount = Math.max(profile.land_count || 0, totalLandCount);
+    const displayTotalAcres = Math.max(profile.total_acres || 0, totalAcresCount);
+
     return (
         <div className="space-y-8 pb-20 max-w-[1400px] mx-auto font-outfit">
             <PageMeta title={`${profile.first_name} ${profile.last_name} | Officer Details`} description="Officer Details" />
@@ -177,13 +185,13 @@ export default function OfficerDetailsPage() {
                                     />
                                     <StatCard
                                         label="Land Count"
-                                        value={profile.land_count || 0}
+                                        value={displayLandCount}
                                         colorClass="text-emerald-600 bg-emerald-500"
                                         icon={<GridIcon className="size-6" />}
                                     />
                                     <StatCard
                                         label="Total Acres"
-                                        value={profile.total_acres || 0}
+                                        value={typeof displayTotalAcres === 'number' ? displayTotalAcres.toFixed(1) : displayTotalAcres}
                                         colorClass="text-purple-600 bg-purple-500"
                                         icon={<BoxIcon className="size-6" />}
                                     />
