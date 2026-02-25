@@ -158,16 +158,7 @@ const FarmerDetailsPage: React.FC = () => {
                         </div>
                     </DetailCard>
 
-                    <DetailCard title="Primary Address">
-                        <div className="grid grid-cols-1 gap-3 px-1">
-                            <InfoItem label="Village" value={profile.village} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="City" value={profile.city || "-"} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="Mandal" value={profile.mandal} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="District" value={profile.district} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="State" value={profile.state} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="Pincode" value={profile.pincode} icon={<GridIcon className="size-4" />} />
-                        </div>
-                    </DetailCard>
+
                 </div>
 
                 {/* Right Section: Bank, Documents & Lands (8 cols) */}
@@ -289,7 +280,7 @@ const FarmerDetailsPage: React.FC = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                                                 <div className="space-y-3 min-w-0">
                                                     <InfoItem label="Land ID" value={land.landId} icon={<GridIcon className="size-4" />} />
                                                     <InfoItem label="Land Type" value={land.land_type} icon={<GridIcon className="size-4" />} />
@@ -303,6 +294,12 @@ const FarmerDetailsPage: React.FC = () => {
                                                     <InfoItem label="Passbook No" value={land.passbookNo} icon={<FileIcon className="size-4" />} />
                                                     <InfoItem label="ROR No" value={land.rorNo} icon={<FileIcon className="size-4" />} />
                                                     <InfoItem label="Aadhar Name" value={land.owner_aadharName} icon={<UserIcon className="size-4" />} />
+                                                </div>
+                                                <div className="space-y-3 min-w-0">
+                                                    <InfoItem label="Village" value={land.land_address?.village || "-"} icon={<GridIcon className="size-4" />} />
+                                                    <InfoItem label="Mandal" value={land.land_address?.mandal || "-"} icon={<GridIcon className="size-4" />} />
+                                                    <InfoItem label="District" value={land.land_address?.district || "-"} icon={<GridIcon className="size-4" />} />
+                                                    <InfoItem label="State" value={land.land_address?.state || "-"} icon={<GridIcon className="size-4" />} />
                                                 </div>
                                             </div>
 

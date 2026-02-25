@@ -246,22 +246,23 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                     </div>
                 )
             }, */
-            /*  {
-                  id: 'land_address',
-                  header: 'LAND_ADDRESS',
-                  render: (land: any) => (
-                      <div className="text-[11px] space-y-1 min-w-[140px]">
-                          <div className="p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                              <div className="grid grid-cols-2 gap-1">
-                                  <span className="text-gray-400 dark:text-gray-400">Village:</span> <span className="text-gray-700 dark:text-gray-200 font-medium">{formatValue(land.village)}</span>
-                                  <span className="text-gray-400 dark:text-gray-400">Mandal:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.mandal)}</span>
-                                  <span className="text-gray-400 dark:text-gray-400">District:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.district)}</span>
-                                  <span className="text-gray-400 dark:text-gray-400">State:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.state)}</span>
-                              </div>
-                          </div>
-                      </div>
-                  )
-              },*/
+            {
+                id: 'land_address',
+                header: 'LAND ADDRESS',
+                align: 'center',
+                render: (land: any) => (
+                    <div className="text-[10px] space-y-0.5 min-w-[160px] text-center">
+                        <div className="bg-gray-50 dark:bg-gray-800/50 p-1.5 rounded-lg border border-gray-100 dark:border-gray-700/50">
+                            <p className="font-bold text-gray-800 dark:text-white truncate" title={land.village || land.land_address?.village}>
+                                {formatValue(land.village || land.land_address?.village)}
+                            </p>
+                            <p className="text-gray-500 dark:text-gray-400 truncate" title={`${land.mandal || land.land_address?.mandal}, ${land.district || land.land_address?.district}`}>
+                                {formatValue(land.mandal || land.land_address?.mandal)}, {formatValue(land.district || land.land_address?.district)}
+                            </p>
+                        </div>
+                    </div>
+                )
+            },
             /* {
                  id: 'verification',
                  header: 'VERIFICATION',

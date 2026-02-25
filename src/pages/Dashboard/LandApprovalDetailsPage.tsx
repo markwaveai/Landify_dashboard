@@ -175,10 +175,10 @@ const LandApprovalDetailsPage: React.FC = () => {
 
                     <DetailCard title="Location Details">
                         <div className="space-y-3">
-                            <InfoItem label="State" value={land.state || "-"} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="District" value={land.district || "-"} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="Mandal" value={land.mandal || "-"} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="Village" value={land.village || "-"} icon={<GridIcon className="size-4" />} />
+                            <InfoItem label="State" value={land.state || land.land_address?.state || "-"} icon={<GridIcon className="size-4" />} />
+                            <InfoItem label="District" value={land.district || land.land_address?.district || "-"} icon={<GridIcon className="size-4" />} />
+                            <InfoItem label="Mandal" value={land.mandal || land.land_address?.mandal || "-"} icon={<GridIcon className="size-4" />} />
+                            <InfoItem label="Village" value={land.village || land.land_address?.village || "-"} icon={<GridIcon className="size-4" />} />
                             {land.division && <InfoItem label="Division" value={land.division} icon={<GridIcon className="size-4" />} />}
                         </div>
                     </DetailCard>
