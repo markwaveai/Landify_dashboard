@@ -18,7 +18,15 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
     const isControlled = 'lands' in props;
     const queryClient = useQueryClient();
     const { user } = useSelector((state: RootState) => state.auth);
-    const [activeSubTab, setActiveSubTab] = useState<'pending' | 'admin_pending' | 'approved' | 'active_land' | 'rejected'>(isAdminView ? 'admin_pending' : 'pending');
+    const storageKey = isAdminView ? 'approvals_admin_subtab' : 'approvals_fo_subtab';
+    const [activeSubTab, setActiveSubTab] = useState<'pending' | 'admin_pending' | 'approved' | 'active_land' | 'rejected'>(() => {
+        return (localStorage.getItem(storageKey) as any) || (isAdminView ? 'admin_pending' : 'pending');
+    });
+
+    const handleSubTabChange = (tab: any) => {
+        setActiveSubTab(tab);
+        localStorage.setItem(storageKey, tab);
+    };
     const navigate = useNavigate();
     const { showSnackbar } = useSnackbar();
 
@@ -393,7 +401,7 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                 {(isAdminView ? ['admin_pending', 'approved', 'active_land', 'rejected'] : ['pending', 'approved', 'rejected'] as const).map((tab) => (
                     <button
                         key={tab}
-                        onClick={() => setActiveSubTab(tab as any)}
+                        onClick={() => handleSubTabChange(tab as any)}
                         className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all duration-200 border ${activeSubTab === tab
                             ? 'bg-green-600 border-green-600 text-white shadow-sm'
                             : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 hover:border-green-300 dark:hover:border-green-800 hover:text-green-600 dark:hover:text-green-400'

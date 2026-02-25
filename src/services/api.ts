@@ -1,5 +1,5 @@
 import axios from 'axios';
-const isLive = false;
+const isLive = true;
 
 const liveUrl = "https://landify-production-backend-services-612299373064.asia-south2.run.app";
 const stagingUrl = "https://landify-backend-stagging-services-612299373064.asia-south2.run.app";
