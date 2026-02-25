@@ -16,13 +16,11 @@ export default function LandDetailsModal({ isOpen, onClose, land }: LandDetailsM
 
     const renderPreview = (url: string, label: string) => {
         if (!url) return null;
-        const isPdf = url.toLowerCase().includes('.pdf');
+        const isPdf = url.toLowerCase().includes('pdf') || url.toLowerCase().endsWith('.pdf');
 
         const handleClick = (e: React.MouseEvent) => {
-            if (!isPdf) {
-                e.preventDefault();
-                setPreviewImage({ url, title: label });
-            }
+            e.preventDefault();
+            setPreviewImage({ url, title: label });
         };
 
         return (
@@ -144,30 +142,6 @@ export default function LandDetailsModal({ isOpen, onClose, land }: LandDetailsM
                         {land.apc_image_url && renderPreview(land.apc_image_url, "APC")}
                     </div>
                 </div>
-
-                {/* Section 4: Approval Status */}
-                <div className="border-t pt-4">
-                    <h4 className="font-semibold text-gray-700 dark:text-white/90 mb-2">Approval History</h4>
-                    <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-lg space-y-2">
-                        <div className="flex justify-between">
-                            <span className="text-sm text-gray-500">Current Status:</span>
-                            <span className="font-medium text-gray-800 dark:text-white">{land.status}</span>
-                        </div>
-                        {land.ao_reason && (
-                            <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">AO Remarks:</span>
-                                <span className="font-medium text-gray-800 dark:text-white">{land.ao_reason}</span>
-                            </div>
-                        )}
-                        {land.admin_reason && (
-                            <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">Admin Remarks:</span>
-                                <span className="font-medium text-gray-800 dark:text-white">{land.admin_reason}</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
             </div>
 
             {previewImage && (

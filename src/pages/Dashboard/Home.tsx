@@ -19,8 +19,8 @@ export default function Home() {
   const [showFarmerModal, setShowFarmerModal] = useState(false);
 
   // const { data: aos } = useQuery({ queryKey: ['aos'], queryFn: getAOs, enabled: user?.role === 'ADMIN' });
-  // const { data: agents } = useQuery({ queryKey: ['agents'], queryFn: getAgents, enabled: user?.role === 'ADMIN' || user?.role === 'AGRICULTURE_OFFICER' });
-  // const { data: farmers } = useQuery({ queryKey: ['farmers'], queryFn: getFarmers, enabled: user?.role === 'ADMIN' || user?.role === 'AGENT' || user?.role === 'AGRICULTURE_OFFICER' });
+  // const { data: agents } = useQuery({ queryKey: ['agents'], queryFn: getAgents, enabled: user?.role === 'ADMIN' || user?.role === 'FIELD_OFFICER' });
+  // const { data: farmers } = useQuery({ queryKey: ['farmers'], queryFn: getFarmers, enabled: user?.role === 'ADMIN' || user?.role === 'AGENT' || user?.role === 'FIELD_OFFICER' });
 
   return (
     <>

@@ -62,7 +62,7 @@ const MiniCalendar: React.FC<MiniCalendarProps> = ({ selectedDate, onSelect, onC
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   return (
-    <div className="absolute left-0 top-12 z-50 w-64 rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+    <div className="absolute left-0 top-full mt-1 z-[999] w-64 rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800">
       <div className="mb-4 flex items-center justify-between">
         <button onClick={prevMonth} className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700">
           <svg className="h-4 w-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -186,7 +186,7 @@ const FodderProcurement: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* 1. Request Creation Form */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900 shadow-sm relative z-20 overflow-visible">
         <div className="mb-6">
           <h3 className="text-lg font-bold text-gray-800 dark:text-white">
             Create Fodder Schedule
@@ -278,14 +278,14 @@ const FodderProcurement: React.FC = () => {
             Scheduled Requests
           </h4>
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-center">
               <thead className="bg-gray-50 dark:bg-gray-800/50 text-xs uppercase text-gray-500">
                 <tr>
-                  <th className="px-6 py-3">Reference ID</th>
-                  <th className="px-6 py-3">Farm</th>
-                  <th className="px-6 py-3">Buffaloes</th>
-                  <th className="px-6 py-3">Start Date</th>
-                  <th className="px-6 py-3 text-right">Action</th>
+                  <th className="px-6 py-3 text-center">Reference ID</th>
+                  <th className="px-6 py-3 text-center">Farm</th>
+                  <th className="px-6 py-3 text-center">Buffaloes</th>
+                  <th className="px-6 py-3 text-center">Start Date</th>
+                  <th className="px-6 py-3 text-center">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
@@ -296,14 +296,14 @@ const FodderProcurement: React.FC = () => {
                     className="cursor-pointer transition-colors hover:bg-green-50 dark:hover:bg-green-900/10"
                   >
                     <td className="px-6 py-4 font-mono text-gray-500">#{req.id.slice(0, 8)}</td>
-                    <td className="px-6 py-4 font-semibold text-gray-800 dark:text-white">{req.farm || "N/A"}</td>
+                    <td className="px-6 py-4 font-semibold text-gray-800 dark:text-white">{req.farm || "-"}</td>
                     <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{req.buffaloes.toLocaleString()}</td>
                     <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{req.startDate}</td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="inline-flex items-center gap-1 text-green-600 font-medium hover:text-green-800">
-                        Open Details
+                    <td className="px-6 py-4">
+                      <div className="flex justify-center items-center gap-1 text-green-600 font-medium hover:text-green-800">
+                        <span>Open Details</span>
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-                      </span>
+                      </div>
                     </td>
                   </tr>
                 ))}

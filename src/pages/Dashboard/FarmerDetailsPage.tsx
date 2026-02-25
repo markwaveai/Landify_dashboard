@@ -1,327 +1,358 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-// Remove getFarmerFullDetails
-import { getAgentFarmers } from "../../services/userService";
-import { fetchProfile } from "../../services/authService";
+import { getFarmerFullDetails } from "../../services/userService";
 import { getFarmerLands } from "../../services/landService";
-import { UserIcon, EnvelopeIcon, GridIcon, CalenderIcon, AngleLeftIcon } from "../../icons";
+import {
+    AngleLeftIcon,
+    UserIcon,
+    EnvelopeIcon,
+    GridIcon,
+    CalendarIcon,
+    FileIcon,
+    TableIcon,
+    CheckCircleIcon,
+    BoxIcon
+} from "../../icons";
 import Badge from "../../components/ui/badge/Badge";
-import Button from "../../components/ui/button/Button";
 import PageMeta from "../../components/common/PageMeta";
-import UserTable from "../../components/dashboard/UserTable"; // Re-use UserTable for agent's farmers
-import LandDetailsModal from "../../components/dashboard/LandDetailsModal";
 import DetailCard from "../../components/common/DetailCard";
 import InfoItem from "../../components/common/InfoItem";
-import AddLandModal from "../../components/dashboard/AddLandModal";
 import { ImagePreviewModal } from "../../components/ui/modal/ImagePreviewModal";
 
-// Alias available icons to names used in the component
 const PhoneIcon = UserIcon;
-const LocationIcon = GridIcon;
-const ArrowLeftIcon = AngleLeftIcon;
 
 const FarmerDetailsPage: React.FC = () => {
-    const { phoneNumber } = useParams<{ phoneNumber: string }>();
+    const { userId } = useParams<{ userId: string }>();
     const navigate = useNavigate();
-    const [viewLand, setViewLand] = React.useState<any>(null);
-    const [resumeLand, setResumeLand] = React.useState<any>(null);
-    const [isAddLandOpen, setIsAddLandOpen] = React.useState(false);
     const [previewImage, setPreviewImage] = React.useState<{ url: string; title: string } | null>(null);
 
-    const { data: user, isLoading: isUserLoading } = useQuery({
-        queryKey: ["user", phoneNumber],
-        queryFn: () => fetchProfile(phoneNumber!),
-        enabled: !!phoneNumber,
+    const { data: profile, isLoading: isLoadingProfile } = useQuery({
+        queryKey: ['farmerProfile', userId],
+        queryFn: () => getFarmerFullDetails(userId!),
+        enabled: !!userId
     });
 
-    const { data: lands, isLoading: isLandsLoading } = useQuery({
-        queryKey: ["lands", phoneNumber],
-        queryFn: () => getFarmerLands(phoneNumber!),
-        enabled: !!phoneNumber && user?.role === 'FARMER',
+    const { data: lands, isLoading: isLoadingLands } = useQuery({
+        queryKey: ['farmerLands', profile?.unique_id],
+        queryFn: () => getFarmerLands(profile?.unique_id!),
+        enabled: !!profile?.unique_id
     });
 
-    const { data: agentFarmers, isLoading: isAgentFarmersLoading } = useQuery({
-        queryKey: ["agentFarmers", phoneNumber],
-        queryFn: () => getAgentFarmers(phoneNumber!),
-        enabled: !!phoneNumber && user?.role === 'AGENT',
-    });
-
-    if (isUserLoading || (user?.role === 'FARMER' && isLandsLoading) || (user?.role === 'AGENT' && isAgentFarmersLoading)) {
+    if (isLoadingProfile) {
         return (
             <div className="flex h-[60vh] items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
             </div>
         );
     }
 
-    if (!user) {
-        return <div className="p-10 text-center">User not found</div>;
+    if (!profile) {
+        return (
+            <div className="p-10 text-center">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white">Farmer record not found</h2>
+                <button onClick={() => navigate(-1)} className="mt-4 text-primary-500 hover:underline">Go Back</button>
+            </div>
+        );
     }
 
-    const aadharFront = user.farmer_aadhar_front || user.aadhar_front || lands?.[0]?.farmer_aadhar_front || lands?.[0]?.aadhar_front;
-    const aadharBack = user.farmer_aadhar_back || user.aadhar_back || lands?.[0]?.farmer_aadhar_back || lands?.[0]?.aadhar_back;
-    const aadharNumber = user.farmer_aadhar_card_number || user.aadhar_card_number || lands?.[0]?.farmer_aadhar_card_number || lands?.[0]?.aadhar_card_number;
+    // Comprehensive list of verification documents
+    const documents = [
+        { url: profile.user_image_url, label: "Profile Photo", icon: <UserIcon className="size-4" /> },
+        { url: profile.aadhar_image_url, label: "Aadhar Image", icon: <CheckCircleIcon className="size-4" /> },
+        { url: profile.pan_image_url, label: "PAN Card", icon: <FileIcon className="size-4" /> },
+        { url: profile.bank_passbook_image_url, label: "Bank Passbook", icon: <TableIcon className="size-4" /> },
+        { url: profile.agreement_url, label: "Agreement Document", icon: <FileIcon className="size-4" /> },
+    ].filter(doc => doc.url);
 
     return (
-        <div className="space-y-6 pb-20 max-w-[1400px] mx-auto">
-            <PageMeta title={`${user.role === 'AGENT' ? 'Agent' : user.role === 'AGRICULTURE_OFFICER' ? 'AGRICULTURE OFFICER' : 'Farmer'} Details - ${user.first_name}`} description="View profile" />
+        <div className="space-y-6 pb-20 max-w-[1400px] mx-auto px-4 sm:px-6">
+            <PageMeta title={`Farmer Details - ${profile.first_name}`} description="View comprehensive farmer enrollment data" />
 
-            <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="p-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 dark:hover:bg-white/10 transition-all shadow-sm"
-                    >
-                        <ArrowLeftIcon className="size-5" />
-                    </button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-800 dark:text-white sm:text-3xl">
-                            {user.role === 'AGENT' ? 'Agent Profile' : user.role === 'AGRICULTURE_OFFICER' ? 'AGRICULTURE OFFICER PROFILE' : 'Farmer Profile'}
-                        </h1>
-                        <p className="text-sm text-gray-500 mt-0.5">Manage user information and activities</p>
-                    </div>
-                </div>
-
-                {user.role === 'FARMER' && (
-                    <Button
-                        onClick={() => setIsAddLandOpen(true)}
-                        className="flex items-center gap-2 px-5 py-2.5 shadow-lg shadow-brand-500/20"
-                    >
-                        <GridIcon className="size-4" />
-                        Add New Land
-                    </Button>
-                )}
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 lg:gap-8">
-                {/* Profile Header Card */}
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] shadow-sm overflow-hidden relative">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/5 rounded-bl-full -mr-10 -mt-10"></div>
-                    <div className="flex flex-col md:flex-row md:items-center gap-6 relative">
-                        <div className="h-24 w-24 rounded-2xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-600 border-2 border-white dark:border-gray-800 shadow-md">
-                            <UserIcon className="size-12" />
-                        </div>
-                        <div className="flex-1">
-                            <div className="flex items-center gap-3 flex-wrap">
-                                <h2 className="text-2xl font-bold text-gray-800 dark:text-white uppercase tracking-tight">
-                                    {user.surname} {user.first_name} {user.last_name}
-                                </h2>
-                                <Badge color="success" size="md">
-                                    {user.role.replace('_', ' ')}
+            {/* Premium Profile Header */}
+            <div className="relative overflow-hidden rounded-[2.5rem] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm p-4 sm:p-8">
+                <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                    <div className="flex items-center gap-5">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="p-2.5 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 hover:border-brand-200 transition-all text-gray-600"
+                        >
+                            <AngleLeftIcon className="size-5" />
+                        </button>
+                        <div>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-2xl font-black text-gray-900 dark:text-white sm:text-4xl tracking-tight uppercase">
+                                    Land Profile
+                                </h1>
+                                <Badge variant="solid" color={profile.is_active ? 'success' : 'light'}>
+                                    {profile.is_active ? 'ACTIVE' : 'INACTIVE'}
                                 </Badge>
                             </div>
-                            <div className="mt-3 flex flex-wrap gap-4 md:gap-6">
-                                <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-bold text-gray-500 dark:text-gray-400">
-                                    ID: {user.unique_id || "PENDING"}
+                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-gray-500">
+                                <span className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-primary-600 font-bold font-mono uppercase tracking-wider">
+                                    ID: {profile.unique_id || "-"}
                                 </span>
-                                <span className="flex items-center gap-1.5 text-sm text-gray-500">
-                                    <LocationIcon className="size-4" />
-                                    {user.village}, {user.district}
+                                <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                <span className="flex items-center gap-1.5">
+                                    <PhoneIcon className="size-4" /> {profile.phone_number}
                                 </span>
                             </div>
                         </div>
                     </div>
+
+                    <div className="flex items-center gap-4 px-6 py-3 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-gray-800">
+                        <div className="text-right">
+                            <p className="text-[10px] uppercase font-black text-gray-400 tracking-widest leading-none mb-1.5">Enrollment Status</p>
+                            <Badge variant="solid" color={
+                                profile.status && profile.status.toLowerCase().includes('pending') ? 'warning' : 'success'
+                            }>
+                                {profile.status || 'Verified'}
+                            </Badge>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+
+                {/* Left Section: Personal & KYC (4 cols) */}
+                <div className="lg:col-span-4 space-y-6">
+
+                    <DetailCard title="Personal Information">
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-4 p-4 bg-primary-50/50 dark:bg-primary-500/5 rounded-2xl border border-primary-100 dark:border-primary-500/10">
+                                <div className="h-16 w-16 rounded-2xl bg-primary-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-primary-500/20 overflow-hidden shrink-0">
+                                    {profile.user_image_url ? (
+                                        <img src={profile.user_image_url} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span>{(profile.first_name?.[0] || 'U').toUpperCase()}</span>
+                                    )}
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-800 dark:text-white">
+                                        {profile.surname} {profile.first_name} {profile.last_name}
+                                    </h3>
+                                    <div className="mt-1 flex items-center gap-2">
+                                        <Badge size="sm" color={profile.otp_verified ? 'success' : 'warning'}>
+                                            {profile.otp_verified ? 'VERIFIED' : 'PENDING'}
+                                        </Badge>
+                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{profile.role || 'Farmer'}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-3 px-1">
+                                <InfoItem label="Email Address" value={profile.email || "-"} icon={<EnvelopeIcon className="size-4" />} />
+                                <InfoItem label="Gender" value={profile.gender || "-"} icon={<UserIcon className="size-4" />} />
+                                <InfoItem label="Date of Birth" value={profile.date_of_birth || "-"} icon={<CalendarIcon className="size-4" />} />
+                                <InfoItem label="Alt Contact" value={profile.alternate_phone_number || "-"} icon={<UserIcon className="size-4" />} />
+                            </div>
+                        </div>
+                    </DetailCard>
+
+                    <DetailCard title="KYC Identifiers">
+                        <div className="grid grid-cols-1 gap-3 px-1">
+                            <InfoItem label="Aadhar Card" value={profile.aadhar_card_number} icon={<CheckCircleIcon className="size-4" />} />
+                            <InfoItem label="PAN Card" value={profile.pan_number || "-"} icon={<CheckCircleIcon className="size-4" />} />
+                            <InfoItem label="Reference ID" value={profile.reference_id || "-"} icon={<GridIcon className="size-4" />} />
+                        </div>
+                    </DetailCard>
+
+
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {/* Section 1: Personal */}
-                    <DetailCard title="Personal Details">
-                        <div className="grid grid-cols-1 gap-3">
-                            <InfoItem label="Phone Number" value={user.phone_number} icon={<PhoneIcon className="size-4" />} />
-                            <InfoItem label="Email Address" value={user.email} icon={<EnvelopeIcon className="size-4" />} />
-                            <InfoItem label="Gender" value={user.gender} icon={<UserIcon className="size-4" />} />
-                            <InfoItem label="Date of Birth" value={user.date_of_birth?.toString()} icon={<CalenderIcon className="size-4" />} />
-                        </div>
-                    </DetailCard>
+                {/* Right Section: Bank, Documents & Lands (8 cols) */}
+                <div className="lg:col-span-8 space-y-6">
 
-                    {/* Section 2: KYC & Address */}
-                    <DetailCard title="KYC & Address">
-                        <div className="grid grid-cols-1 gap-4">
-                            <div className="grid grid-cols-2 gap-3">
-                                <InfoItem label="Aadhar Number" value={aadharNumber} />
-                                <InfoItem label="Pincode" value={user.pincode} />
-                                <InfoItem label="Mandal" value={user.mandal} />
-                                <InfoItem label="State" value={user.state} />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4 mt-2">
-                                {aadharFront && (
-                                    <div className="space-y-2">
-                                        <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider px-1">Aadhar Front</p>
-                                        <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                                            <img
-                                                src={aadharFront}
-                                                alt="Aadhar Front"
-                                                className="w-full h-40 object-cover cursor-pointer hover:scale-105 transition-transform"
-                                                onClick={() => setPreviewImage({ url: aadharFront, title: "Aadhar Front" })}
-                                            />
-                                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <DetailCard title="Bank Account Details">
+                            <div className="space-y-4">
+                                <div className="p-4 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-gray-100 dark:border-gray-800/60 transition-all hover:border-primary-200">
+                                    <p className="text-[10px] text-gray-400 uppercase font-black mb-1">Bank Name</p>
+                                    <p className="text-lg font-bold text-gray-800 dark:text-white">{profile.bank_name || "-"}</p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-2xl border border-gray-100 dark:border-gray-800/60">
+                                        <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Account No</p>
+                                        <p className="text-base font-bold text-gray-800 dark:text-white truncate">{profile.account_number || "-"}</p>
                                     </div>
-                                )}
-                                {aadharBack && (
-                                    <div className="space-y-2">
-                                        <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider px-1">Aadhar Back</p>
-                                        <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                                            <img
-                                                src={aadharBack}
-                                                alt="Aadhar Back"
-                                                className="w-full h-40 object-cover cursor-pointer hover:scale-105 transition-transform"
-                                                onClick={() => setPreviewImage({ url: aadharBack, title: "Aadhar Back" })}
-                                            />
-                                        </div>
+                                    <div className="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-2xl border border-gray-100 dark:border-gray-800/60">
+                                        <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">IFSC Code</p>
+                                        <p className="text-base font-bold text-gray-800 dark:text-white">{profile.ifsc_code || "-"}</p>
                                     </div>
-                                )}
-                            </div>
-                        </div>
-                    </DetailCard>
-
-                    {/* Section 3: Bank Details */}
-                    {user.role !== 'AGRICULTURE_OFFICER' && (
-                        <DetailCard title="Bank Information">
-                            <div className="grid grid-cols-1 gap-3">
-                                <InfoItem label="Account Number" value={user.account_number} />
-                                <InfoItem label="IFSC Code" value={user.ifsc_code} />
-                                <InfoItem label="Bank Name" value={user.bank_name} />
+                                </div>
+                                <div className="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-2xl border border-gray-100 dark:border-gray-800/60">
+                                    <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Branch</p>
+                                    <p className="text-sm font-bold text-gray-800 dark:text-white">{profile.bank_branch || "-"}</p>
+                                </div>
                             </div>
                         </DetailCard>
-                    )}
-                </div>
 
-                {/* Content based on Role */}
-                {user.role === 'AGENT' ? (
-                    <div className="space-y-4">
-                        <UserTable
-                            title="Farmers List"
-                            users={agentFarmers || []}
-                            isLoading={isAgentFarmersLoading}
-                            // Disable add actions in view mode
-                            onAddClick={undefined}
-                        />
+                        <DetailCard title="Summary Status">
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className="flex items-center justify-between p-4 bg-primary-600 rounded-2xl text-black shadow-lg shadow-primary-500/20">
+                                    <div>
+                                        <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Total Lands</p>
+                                        <p className="text-3xl font-black mt-1">{isLoadingLands ? "..." : (lands?.length || profile.land_count || 0)}</p>
+                                    </div>
+                                    <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                                        <GridIcon className="size-8" />
+                                    </div>
+                                </div>
+                                <div className="flex items-center justify-between p-4 bg-brand-50 dark:bg-brand-500/10 rounded-2xl border border-brand-100 dark:border-brand-500/20">
+                                    <div>
+                                        <p className="text-xs text-brand-500 font-bold uppercase tracking-widest">Enrollment</p>
+                                        <p className="text-xl font-bold text-gray-800 dark:text-white mt-1">{profile.status || "Completed"}</p>
+                                    </div>
+                                    <div className="text-brand-500">
+                                        <CheckCircleIcon className="size-8" />
+                                    </div>
+                                </div>
+                            </div>
+                        </DetailCard>
                     </div>
-                ) : (
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-xl font-bold text-gray-800 dark:text-white px-2">
-                                Land Records ({lands?.length || 0})
-                            </h3>
-                            <button
-                                onClick={() => setIsAddLandOpen(true)}
-                                className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
-                            >
-                                <span>+</span> Add Land
-                            </button>
-                        </div>
 
-                        {lands?.length === 0 ? (
-                            <div className="p-12 text-center bg-white dark:bg-white/[0.03] rounded-3xl border border-dashed border-gray-300 dark:border-gray-700">
-                                <p className="text-gray-500">No land records found for this farmer.</p>
+                    {/* Document Verification Gallery */}
+                    <DetailCard title="Verification Proofs & Attachments">
+                        {documents.length === 0 ? (
+                            <div className="p-12 text-center bg-gray-50 dark:bg-gray-800/20 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700">
+                                <FileIcon className="size-10 text-gray-300 mx-auto mb-3" />
+                                <p className="text-sm text-gray-500 font-medium">No verification documents uploaded yet.</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {lands?.map((land: any) => (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 lg:gap-6">
+                                {documents.map((doc, idx) => (
                                     <div
-                                        key={land.id}
-                                        onClick={() => {
-                                            if (!land.is_step2_completed) {
-                                                setResumeLand(land);
-                                            } else {
-                                                setViewLand(land);
-                                            }
-                                        }}
-                                        className="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-xl transition-all duration-300 cursor-pointer"
+                                        key={idx}
+                                        onClick={() => setPreviewImage({ url: doc.url!, title: doc.label })}
+                                        className="group cursor-pointer"
                                     >
-                                        <div className="p-5 flex flex-col h-full">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div>
-                                                    <span className="text-[10px] font-black uppercase text-brand-500 bg-brand-50 dark:bg-brand-500/10 px-2 py-0.5 rounded-md">
-                                                        Land ID: #{land.id}
-                                                    </span>
-                                                    <h4 className="text-lg font-bold text-gray-800 dark:text-white mt-1">
-                                                        Survey No: {land.survey_no}
-                                                    </h4>
-                                                </div>
-                                                <div className="flex flex-col gap-2 items-end">
-                                                    <Badge color={land.land_type === "Wet Land" ? "success" : "warning"}>
-                                                        {land.land_type}
-                                                    </Badge>
-                                                    <Badge
-                                                        size="sm"
-                                                        color={
-                                                            !land.is_step2_completed ? 'warning' :
-                                                                land.status === 'PENDING' ? 'warning' :
-                                                                    land.status.includes('APPROVED') ? 'success' : 'error'
-                                                        }
-                                                    >
-                                                        {!land.is_step2_completed ? 'Pending Step 2' : land.status}
-                                                    </Badge>
+                                        <div className="relative aspect-square rounded-2xl bg-white dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm group-hover:shadow-md group-hover:border-primary-400 transition-all duration-300">
+                                            <img
+                                                src={doc.url}
+                                                alt={doc.label}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
+                                            />
+                                            <div className="absolute inset-0 bg-primary-600/0 group-hover:bg-primary-600/10 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                <div className="bg-white px-3 py-1.5 rounded-lg text-primary-600 text-[10px] font-black shadow-xl uppercase tracking-widest">
+                                                    Preview
                                                 </div>
                                             </div>
-
-                                            <div className="grid grid-cols-3 gap-4 mb-6">
-                                                <div className="bg-gray-50 dark:bg-white/[0.02] p-3 rounded-2xl text-center">
-                                                    <p className="text-[10px] text-gray-400 uppercase font-bold">Area</p>
-                                                    <p className="text-sm font-bold text-gray-800 dark:text-white">{land.area_in_acres} Ac</p>
-                                                </div>
-                                                <div className="bg-gray-50 dark:bg-white/[0.02] p-3 rounded-2xl text-center">
-                                                    <p className="text-[10px] text-gray-400 uppercase font-bold">Water</p>
-                                                    <p className="text-sm font-bold text-gray-800 dark:text-white">{land.water_source}</p>
-                                                </div>
-                                                <div className="bg-gray-50 dark:bg-white/[0.02] p-3 rounded-2xl text-center">
-                                                    <p className="text-[10px] text-gray-400 uppercase font-bold">Ownership</p>
-                                                    <p className="text-sm font-bold text-gray-800 dark:text-white">{land.ownership_details}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="mt-auto space-y-3">
-                                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">Coordinates</p>
-                                                <div className="grid grid-cols-2 gap-2 text-[10px] text-gray-500 font-mono">
-                                                    <div className="bg-blue-50/50 dark:bg-blue-500/5 p-2 rounded-lg truncate">TL: {land.tf_latlng || "N/A"}</div>
-                                                    <div className="bg-blue-50/50 dark:bg-blue-500/5 p-2 rounded-lg truncate">TR: {land.tr_latlng || "N/A"}</div>
-                                                    <div className="bg-blue-50/50 dark:bg-blue-500/5 p-2 rounded-lg truncate">BL: {land.bl_latlng || "N/A"}</div>
-                                                    <div className="bg-blue-50/50 dark:bg-blue-500/5 p-2 rounded-lg truncate">BR: {land.br_latlng || "N/A"}</div>
-                                                </div>
-                                            </div>
-
-                                            {land.ownership_details === "LEASE" && (
-                                                <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-500/5 rounded-2xl border border-orange-100 dark:border-orange-500/10">
-                                                    <p className="text-[10px] text-orange-500 font-black uppercase mb-1">Owner Details (Lease)</p>
-                                                    <p className="text-sm font-bold text-gray-800 dark:text-white">
-                                                        {land.owner_first_name} {land.surname}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500">Rel: {land.relation} | No: {land.number}</p>
-                                                </div>
-                                            )}
                                         </div>
+                                        <p className="mt-2 text-[10px] text-center font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest truncate px-1">
+                                            {doc.label}
+                                        </p>
                                     </div>
                                 ))}
                             </div>
                         )}
-                    </div>
-                )}
+                    </DetailCard>
+
+                    {lands && lands.length > 0 && (
+                        <div className="space-y-6">
+                            <DetailCard title="Associated Land Records">
+                                <div className="grid grid-cols-1 gap-6">
+                                    {lands.map((land: any) => (
+                                        <div key={land.id} className="p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.02] hover:border-primary-200 transition-all">
+                                            <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+                                                <div>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <h4 className="text-xl font-black text-gray-800 dark:text-white uppercase tracking-tight">Survey #{land.survey_no}</h4>
+                                                        <Badge size="sm" color={land.status?.includes('APPROVED') ? 'success' : 'warning'}>
+                                                            {land.status}
+                                                        </Badge>
+                                                    </div>
+
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <div className="px-3 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center min-w-[50px]">
+                                                        <p className="text-[10px] text-gray-400 uppercase font-black mb-1">Acres</p>
+                                                        <p className="text-base font-black text-primary-600">{land.acres || 0}</p>
+                                                    </div>
+                                                    <div className="px-3 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center min-w-[50px]">
+                                                        <p className="text-[10px] text-gray-400 uppercase font-black mb-1">Guntas</p>
+                                                        <p className="text-base font-black text-primary-600">{land.gunta || 0}</p>
+                                                    </div>
+                                                    <div className="px-3 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center min-w-[50px]">
+                                                        <p className="text-[10px] text-gray-400 uppercase font-black mb-1">Cents</p>
+                                                        <p className="text-base font-black text-primary-600">{land.sents || 0}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                                                <div className="space-y-3 min-w-0">
+                                                    <InfoItem label="Land ID" value={land.landId} icon={<GridIcon className="size-4" />} />
+                                                    <InfoItem label="Land Type" value={land.land_type} icon={<GridIcon className="size-4" />} />
+                                                    <InfoItem label="Water Source" value={land.land_water_source} icon={<BoxIcon className="size-4" />} />
+                                                </div>
+                                                <div className="space-y-3 min-w-0">
+                                                    <InfoItem label="Ownership" value={land.owner_ship_type} icon={<UserIcon className="size-4" />} />
+                                                    <InfoItem label="Coordinates" value={land.land_coordinates} icon={<GridIcon className="size-4" />} />
+                                                </div>
+                                                <div className="space-y-3 min-w-0">
+                                                    <InfoItem label="Passbook No" value={land.passbookNo} icon={<FileIcon className="size-4" />} />
+                                                    <InfoItem label="ROR No" value={land.rorNo} icon={<FileIcon className="size-4" />} />
+                                                    <InfoItem label="Aadhar Name" value={land.owner_aadharName} icon={<UserIcon className="size-4" />} />
+                                                </div>
+                                                <div className="space-y-3 min-w-0">
+                                                    <InfoItem label="Village" value={land.land_address?.village || "-"} icon={<GridIcon className="size-4" />} />
+                                                    <InfoItem label="Mandal" value={land.land_address?.mandal || "-"} icon={<GridIcon className="size-4" />} />
+                                                    <InfoItem label="District" value={land.land_address?.district || "-"} icon={<GridIcon className="size-4" />} />
+                                                    <InfoItem label="State" value={land.land_address?.state || "-"} icon={<GridIcon className="size-4" />} />
+                                                </div>
+                                            </div>
+
+                                            <div className="pt-6 border-t border-dashed border-gray-200 dark:border-gray-700">
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Land Documents & Clearances</p>
+                                                <div className="flex flex-wrap gap-4">
+                                                    {[
+                                                        { label: "Passbook", url: land.passbook_url },
+                                                        { label: "LPM", url: land.lpm_url },
+                                                        { label: "Adangal", url: land.adangal_url },
+                                                        { label: "ROR Copy", url: land.ror_url },
+                                                        { label: "Aadhar", url: land.owner_aadhar_url },
+                                                        { label: "NOC", url: land.noc_url },
+                                                        { label: "Encumbrance", url: land.emcumbrance_url },
+                                                        { label: "APC", url: land.apc_url }
+                                                    ].filter(doc => doc.url).map((doc, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => setPreviewImage({ url: doc.url!, title: `${doc.label} - Survey #${land.survey_no}` })}
+                                                            className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-primary-400 transition-all text-gray-600 dark:text-gray-400 hover:text-primary-600 shadow-sm"
+                                                        >
+                                                            <FileIcon className="size-4" />
+                                                            <span className="text-xs font-bold uppercase tracking-wider">{doc.label}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {land.land_images_url && Array.isArray(land.land_images_url) && land.land_images_url.length > 0 && (
+                                                <div className="mt-6 pt-6 border-t border-dashed border-gray-200 dark:border-gray-700">
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Site Images</p>
+                                                    <div className="flex flex-wrap gap-3">
+                                                        {land.land_images_url.map((img: string, i: number) => (
+                                                            <div
+                                                                key={i}
+                                                                onClick={() => setPreviewImage({ url: img, title: `Land Image ${i + 1} - Survey #${land.survey_no}` })}
+                                                                className="size-20 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 cursor-pointer hover:scale-105 transition-transform"
+                                                            >
+                                                                <img src={img} className="w-full h-full object-cover" alt="" />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </DetailCard>
+                        </div>
+                    )}
+
+                </div>
             </div>
-
-            <LandDetailsModal
-                isOpen={!!viewLand}
-                onClose={() => setViewLand(null)}
-                land={viewLand}
-            />
-
-            {resumeLand && (
-                <AddLandModal
-                    isOpen={!!resumeLand}
-                    onClose={() => setResumeLand(null)}
-                    farmer={user}
-                    initialStep={2}
-                    initialLandId={resumeLand.id}
-                />
-            )}
-
-            <AddLandModal
-                isOpen={isAddLandOpen}
-                onClose={() => setIsAddLandOpen(false)}
-                farmer={user}
-            />
 
             {previewImage && (
                 <ImagePreviewModal

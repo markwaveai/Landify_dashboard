@@ -11,25 +11,36 @@ import Buttons from "./pages/UiElements/Buttons";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
 import Calendar from "./pages/Calendar";
-import BasicTables from "./pages/Tables/BasicTables";
-import FormElements from "./pages/Forms/FormElements";
+
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
-import Home from "./pages/Dashboard/Home";
+// import Home from "./pages/Dashboard/Home";
 import AosPage from "./pages/Dashboard/AosPage";
 import AgentsPage from "./pages/Dashboard/AgentsPage";
 import AgentDetailsPage from "./pages/Dashboard/AgentDetailsPage";
+import OfficerDetailsPage from "./pages/Dashboard/OfficerDetailsPage";
 import FarmersPage from "./pages/Dashboard/FarmersPage";
+import ApprovalsPage from "./pages/Dashboard/ApprovalsPage";
 import FarmerDetailsPage from "./pages/Dashboard/FarmerDetailsPage";
 import UserProfile from "./pages/Dashboard/UserProfile";
+import LandApprovalDetailsPage from "./pages/Dashboard/LandApprovalDetailsPage";
 import FodderProcurementPage from "./pages/Dashboard/FodderProcurementPage";
-import LandApprovalsPage from "./pages/Dashboard/LandApprovalsPage";
+// import PaymentsPage from "./pages/Dashboard/PaymentsPage";
+// import CultivationPage from "./pages/Dashboard/CultivationPage";
+import LegalPage from "./pages/OtherPage/LegalPage";
+import SupportPage from "./pages/OtherPage/SupportPage";
+import DeleteAccountPage from "./pages/OtherPage/DeleteAccountPage";
 
 import { SnackbarProvider } from "./context/SnackbarContext";
 import { useSelector } from "react-redux";
 import { RootState } from "./store/store";
 import { Navigate } from "react-router";
+
+const ConditionalLayout = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  return isAuthenticated ? <AppLayout>{children}</AppLayout> : <>{children}</>;
+};
 
 export default function App() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -42,28 +53,24 @@ export default function App() {
           <Routes>
             {/* Dashboard Layout */}
             <Route element={isAuthenticated ? <AppLayout /> : <Navigate to="/signin" replace />}>
-              <Route index element={<Home />} />
+              <Route index element={<Navigate to="/aos" replace />} />
+              {/* <Route index element={<Home />} /> */}
               <Route path="/aos" element={<AosPage />} />
+              <Route path="/aos/:userId" element={<OfficerDetailsPage />} />
               <Route path="/agents" element={<AgentsPage />} />
-              <Route path="/agents/:phoneNumber" element={<AgentDetailsPage />} />
+              <Route path="/agents/:userId" element={<AgentDetailsPage />} />
               <Route path="/farmers" element={<FarmersPage />} />
-              <Route path="/farmers/:phoneNumber" element={<FarmerDetailsPage />} />
-              <Route path="/approvals" element={<LandApprovalsPage />} />
-
-              {/* Others Page */}
+              <Route path="/farmers/:userId" element={<FarmerDetailsPage />} />
+              <Route path="/approvals" element={<ApprovalsPage />} />
+              {/* <Route path="/payments" element={<PaymentsPage />} /> */}
+              {/* <Route path="/cultivation" element={<CultivationPage />} /> */}
               <Route path="/profile" element={<UserProfile />} />
+
               <Route path="/fodder-procurement" element={<FodderProcurementPage />} />
               <Route path="/fodder" element={<FodderProcurementPage />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/blank" element={<Blank />} />
-
-              {/* Forms */}
-              <Route path="/form-elements" element={<FormElements />} />
-
-              {/* Tables */}
-              <Route path="/basic-tables" element={<BasicTables />} />
-
-              {/* Ui Elements */}
+              <Route path="/land-approvals/:id" element={<LandApprovalDetailsPage />} />
               <Route path="/alerts" element={<Alerts />} />
               <Route path="/avatars" element={<Avatars />} />
               <Route path="/badge" element={<Badges />} />
@@ -75,6 +82,11 @@ export default function App() {
               <Route path="/line-chart" element={<LineChart />} />
               <Route path="/bar-chart" element={<BarChart />} />
             </Route>
+
+            {/* Public but Dashboard-aware Routes */}
+            <Route path="/legal" element={<ConditionalLayout><LegalPage /></ConditionalLayout>} />
+            <Route path="/support" element={<ConditionalLayout><SupportPage /></ConditionalLayout>} />
+            <Route path="/delete-account" element={<ConditionalLayout><DeleteAccountPage /></ConditionalLayout>} />
 
             {/* Auth Layout */}
             <Route path="/signin" element={<SignIn />} />

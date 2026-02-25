@@ -61,7 +61,7 @@ const MiniCalendar: React.FC<MiniCalendarProps> = ({ selectedDate, onSelect, onC
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     return (
-        <div className="absolute right-0 top-full mt-2 z-50 w-64 rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+        <div className="absolute right-0 bottom-full mb-2 z-[9999] w-64 rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800">
             <div className="mb-4 flex items-center justify-between">
                 <button onClick={prevMonth} className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700">
                     <svg className="h-4 w-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -271,10 +271,17 @@ const ProcurementDetails: React.FC<ProcurementDetailsProps> = ({ requestId, onBa
 
                 const onboardingDate = addDays(currentHarvestDate, -CONSTANTS.DAYS_IN_CYCLE);
 
+                // Calculate acres for this farmer: use standard block size, 
+                // but for the last farmer, use the remaining acres to match total requirement exactly.
+                const isLastFarmer = farmersGeneratedCount === totalFarmersCap - 1;
+                const farmerAcres = isLastFarmer
+                    ? Number((m.landRequiredAcres - (farmersGeneratedCount * CONSTANTS.ACRES_PER_FARMER_CALC)).toFixed(2))
+                    : CONSTANTS.ACRES_PER_FARMER_CALC;
+
                 const farmer: HarvestScheduleItem = {
                     date: currentHarvestDate,
                     farmerName: farmerName,
-                    acres: CONSTANTS.ACRES_PER_FARMER_CALC,
+                    acres: farmerAcres,
                     onboardingDate: onboardingDate,
                 };
 
@@ -385,10 +392,10 @@ const ProcurementDetails: React.FC<ProcurementDetailsProps> = ({ requestId, onBa
                 </div>
 
                 <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50/50 border-b border-gray-100 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:bg-gray-800/30 dark:border-gray-800 dark:text-gray-400">
-                    <div className="col-span-1">S.No</div>
-                    <div className="col-span-6">Agent Name</div>
-                    <div className="col-span-3 text-center">No. of Farmers</div>
-                    <div className="col-span-2 text-right">No. of Acres</div>
+                    <div className="col-span-1 text-center font-black">S.No</div>
+                    <div className="col-span-5 px-4 font-black">Agent Name</div>
+                    <div className="col-span-3 text-center font-black">No. of Farmers</div>
+                    <div className="col-span-3 text-center font-black">No. of Acres</div>
                 </div>
 
                 <div className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -400,29 +407,26 @@ const ProcurementDetails: React.FC<ProcurementDetailsProps> = ({ requestId, onBa
                                     onClick={() => toggleAgent(agent.id)}
                                     className="grid grid-cols-12 gap-4 items-center px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50"
                                 >
-                                    <div className="col-span-1 text-sm font-medium text-gray-500 flex items-center gap-1">
+                                    <div className="col-span-1 text-sm font-black text-gray-500 flex items-center justify-center gap-1">
                                         <div className={`transition-transform duration-200 ${isExpanded ? '' : '-rotate-90'}`}>
-                                            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                                         </div>
                                         <span>{String(idx + 1).padStart(2, '0')}</span>
                                     </div>
-                                    <div className="col-span-6">
+                                    <div className="col-span-5 px-4">
                                         <div className="flex flex-col">
-                                            <span className="font-bold text-gray-900 dark:text-white">{agent.name}</span>
-                                            <span className="text-xs text-gray-500">+91 98765 {String(43210 + idx).slice(-5)}</span>
+                                            <span className="font-bold text-gray-900 dark:text-white group-hover:text-green-600 transition-colors uppercase tracking-tight">{agent.name}</span>
+                                            <span className="text-[10px] font-bold text-gray-500 mt-0.5">+91 98765 {String(43210 + idx).slice(-5)}</span>
                                         </div>
                                     </div>
-                                    <div className="col-span-3 text-center">
+                                    <div className="col-span-3 flex justify-center">
+                                        <span className="inline-flex items-center rounded-lg bg-orange-100/50 px-3 py-1 text-xs font-black text-orange-700 dark:bg-orange-500/10 dark:text-orange-400 border border-orange-200/50 dark:border-orange-500/20 uppercase tracking-wider">
+                                            {agent.totalFarmers} Farmers
+                                        </span>
+                                    </div>
+                                    <div className="col-span-3 flex justify-center">
                                         <div className="flex flex-col items-center">
-                                            <span className="inline-flex items-center rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-medium text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">
-                                                {agent.totalFarmers} Total
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="col-span-2 text-right">
-                                        <div className="flex flex-col items-end">
-                                            <span className="text-sm font-bold text-gray-900 dark:text-white">{agent.totalAcres.toFixed(1)} Ac</span>
-                                            <span className="text-[10px] text-gray-500">Total</span>
+                                            <span className="text-sm font-black text-gray-900 dark:text-white">{agent.totalAcres.toFixed(1)} <span className="text-[10px] text-gray-500 uppercase ml-0.5">Ac</span></span>
                                         </div>
                                     </div>
                                 </div>
@@ -431,22 +435,22 @@ const ProcurementDetails: React.FC<ProcurementDetailsProps> = ({ requestId, onBa
                                     <div className="bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800 px-6 py-4">
                                         <div className="pl-12">
                                             {agent.allFarmers.length > 0 ? (
-                                                <table className="w-full text-sm text-left">
-                                                    <thead className="text-xs text-gray-500 uppercase bg-transparent border-b border-gray-200 dark:border-gray-700">
+                                                <table className="w-full text-sm text-center">
+                                                    <thead className="text-[10px] text-gray-400 font-black uppercase bg-gray-50/50 dark:bg-gray-800/30 border-y border-gray-100 dark:border-gray-800">
                                                         <tr>
-                                                            <th className="pb-2 font-medium w-16">S.No</th>
-                                                            <th className="pb-2 font-medium">Farmer Name</th>
-                                                            <th className="pb-2 font-medium">Onboarding Date</th>
-                                                            <th className="pb-2 font-medium text-right">Harvest Area</th>
+                                                            <th className="py-2 px-4 font-black w-16">S.No</th>
+                                                            <th className="py-2 px-4 font-black">Farmer Name</th>
+                                                            <th className="py-2 px-4 font-black">Onboarding Date</th>
+                                                            <th className="py-2 px-4 font-black">Harvest Area</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-200/50 dark:divide-gray-700/50">
                                                         {agent.allFarmers.map((farmer, fIdx) => (
-                                                            <tr key={fIdx}>
-                                                                <td className="py-2 text-gray-500 text-xs">{String(fIdx + 1).padStart(2, '0')}</td>
-                                                                <td className="py-2 text-gray-700 dark:text-gray-300 font-medium">{farmer.farmerName}</td>
-                                                                <td className="py-2 text-gray-500 text-xs">{farmer.onboardingDate || '-'}</td>
-                                                                <td className="py-2 text-right text-gray-700 dark:text-gray-300">{farmer.acres.toFixed(2)} Ac</td>
+                                                            <tr key={fIdx} className="border-b border-gray-50 dark:border-gray-800/50 hover:bg-white dark:hover:bg-gray-800/30 transition-colors">
+                                                                <td className="py-2 text-gray-500 text-[10px] font-bold">{String(fIdx + 1).padStart(2, '0')}</td>
+                                                                <td className="py-2 text-gray-700 dark:text-gray-300 font-bold tracking-tight">{farmer.farmerName}</td>
+                                                                <td className="py-2 text-gray-500 text-[10px] font-bold">{farmer.onboardingDate || '-'}</td>
+                                                                <td className="py-2 text-gray-900 dark:text-white font-bold">{farmer.acres.toFixed(2)} <span className="text-[8px] text-gray-400 uppercase">Ac</span></td>
                                                             </tr>
                                                         ))}
                                                     </tbody>
@@ -528,15 +532,19 @@ const ProcurementDetails: React.FC<ProcurementDetailsProps> = ({ requestId, onBa
                     <h4 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Required Staff</h4>
                     <div className="flex gap-4">
                         <div className="flex-1 bg-blue-50 p-4 rounded-xl text-center dark:bg-blue-900/20">
-                            <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{metrics.agentsRequired}</div>
+                            <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{agentStats.length}</div>
                             <div className="text-xs text-blue-600 uppercase font-bold tracking-wider">Agents</div>
                         </div>
                         <div className="flex-1 bg-orange-50 p-4 rounded-xl text-center dark:bg-orange-900/20">
-                            <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">{metrics.farmersRequired}</div>
+                            <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">
+                                {agentStats.reduce((sum, a) => sum + a.totalFarmers, 0)}
+                            </div>
                             <div className="text-xs text-orange-600 uppercase font-bold tracking-wider">Farmers</div>
                         </div>
                         <div className="flex-1 bg-green-50 p-4 rounded-xl text-center dark:bg-green-900/20">
-                            <div className="text-2xl font-bold text-green-700 dark:text-green-300">{metrics.landRequiredAcres.toFixed(1)}</div>
+                            <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                                {agentStats.reduce((sum, a) => sum + a.totalAcres, 0).toFixed(1)}
+                            </div>
                             <div className="text-xs text-green-600 uppercase font-bold tracking-wider">Total Acres</div>
                         </div>
                     </div>
@@ -544,8 +552,8 @@ const ProcurementDetails: React.FC<ProcurementDetailsProps> = ({ requestId, onBa
             </div>
 
             {/* Harvest Schedule Table */}
-            <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden dark:border-gray-800 dark:bg-gray-900 shadow-sm">
-                <div className="flex items-center justify-between bg-gray-50 px-6 py-4 border-b border-gray-100 dark:bg-gray-800/50 dark:border-gray-800">
+            <div className="rounded-2xl border border-gray-200 bg-white overflow-visible dark:border-gray-800 dark:bg-gray-900 shadow-sm">
+                <div className="flex items-center justify-between bg-gray-50 px-6 py-4 border-b border-gray-100 dark:bg-gray-800/50 dark:border-gray-800 overflow-visible rounded-t-2xl">
                     <div>
                         <h4 className="text-base font-semibold text-gray-800 dark:text-white">Harvest Schedule</h4>
                         <p className="text-xs text-gray-500 mt-1">Scheduled farmers for selected date</p>
@@ -579,32 +587,31 @@ const ProcurementDetails: React.FC<ProcurementDetailsProps> = ({ requestId, onBa
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto rounded-b-2xl">
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-                        <thead className="bg-gray-50 dark:bg-gray-800/50">
+                        <thead className="bg-gray-100 dark:bg-gray-800/80 border-y border-gray-200 dark:border-gray-700">
                             <tr>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">S.No</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Farmer Name</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Survey No</th>
-                                <th scope="col" className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Harvest Area (Acres)</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Assigned Agent</th>
+                                <th scope="col" className="px-6 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">S.No</th>
+                                <th scope="col" className="px-6 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Farmer Name</th>
+                                <th scope="col" className="px-6 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Survey No</th>
+                                <th scope="col" className="px-6 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Harvest Area (Ac)</th>
+                                <th scope="col" className="px-6 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Assigned Agent</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-900">
                             {flatHarvestSchedule.length > 0 ? flatHarvestSchedule.map((item, idx) => (
-                                <tr key={idx} className="bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800/50">
-                                    <td className="px-6 py-4 text-gray-500">{String(idx + 1).padStart(2, '0')}</td>
-                                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                                <tr key={idx} className="bg-white hover:bg-green-50/30 dark:bg-gray-900 dark:hover:bg-green-500/5 transition-colors group">
+                                    <td className="px-6 py-4 text-center text-gray-500 text-xs font-bold">{String(idx + 1).padStart(2, '0')}</td>
+                                    <td className="px-6 py-4 text-center font-bold text-gray-900 dark:text-white group-hover:text-green-600 transition-colors uppercase tracking-tight">
                                         {item.farmerName}
                                     </td>
-                                    <td className="px-6 py-4 text-gray-500">
-                                        {/* Mock Survey No logic based on index or random */}
+                                    <td className="px-6 py-4 text-center text-gray-500 font-mono text-xs">
                                         {String(100 + idx * 5)}/A
                                     </td>
-                                    <td className="px-6 py-4 text-right font-bold text-gray-900 dark:text-white">
-                                        {item.acres.toFixed(2)}
+                                    <td className="px-6 py-4 text-center font-black text-gray-900 dark:text-white">
+                                        {item.acres.toFixed(2)} <span className="text-[10px] text-gray-400 uppercase ml-0.5">Ac</span>
                                     </td>
-                                    <td className="px-6 py-4 text-gray-500">
+                                    <td className="px-6 py-4 text-center text-gray-500 font-bold text-xs uppercase tracking-tight">
                                         {item.assignedAgent}
                                     </td>
                                 </tr>

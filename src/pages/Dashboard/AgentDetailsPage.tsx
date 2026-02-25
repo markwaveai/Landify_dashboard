@@ -1,33 +1,40 @@
+import { useMemo } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAgentProfile, getAgentFarmers } from "../../services/userService";
-import { UserIcon, EnvelopeIcon, GridIcon, CalenderIcon, AngleLeftIcon } from "../../icons";
+import { UserIcon, EnvelopeIcon, GridIcon, CalendarIcon, AngleLeftIcon } from "../../icons";
 import Badge from "../../components/ui/badge/Badge";
 import PageMeta from "../../components/common/PageMeta";
 import UserTable from "../../components/dashboard/UserTable";
 import DetailCard from "../../components/common/DetailCard";
 import InfoItem from "../../components/common/InfoItem";
 
-// Icons mapping 
 const PhoneIcon = UserIcon;
 const LocationIcon = GridIcon;
-const ArrowLeftIcon = AngleLeftIcon;
 
 export default function AgentDetailsPage() {
-    const { phoneNumber } = useParams();
+    const { userId } = useParams<{ userId: string }>();
     const navigate = useNavigate();
 
     const { data: profile, isLoading: isLoadingProfile } = useQuery({
-        queryKey: ['agentProfile', phoneNumber],
-        queryFn: () => getAgentProfile(phoneNumber!),
-        enabled: !!phoneNumber
+        queryKey: ['agentProfile', userId],
+        queryFn: () => getAgentProfile(userId!),
+        enabled: !!userId
     });
 
     const { data: farmers, isLoading: isLoadingFarmers } = useQuery({
-        queryKey: ['agentFarmers', phoneNumber],
-        queryFn: () => getAgentFarmers(phoneNumber!),
-        enabled: !!phoneNumber
+        queryKey: ['agentFarmers', profile?.unique_id],
+        queryFn: () => getAgentFarmers(profile?.unique_id!),
+        enabled: !!profile?.unique_id
     });
+
+    const aggregateStats = useMemo(() => {
+        if (!farmers) return { lands: 0, acres: 0 };
+        return farmers.reduce((acc: { lands: number; acres: number }, farmer: any) => ({
+            lands: acc.lands + (farmer.land_count || 0),
+            acres: acc.acres + (farmer.total_acres || 0)
+        }), { lands: 0, acres: 0 });
+    }, [farmers]);
 
     if (isLoadingProfile) {
         return (
@@ -49,31 +56,30 @@ export default function AgentDetailsPage() {
             <div className="flex items-center gap-4 mb-2">
                 <button
                     onClick={() => navigate(-1)}
-                    className="p-2.5 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 hover:bg-gray-50 transition-colors"
+                    className="p-2.5 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 hover:border-brand-200 transition-all text-gray-600"
                 >
-                    <ArrowLeftIcon className="size-5" />
+                    <AngleLeftIcon className="size-5" />
                 </button>
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Agent Profile</h1>
-                    <p className="text-sm text-gray-500">Manage information and records</p>
+
                 </div>
             </div>
 
             {/* Profile Overview Card */}
-            <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
-                <div className="h-8 bg-gray-100 dark:bg-gray-800 relative"></div>
-                <div className="px-8 pb-1">
-                    <div className="flex flex-col md:flex-row gap-6 items-start -mt-12 mb-6">
-                        <div className="size-32 rounded-3xl border-4 border-white dark:border-gray-900 overflow-hidden bg-white shadow-xl min-w-[120px] md:mt-15">
-                            {profile.user_photo_url ? (
+            <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
+                <div className="px-8 py-8">
+                    <div className="flex flex-col md:flex-row gap-6 items-start mb-6">
+                        <div className="size-32 rounded-3xl border-4 border-white dark:border-gray-900 overflow-hidden bg-white shadow-xl min-w-[120px]">
+                            {(profile.user_image_url || profile.user_photo_url) ? (
                                 <img
-                                    src={profile.user_photo_url}
+                                    src={profile.user_image_url || profile.user_photo_url}
                                     alt="Profile"
-                                    className="size-full object-cover"
-                                    onError={(e) => (e.currentTarget.src = "/images/user/owner.jpg")}
+                                    className="size-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    onError={(e) => (e.currentTarget.src = `https://ui-avatars.com/api/?name=${profile.first_name}+${profile.last_name}&background=random`)}
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-brand-50 text-brand-500 text-4xl font-bold">
+                                <div className="w-full h-full flex items-center justify-center bg-brand-50 text-brand-500 text-4xl font-black uppercase">
                                     {profile.first_name?.[0]}
                                 </div>
                             )}
@@ -97,18 +103,18 @@ export default function AgentDetailsPage() {
 
                             <div className="flex items-center gap-6 mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                                 <div>
-                                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Farmers</p>
-                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{profile.farmer_count || 0}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Farmers</p>
+                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{isLoadingFarmers ? "..." : (farmers?.length || 0)}</p>
                                 </div>
                                 <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
                                 <div>
-                                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Lands</p>
-                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{profile.land_count || 0}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Lands</p>
+                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{isLoadingFarmers ? "..." : aggregateStats.lands}</p>
                                 </div>
                                 <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
                                 <div>
-                                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Total Acres</p>
-                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{profile.total_acres || 0}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Total Acres</p>
+                                    <p className="text-xl font-bold text-gray-800 dark:text-white">{isLoadingFarmers ? "..." : aggregateStats.acres.toFixed(1)}</p>
                                 </div>
                             </div>
                         </div>
@@ -121,13 +127,14 @@ export default function AgentDetailsPage() {
                                 <InfoItem label="Phone Number" value={profile.phone_number} icon={<PhoneIcon className="size-4" />} />
                                 <InfoItem label="Email Address" value={profile.email} icon={<EnvelopeIcon className="size-4" />} />
                                 <InfoItem label="Gender" value={profile.gender} icon={<UserIcon className="size-4" />} />
-                                <InfoItem label="Date of Birth" value={profile.date_of_birth} icon={<CalenderIcon className="size-4" />} />
+                                <InfoItem label="Date of Birth" value={profile.date_of_birth} icon={<CalendarIcon className="size-4" />} />
                             </div>
                         </DetailCard>
 
                         {/* Section 2: KYC & Address */}
                         <DetailCard title="KYC & Address">
                             <div className="grid grid-cols-1 gap-3">
+                                <InfoItem label="Reference ID" value={profile.reference_id} />
                                 <InfoItem label="Aadhar Number" value={profile.aadhar_card_number} />
                                 <InfoItem label="Pincode" value={profile.pincode} />
                                 <InfoItem label="Mandal" value={profile.mandal} />
@@ -149,14 +156,21 @@ export default function AgentDetailsPage() {
                 </div>
             </div>
 
-            {/* Farmers List */}
+            {/* Farmers ListSection */}
             <div className="space-y-4">
+                <div className="flex flex-col gap-1">
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white">Assigned Farmers</h3>
+                    <p className="text-sm text-gray-500">List of farmers registered under this agent, including their unique enrollment IDs and locations.</p>
+                </div>
                 <UserTable
                     title="Farmers List"
                     users={farmers || []}
                     isLoading={isLoadingFarmers}
                     onAddClick={undefined}
                     hideStatus={true}
+                    hideAction={true}
+                    hideLocation={true}
+                    centerAlignName={true}
                 />
             </div>
         </div>
