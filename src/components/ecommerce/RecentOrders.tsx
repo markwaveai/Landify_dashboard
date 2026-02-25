@@ -135,19 +135,19 @@ export default function RecentOrders() {
               </TableCell>
               <TableCell
                 isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
               >
                 Category
               </TableCell>
               <TableCell
                 isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
               >
                 Price
               </TableCell>
               <TableCell
                 isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
               >
                 Status
               </TableCell>
@@ -178,25 +178,27 @@ export default function RecentOrders() {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-center">
                   {product.category}
                 </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-center">
                   {product.price}
                 </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <Badge
-                    size="sm"
-                    color={
-                      product.status === "Delivered"
-                        ? "success"
-                        : product.status === "Pending"
-                          ? "warning"
-                          : "error"
-                    }
-                  >
-                    {product.status}
-                  </Badge>
+                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-center">
+                  <div className="flex justify-center">
+                    <Badge
+                      size="sm"
+                      color={
+                        product.status === "Delivered"
+                          ? "success"
+                          : product.status === "Pending"
+                            ? "warning"
+                            : "error"
+                      }
+                    >
+                      {product.status}
+                    </Badge>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

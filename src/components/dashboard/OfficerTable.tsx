@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getUsersByReferenceId } from "../../services/userService";
+import {
+    getOfficerProfile
+} from "../../services/userService";
 import {
     Table,
     TableBody,
@@ -15,21 +17,31 @@ import {
 } from "../../icons";
 
 
-const AgentCountCell = ({ userId, initialCount }: { userId?: string, initialCount?: number }) => {
-    const { data: agents, isLoading } = useQuery({
-        queryKey: ['officer-agents', userId],
-        queryFn: () => userId ? getUsersByReferenceId(userId) : Promise.resolve([]),
-        enabled: !!userId,
+const AgentCountCell = ({ count }: { count?: number }) => {
+    return (
+        <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
+            {count || 0}
+        </div>
+    );
+};
+
+const DOBCell = ({ userId, initialDob }: { userId?: string, initialDob?: string }) => {
+    const { data: profile, isLoading } = useQuery({
+        queryKey: ['officer-dob', userId],
+        queryFn: () => userId ? getOfficerProfile(userId!) : Promise.resolve(null),
+        enabled: !!userId && !initialDob,
         staleTime: 300000, // 5 minutes
     });
 
-    if (isLoading && initialCount === undefined) {
-        return <div className="animate-pulse h-4 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>;
+    if (isLoading && !initialDob) {
+        return <div className="animate-pulse h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>;
     }
 
+    const dob = initialDob || profile?.date_of_birth;
+
     return (
-        <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
-            {agents?.length ?? initialCount ?? 0}
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+            {dob ? new Date(dob).toLocaleDateString('en-GB') : "-"}
         </div>
     );
 };
@@ -75,6 +87,7 @@ interface User {
     agreement_url?: string;
     address?: string;
     agent_count?: number;
+    farmer_count?: number;
     land_count?: number;
     total_acres?: number;
 }
@@ -116,8 +129,9 @@ export default function OfficerTable({
                 id: "sno",
                 header: "S.NO",
                 minWidth: "60px",
+                align: "center",
                 render: (_: User, idx: number) => (
-                    <div className="flex items-center h-12">
+                    <div className="flex items-center justify-center">
                         <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
                             {(currentPage - 1) * itemsPerPage + idx + 1}
                         </span>
@@ -126,10 +140,11 @@ export default function OfficerTable({
             },
             {
                 id: "name",
-                header: "Field Officer",
+                header: "FIELD OFFICER",
                 minWidth: "220px",
+                align: "center",
                 render: (user: User) => (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-start gap-1.5 pl-8">
                         <div className="h-12 w-12 rounded-2xl bg-gray-50 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative group-hover:border-brand-300 transition-colors flex items-center justify-center">
                             {user.user_image_url ? (
                                 <img
@@ -142,8 +157,8 @@ export default function OfficerTable({
                             )}
                             <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-2xl pointer-events-none"></div>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+                        <div className="flex flex-col text-left">
+                            <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors uppercase whitespace-nowrap">
                                 {user.first_name} {user.last_name}
                             </span>
                             <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
@@ -153,78 +168,114 @@ export default function OfficerTable({
                     </div>
                 )
             },
+
+            {
+                id: "role",
+                header: "ROLE",
+                minWidth: "120px",
+                align: "center",
+                render: (user: User) => (
+                    <div className="flex justify-center">
+                        <div className="inline-flex items-center text-blue-600 dark:text-blue-400">
+                            <span className="text-[10px] font-bold uppercase tracking-widest">{format(user.role?.replace(/_/g, " "))}</span>
+                        </div>
+                    </div>
+                )
+            },
             {
                 id: "user_id",
                 header: "FO ID",
                 minWidth: "140px",
+                align: "center",
                 render: (user: User) => (
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                         <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
                             {format(user.unique_id)}
                         </span>
                     </div>
                 )
             },
+
+
+
             {
                 id: "reference_id",
                 header: "ADMIN ID",
                 minWidth: "160px",
+                align: "center",
                 render: (user: User) => (
-                    <div className="flex items-center font-mono">
+                    <div className="flex items-center justify-center font-mono">
                         <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tight">
                             {format(user.reference_id)}
                         </span>
                     </div>
                 )
             },
+
             {
                 id: "mandal",
                 header: "MANDAL",
                 minWidth: "140px",
+                align: "center",
                 render: (user: User) => (
-                    <div className="inline-flex items-center">
-                        <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">
-                            {format(user.mandal)}
-                        </span>
+                    <div className="flex justify-center">
+                        <div className="inline-flex items-center">
+                            <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">
+                                {format(user.mandal)}
+                            </span>
+                        </div>
+                    </div>
+                )
+            },
+
+
+            {
+                id: "dob",
+                header: "DOB",
+                minWidth: "120px",
+                align: "center",
+                render: (user: User) => (
+                    <div className="flex justify-center">
+                        <DOBCell userId={user.unique_id} initialDob={user.date_of_birth} />
+                    </div>
+                )
+            },
+
+
+
+            {
+                id: "agents",
+                header: "AGENTS",
+                minWidth: "120px",
+                align: "center",
+                render: (user: User) => (
+                    <div className="flex justify-center">
+                        <AgentCountCell count={user.agent_count} />
                     </div>
                 )
             },
 
             {
-                id: "role",
-                header: "ROLE",
-                minWidth: "100px",
-                render: (user: User) => (
-                    <div className="inline-flex items-center text-blue-600 dark:text-blue-400">
-                        <span className="text-[10px] font-bold uppercase tracking-widest">{format(user.role?.replace(/_/g, " "))}</span>
-                    </div>
-                )
-            },
-            {
                 id: "is_active",
                 header: "STATUS",
-                minWidth: "100px",
-                render: (user: User) => (
-                    <div className="inline-flex items-center gap-1.5">
-                        <div className={`size-1.5 rounded-full ${user.is_active !== false ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]'}`}></div>
-                        <span className={`text-[10px] font-bold uppercase tracking-widest ${user.is_active !== false ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{user.is_active !== false ? 'ACTIVE' : 'INACTIVE'}</span>
-                    </div>
-                )
-            },
-            {
-                id: "agents",
-                header: "AGENTS",
                 minWidth: "120px",
+                align: "center",
                 render: (user: User) => (
-                    <AgentCountCell userId={user.unique_id} initialCount={user.agent_count} />
+                    <div className="flex justify-center">
+                        <div className="inline-flex items-center gap-1.5">
+                            <div className={`size-1.5 rounded-full ${user.is_active !== false ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]'}`}></div>
+                            <span className={`text-[10px] font-bold uppercase tracking-widest ${user.is_active !== false ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{user.is_active !== false ? 'ACTIVE' : 'INACTIVE'}</span>
+                        </div>
+                    </div>
                 )
             },
             {
                 id: "update",
                 header: "UPDATE",
                 minWidth: "80px",
+                align: "center",
                 render: (user: User) => (
-                    <div className="flex items-center justify-center pr-4">
+                    <div className="flex items-center justify-center">
                         <button
                             onClick={(e) => { e.stopPropagation(); onEdit && onEdit(user); }}
                             className="p-2.5 text-blue-600 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 rounded-xl transition-all shadow-sm border border-blue-100 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-900/20"
@@ -308,7 +359,7 @@ export default function OfficerTable({
                         <TableHeader className="bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-700">
                             <TableRow>
                                 {columns.map((col, idx) => (
-                                    <TableCell key={col.id} isHeader className={`py-5 ${idx === 0 ? 'pl-8' : 'px-4'} text-[10px] font-black text-gray-400 uppercase tracking-widest text-left`}>
+                                    <TableCell key={col.id} isHeader className={`py-5 ${idx === 0 ? 'pl-8' : 'px-4'} text-[10px] font-black text-gray-400 uppercase tracking-widest ${col.align === 'center' ? 'text-center' : 'text-left'}`}>
                                         <div style={{ minWidth: col.minWidth }}>{col.header}</div>
                                     </TableCell>
                                 ))}
@@ -335,7 +386,7 @@ export default function OfficerTable({
                                             onClick={() => onView && onView(user)}
                                         >
                                             {columns.map((col, colIdx) => (
-                                                <TableCell key={col.id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'}`}>
+                                                <TableCell key={col.id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'} ${col.align === 'center' ? 'text-center' : ''}`}>
                                                     {col.render(user, index)}
                                                 </TableCell>
                                             ))}

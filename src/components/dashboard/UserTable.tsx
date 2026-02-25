@@ -41,9 +41,13 @@ interface UserTableProps {
     isLoading?: boolean;
     hideStatus?: boolean;
     showFarmerCount?: boolean;
+    hideAction?: boolean;
+    hideDetailedLocation?: boolean;
+    hideLocation?: boolean;
+    centerAlignName?: boolean;
 }
 
-export default function UserTable({ title, users, onAddClick, onRowClick, addLabel, isLoading, hideStatus, showFarmerCount }: UserTableProps) {
+export default function UserTable({ title, users, onAddClick, onRowClick, addLabel, isLoading, hideStatus, showFarmerCount, hideAction, hideDetailedLocation, hideLocation, centerAlignName }: UserTableProps) {
     const navigate = useNavigate();
 
     const getStatusBadge = (user: User) => {
@@ -96,58 +100,63 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                 <Table>
                     <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                         <TableRow>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10">S.No</div>
+                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                <div className="flex items-center justify-center h-10">S.No</div>
                             </TableCell>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10"></div>
+                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                <div className="flex items-center justify-center h-10">Name</div>
                             </TableCell>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10">Name</div>
+                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                <div className="flex items-center justify-center h-10 px-3">Phone</div>
                             </TableCell>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10 pl-3">Phone</div>
+                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                <div className="flex items-center justify-center h-10">Unique ID</div>
                             </TableCell>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10">Unique ID</div>
-                            </TableCell>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10  pl-4">Role</div>
+                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                <div className="flex items-center justify-center h-10 px-4">Role</div>
                             </TableCell>
                             {showFarmerCount && (
-                                <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                    <div className="flex items-center h-10">Farmers</div>
+                                <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                    <div className="flex items-center justify-center h-10">Farmers</div>
                                 </TableCell>
                             )}
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10 ">Village</div>
-                            </TableCell>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10">Mandal</div>
-                            </TableCell>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10">District</div>
-                            </TableCell>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10">State</div>
-                            </TableCell>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10">Pincode</div>
-                            </TableCell>
+                            {!hideLocation && (
+                                <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                    <div className="flex items-center justify-center h-10 ">Village</div>
+                                </TableCell>
+                            )}
+                            {!hideLocation && !hideDetailedLocation && (
+                                <>
+                                    <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                        <div className="flex items-center justify-center h-10">Mandal</div>
+                                    </TableCell>
+                                    <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                        <div className="flex items-center justify-center h-10">District</div>
+                                    </TableCell>
+                                    <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                        <div className="flex items-center justify-center h-10">State</div>
+                                    </TableCell>
+                                    <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                        <div className="flex items-center justify-center h-10">Pincode</div>
+                                    </TableCell>
+                                </>
+                            )}
                             {!hideStatus && (
-                                <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                    <div className="flex items-center h-10">Status</div>
+                                <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                    <div className="flex items-center justify-center h-10">Status</div>
                                 </TableCell>
                             )}
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10">Land</div>
+                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                <div className="flex items-center justify-center h-10">Land</div>
                             </TableCell>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-start text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center h-10">Acres</div>
+                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                <div className="flex items-center justify-center h-10">Acres</div>
                             </TableCell>
-                            <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-end text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
-                                <div className="flex items-center justify-end h-10">Action</div>
-                            </TableCell>
+                            {!hideAction && (
+                                <TableCell isHeader className="px-5 py-4 align-middle font-bold text-gray-400 text-center text-[10px] uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/50 whitespace-nowrap">
+                                    <div className="flex items-center justify-center h-10">Action</div>
+                                </TableCell>
+                            )}
                         </TableRow>
                     </TableHeader>
 
@@ -169,13 +178,13 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                                 }}
                                 className="cursor-pointer hover:bg-gray-50/50 dark:hover:bg-white/[0.02]"
                             >
-                                <TableCell className="px-5 py-4 align-middle">
-                                    <div className="flex items-center h-10">
+                                <TableCell className="px-5 py-4 align-middle text-center">
+                                    <div className="flex items-center justify-center h-10">
                                         <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{index + 1}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="px-5 py-4 align-middle">
-                                    <div className="flex items-center h-10">
+                                <TableCell className={`px-5 py-4 align-middle ${centerAlignName ? "text-center" : "text-start"}`}>
+                                    <div className={`flex items-center h-10 gap-1.5 ${centerAlignName ? "justify-center" : "justify-start pl-5"}`}>
                                         <div className="h-10 w-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative transition-colors flex items-center justify-center">
                                             {user.user_image_url ? (
                                                 <img src={user.user_image_url} alt="avatar" className="w-full h-full object-cover" />
@@ -183,98 +192,102 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                                                 <UserIcon className="size-5 text-gray-400 dark:text-gray-500" />
                                             )}
                                         </div>
+                                        <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight uppercase whitespace-nowrap">{user.first_name} {user.last_name}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="px-5 py-4 align-middle whitespace-nowrap">
-                                    <div className="flex items-center h-10">
-                                        <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight">{user.first_name} {user.last_name}</span>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="px-5 py-4 align-middle whitespace-nowrap">
-                                    <div className="flex items-center h-10">
+                                <TableCell className="px-5 py-4 align-middle whitespace-nowrap text-center">
+                                    <div className="flex items-center justify-center h-10">
                                         <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">{user.phone_number}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="px-5 py-4 align-middle whitespace-nowrap">
-                                    <div className="flex items-center h-10">
+                                <TableCell className="px-5 py-4 align-middle whitespace-nowrap text-center">
+                                    <div className="flex items-center justify-center h-10">
                                         <span className="text-xs font-mono font-bold text-gray-500 dark:text-gray-400">{user.unique_id || "-"}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="px-5 py-4 align-middle">
-                                    <div className="flex items-center h-10">
+                                <TableCell className="px-5 py-4 align-middle text-center">
+                                    <div className="flex items-center justify-center h-10">
                                         <Badge size="sm" color="success">{user.role}</Badge>
                                     </div>
                                 </TableCell>
                                 {showFarmerCount && (
-                                    <TableCell className="px-5 py-4 align-middle">
-                                        <div className="flex items-center h-10 pl-4">
+                                    <TableCell className="px-5 py-4 align-middle text-center">
+                                        <div className="flex items-center justify-center h-10">
                                             <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{user.farmer_count !== undefined ? user.farmer_count : "-"}</span>
                                         </div>
                                     </TableCell>
                                 )}
-                                <TableCell className="px-5 py-4 align-middle whitespace-nowrap">
-                                    <div className="flex items-center h-10 text-sm text-gray-500 dark:text-gray-400 font-medium">
-                                        {user.village || "-"}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="px-5 py-4 align-middle whitespace-nowrap">
-                                    <div className="flex items-center h-10 text-sm text-gray-500 dark:text-gray-400 font-medium">
-                                        {user.mandal || "-"}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="px-5 py-4 align-middle whitespace-nowrap">
-                                    <div className="flex items-center h-10 text-sm text-gray-500 dark:text-gray-400 font-medium">
-                                        {user.district || "-"}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="px-5 py-4 align-middle whitespace-nowrap">
-                                    <div className="flex items-center h-10 text-sm text-gray-500 dark:text-gray-400 font-medium">
-                                        {user.state || "-"}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="px-5 py-4 align-middle whitespace-nowrap">
-                                    <div className="flex items-center h-10 text-sm text-gray-500 dark:text-gray-400 font-medium">
-                                        {user.pincode || "-"}
-                                    </div>
-                                </TableCell>
+                                {!hideLocation && (
+                                    <TableCell className="px-5 py-4 align-middle whitespace-nowrap text-center">
+                                        <div className="flex items-center justify-center h-10 text-sm text-gray-500 dark:text-gray-400 font-bold uppercase">
+                                            {user.village || "-"}
+                                        </div>
+                                    </TableCell>
+                                )}
+                                {!hideLocation && !hideDetailedLocation && (
+                                    <>
+                                        <TableCell className="px-5 py-4 align-middle whitespace-nowrap text-center">
+                                            <div className="flex items-center justify-center h-10 text-sm text-gray-500 dark:text-gray-400 font-bold uppercase">
+                                                {user.mandal || "-"}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="px-5 py-4 align-middle whitespace-nowrap text-center">
+                                            <div className="flex items-center justify-center h-10 text-sm text-gray-500 dark:text-gray-400 font-bold uppercase">
+                                                {user.district || "-"}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="px-5 py-4 align-middle whitespace-nowrap text-center">
+                                            <div className="flex items-center justify-center h-10 text-sm text-gray-500 dark:text-gray-400 font-bold uppercase">
+                                                {user.state || "-"}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="px-5 py-4 align-middle whitespace-nowrap text-center">
+                                            <div className="flex items-center justify-center h-10 text-sm text-gray-500 dark:text-gray-400 font-bold uppercase">
+                                                {user.pincode || "-"}
+                                            </div>
+                                        </TableCell>
+                                    </>
+                                )}
                                 {!hideStatus && (
-                                    <TableCell className="px-5 py-4 align-middle">
-                                        <div className="flex items-center h-10">
+                                    <TableCell className="px-5 py-4 align-middle text-center">
+                                        <div className="flex items-center justify-center h-10">
                                             {getStatusBadge(user)}
                                         </div>
                                     </TableCell>
                                 )}
-                                <TableCell className="px-5 py-4 align-middle">
-                                    <div className="flex items-center h-10">
-                                        <div className="bg-gray-100 dark:bg-white/[0.05] px-2.5 py-1 rounded-lg min-w-[32px] text-center">
+                                <TableCell className="px-5 py-4 align-middle text-center">
+                                    <div className="flex items-center justify-center h-10">
+                                        <div className="bg-gray-100 dark:bg-white/[0.05] px-2.5 py-1 rounded-lg min-w-[32px] text-center border border-gray-200 dark:border-gray-700">
                                             <span className="text-xs font-black text-gray-700 dark:text-gray-300">{user.land_count || 0}</span>
                                         </div>
                                     </div>
                                 </TableCell>
-                                <TableCell className="px-5 py-4 align-middle">
-                                    <div className="flex items-center h-10">
+                                <TableCell className="px-5 py-4 align-middle text-center">
+                                    <div className="flex items-center justify-center h-10">
                                         <div className="bg-brand-50/50 dark:bg-brand-500/10 px-2.5 py-1 rounded-lg min-w-[40px] text-center border border-brand-100 dark:border-brand-500/20">
                                             <span className="text-xs font-black text-brand-600 dark:text-brand-400">{user.total_acres !== undefined ? user.total_acres.toFixed(1) : "0.0"}</span>
                                         </div>
                                     </div>
                                 </TableCell>
-                                <TableCell className="px-5 py-4 text-end align-middle">
-                                    <div className="flex items-center justify-end h-10">
-                                        <Link
-                                            to={(() => {
-                                                const role = user.role?.toUpperCase();
-                                                let route = 'farmers';
-                                                if (role === 'AGENT') route = 'agents';
-                                                else if (role === 'FIELD_OFFICER') route = 'aos';
-                                                return `/${route}/${user.unique_id}`;
-                                            })()}
-                                            className="p-2 text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-all"
-                                            title="View Profile"
-                                        >
-                                            <EyeIcon className="size-5" />
-                                        </Link>
-                                    </div>
-                                </TableCell>
+                                {!hideAction && (
+                                    <TableCell className="px-5 py-4 text-end align-middle">
+                                        <div className="flex items-center justify-end h-10">
+                                            <Link
+                                                to={(() => {
+                                                    const role = user.role?.toUpperCase();
+                                                    let route = 'farmers';
+                                                    if (role === 'AGENT') route = 'agents';
+                                                    else if (role === 'FIELD_OFFICER') route = 'aos';
+                                                    return `/${route}/${user.unique_id}`;
+                                                })()}
+                                                className="p-2 text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-all"
+                                                title="View Profile"
+                                            >
+                                                <EyeIcon className="size-5" />
+                                            </Link>
+                                        </div>
+                                    </TableCell>
+                                )}
                             </TableRow>
                         ))}
                         {isLoading && (

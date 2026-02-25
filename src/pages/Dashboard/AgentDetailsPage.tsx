@@ -168,6 +168,9 @@ export default function AgentDetailsPage() {
                     isLoading={isLoadingFarmers}
                     onAddClick={undefined}
                     hideStatus={true}
+                    hideAction={true}
+                    hideLocation={true}
+                    centerAlignName={true}
                 />
             </div>
         </div>

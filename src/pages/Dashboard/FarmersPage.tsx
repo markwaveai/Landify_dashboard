@@ -22,7 +22,6 @@ export default function FarmersPage() {
     const { data: farmers, isLoading: isLoadingFarmers } = useQuery({
         queryKey: ['farmers'],
         queryFn: getFarmers,
-        refetchInterval: 10000,
     });
 
     const handlePageChange = (page: number) => {

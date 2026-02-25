@@ -2,8 +2,8 @@ import api from './api';
 
 const mapUser = (u: any) => {
     if (!u) return null;
-    let parsedVillage = u.village || "";
-    let parsedMandal = u.mandal || "";
+    let parsedVillage = u.village || u.extra_details?.village || "";
+    let parsedMandal = u.mandal || u.extra_details?.mandal || "";
     let parsedDistrict = u.district || "";
     let parsedState = u.state || "";
     let parsedPincode = u.pincode || "";
@@ -65,16 +65,16 @@ const mapUser = (u: any) => {
         bank_passbook_image_url: (u.bank_passbook_image_url || u.extra_details?.bank_passbook_image_url) === "string" ? "" : (u.bank_passbook_image_url || u.extra_details?.bank_passbook_image_url || ""),
         agreement_url: (u.agreement_url || u.extra_details?.agreement_url) === "string" ? "" : (u.agreement_url || u.extra_details?.agreement_url || ""),
         // Stats mapping
-        farmer_count: u.extra_details?.no_of_farmers || 0,
-        agent_count: u.extra_details?.no_of_agents || 0,
-        land_count: u.land_stats?.approved_lands || u.no_of_lands || u.land_count || u.extra_details?.no_of_lands || 0,
+        farmer_count: u.total_farmers || u.extra_details?.no_of_farmers || 0,
+        agent_count: u.total_agents || u.extra_details?.no_of_agents || 0,
+        land_count: u.total_lands || u.land_stats?.approved_lands || u.no_of_lands || u.land_count || u.extra_details?.no_of_lands || 0,
         active_lands: u.land_stats?.active_lands || 0,
         harvest_ready: u.land_stats?.harvest_ready || 0,
         remarks_lands: u.land_stats?.remarks_lands || 0,
         rejected_lands: u.land_stats?.rejected_lands || 0,
         approved_lands: u.land_stats?.approved_lands || 0,
         review_lands: u.land_stats?.review_lands || 0,
-        total_acres: u.no_of_acres || u.total_acres || u.land_stats?.total_acres || u.extra_details?.total_acres || u.extra_details?.no_of_acres || 0,
+        total_acres: u.total_acres || u.totalAcres || u.no_of_acres || u.land_stats?.total_acres || u.extra_details?.total_acres || u.extra_details?.no_of_acres || 0,
         role: u.role || u.type || "",
         gender: u.gender || "",
         email: u.email || "",
@@ -119,7 +119,7 @@ export const createAO = async (data: any) => {
         email: data.email,
         dob: data.date_of_birth,
         gender: data.gender,
-        isActive: true,
+        isActive: data.is_active !== undefined ? data.is_active : true,
 
         reference_id: data.reference_id,
         aadhar_number: data.aadhar_card_number,
@@ -144,8 +144,9 @@ export const createAO = async (data: any) => {
         aadhar_images_url: data.aadhar_image_url || "",
         pan_url: data.pan_image_url || "",
         bank_passbook_image_url: data.bank_passbook_image_url || "",
+        user_image_url: data.user_image_url || "",
 
-        status: "ACTIVE"
+        status: data.status || "ACTIVE"
     };
 
     const response = await api.post('/users/register', payload);
@@ -178,7 +179,9 @@ export const updateAO = async (userId: string, data: any) => {
         email: data.email,
         dob: data.date_of_birth,
         gender: data.gender,
-        isActive: true,
+        isActive: data.is_active !== undefined ? data.is_active : true,
+        status: data.status || "ACTIVE",
+        user_image_url: data.user_image_url || "",
         address: {
             village: data.village,
             mandal: data.mandal,

@@ -82,7 +82,7 @@ const FarmerDetailsPage: React.FC = () => {
                         <div>
                             <div className="flex items-center gap-3">
                                 <h1 className="text-2xl font-black text-gray-900 dark:text-white sm:text-4xl tracking-tight uppercase">
-                                    Farmer Profile
+                                    Land Profile
                                 </h1>
                                 <Badge variant="solid" color={profile.is_active ? 'success' : 'light'}>
                                     {profile.is_active ? 'ACTIVE' : 'INACTIVE'}

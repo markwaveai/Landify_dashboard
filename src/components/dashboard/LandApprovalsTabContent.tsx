@@ -156,8 +156,9 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                 id: 'sno',
                 header: 'S.NO',
                 minWidth: '60px',
+                align: 'center',
                 render: (_: any, idx: number) => (
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                         <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
                             {idx + 1}
                         </span>
@@ -168,8 +169,9 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                 id: 'owner',
                 header: 'OWNER',
                 minWidth: '180px',
+                align: 'center',
                 render: (land: any) => (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center gap-3">
                         <div className="h-10 w-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative transition-colors flex items-center justify-center">
                             {land.user_image_url ? (
                                 <img
@@ -181,9 +183,9 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                                 <UserIcon className="size-5 text-gray-400 dark:text-gray-500" />
                             )}
                         </div>
-                        <div className="flex flex-col">
+                        <div className="flex flex-col text-left">
                             <span className="text-xs font-bold text-gray-900 dark:text-white truncate max-w-[120px]">
-                                {formatValue(land.land_holder_name || land.owner_name)}
+                                {land.land_holder_name || land.owner_name || ""}
                             </span>
                             <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">
                                 {formatValue(land.user_id || land.userId)}
@@ -195,15 +197,16 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
             {
                 id: 'land_id',
                 header: 'LAND ID',
+                align: 'center',
                 render: (land: any) => (
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                         <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
                             #{formatValue(land.landId || land.id)}
                         </span>
                     </div>
                 )
             },
-            {
+            /* {
                 id: 'land_details',
                 header: 'LAND DETAILS',
                 render: (land: any) => (
@@ -242,50 +245,51 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                         </div>
                     </div>
                 )
-            },
-            {
-                id: 'land_address',
-                header: 'LAND_ADDRESS',
-                render: (land: any) => (
-                    <div className="text-[11px] space-y-1 min-w-[140px]">
-                        <div className="p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                            <div className="grid grid-cols-2 gap-1">
-                                <span className="text-gray-400 dark:text-gray-400">Village:</span> <span className="text-gray-700 dark:text-gray-200 font-medium">{formatValue(land.village)}</span>
-                                <span className="text-gray-400 dark:text-gray-400">Mandal:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.mandal)}</span>
-                                <span className="text-gray-400 dark:text-gray-400">District:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.district)}</span>
-                                <span className="text-gray-400 dark:text-gray-400">State:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.state)}</span>
-                            </div>
-                        </div>
-                    </div>
-                )
-            },
-            {
-                id: 'verification',
-                header: 'VERIFICATION',
-                render: (land: any) => (
-                    <div className="min-w-[200px] p-1.5 bg-gray-50/50 dark:bg-white/[0.02] rounded-lg">
-                        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                            <IconLink url={land.user_image_url} label="User" />
-                            <IconLink url={land.land_image_url} label="Land" />
-                            <IconLink url={land.owner_aadhar_url} label="Aadhar" />
-                            <IconLink url={land.emcumbrance_url} label="EC" />
-                            <IconLink url={land.passbook_url} label="Passbook" />
-                            <IconLink url={land.lpm_url} label="LPM" />
-                            <IconLink url={land.adangal_url} label="Adangal" />
-                            <IconLink url={land.ror_url} label="ROR" />
-                            <IconLink url={land.noc_url} label="NOC" />
-                            <IconLink url={land.apc_url} label="APC" />
-                            <div className="col-span-2 mt-1 pt-1 border-t border-gray-200/50 dark:border-gray-700/50 text-[10px] flex justify-between">
-                                <span className="text-gray-400 dark:text-gray-400">ROR No:</span>
-                                <span className="text-gray-600 dark:text-gray-300 font-bold">{formatValue(land.rorNo)}</span>
-                            </div>
-                        </div>
-                    </div>
-                )
-            },
+            }, */
+            /*  {
+                  id: 'land_address',
+                  header: 'LAND_ADDRESS',
+                  render: (land: any) => (
+                      <div className="text-[11px] space-y-1 min-w-[140px]">
+                          <div className="p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                              <div className="grid grid-cols-2 gap-1">
+                                  <span className="text-gray-400 dark:text-gray-400">Village:</span> <span className="text-gray-700 dark:text-gray-200 font-medium">{formatValue(land.village)}</span>
+                                  <span className="text-gray-400 dark:text-gray-400">Mandal:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.mandal)}</span>
+                                  <span className="text-gray-400 dark:text-gray-400">District:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.district)}</span>
+                                  <span className="text-gray-400 dark:text-gray-400">State:</span> <span className="text-gray-700 dark:text-gray-200">{formatValue(land.state)}</span>
+                              </div>
+                          </div>
+                      </div>
+                  )
+              },*/
+            /* {
+                 id: 'verification',
+                 header: 'VERIFICATION',
+                 render: (land: any) => (
+                     <div className="min-w-[200px] p-1.5 bg-gray-50/50 dark:bg-white/[0.02] rounded-lg">
+                         <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                             <IconLink url={land.user_image_url} label="User" />
+                             <IconLink url={land.land_image_url} label="Land" />
+                             <IconLink url={land.owner_aadhar_url} label="Aadhar" />
+                             <IconLink url={land.emcumbrance_url} label="EC" />
+                             <IconLink url={land.passbook_url} label="Passbook" />
+                             <IconLink url={land.lpm_url} label="LPM" />
+                             <IconLink url={land.adangal_url} label="Adangal" />
+                             <IconLink url={land.ror_url} label="ROR" />
+                             <IconLink url={land.noc_url} label="NOC" />
+                             <IconLink url={land.apc_url} label="APC" />
+                             <div className="col-span-2 mt-1 pt-1 border-t border-gray-200/50 dark:border-gray-700/50 text-[10px] flex justify-between">
+                                 <span className="text-gray-400 dark:text-gray-400">ROR No:</span>
+                                 <span className="text-gray-600 dark:text-gray-300 font-bold">{formatValue(land.rorNo)}</span>
+                             </div>
+                         </div>
+                     </div>
+                 )
+             },*/
             {
                 id: 'status',
                 header: 'STATUS',
+                align: 'center',
                 render: (land: any) => {
                     const statusStr = (land.status || '');
                     const isRejected = statusStr.includes('REJECTED');
@@ -305,9 +309,11 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                     }
 
                     return (
-                        <div className="inline-flex items-center gap-1.5">
-                            <div className={`size-1.5 rounded-full ${dotClass}`}></div>
-                            <span className={`text-[10px] font-bold uppercase tracking-widest ${badgeClass}`}>{formatValue(statusStr.replace(/_/g, ' '))}</span>
+                        <div className="flex justify-center">
+                            <div className="inline-flex items-center gap-1.5">
+                                <div className={`size-1.5 rounded-full ${dotClass}`}></div>
+                                <span className={`text-[10px] font-bold uppercase tracking-widest ${badgeClass}`}>{formatValue(statusStr.replace(/_/g, ' '))}</span>
+                            </div>
                         </div>
                     );
                 }
@@ -315,42 +321,51 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
             {
                 id: 'remarks',
                 header: 'REMARKS',
+                align: 'center',
                 render: (land: any) => (
-                    <div className="max-w-[150px] truncate text-xs italic text-gray-500" title={land.remarks || land.remarks_stage1 || land.remarks_stage2}>
-                        {formatValue(land.remarks || land.remarks_stage1 || land.remarks_stage2)}
+                    <div className="flex justify-center">
+                        <div className="max-w-[150px] truncate text-xs italic text-gray-500" title={land.remarks || land.remarks_stage1 || land.remarks_stage2}>
+                            {formatValue(land.remarks || land.remarks_stage1 || land.remarks_stage2)}
+                        </div>
                     </div>
                 )
             },
             {
                 id: 'land_status',
                 header: 'LAND_STATUS',
+                align: 'center',
                 render: (land: any) => (
-                    <div className="inline-flex items-center text-brand-600 dark:text-brand-400">
-                        <span className="text-xs font-bold uppercase tracking-wider">
-                            {formatValue(land.land_status)}
-                        </span>
+                    <div className="flex justify-center">
+                        <div className="inline-flex items-center text-brand-600 dark:text-brand-400">
+                            <span className="text-xs font-bold uppercase tracking-wider">
+                                {formatValue(land.land_status)}
+                            </span>
+                        </div>
                     </div>
                 )
             },
             {
                 id: 'is_active',
                 header: 'IS_ACTIVE',
+                align: 'center',
                 render: (land: any) => (
-                    <div className="inline-flex items-center text-blue-600 dark:text-blue-400">
-                        <span className="text-[10px] font-bold uppercase tracking-widest">{land.is_active ? 'YES' : 'NO'}</span>
+                    <div className="flex justify-center">
+                        <div className="inline-flex items-center text-blue-600 dark:text-blue-400">
+                            <span className="text-[10px] font-bold uppercase tracking-widest">{land.is_active ? 'YES' : 'NO'}</span>
+                        </div>
                     </div>
                 )
             },
-            {
-                id: 'agent_name',
-                header: 'AGENT_NAME',
-                render: (land: any) => <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{formatValue(land.agent_name || land.added_by_name)}</span>
-            },
-            {
-                id: 'agent_contact',
-                header: 'AGENT_CONTACT',
-                render: (land: any) => <span className="text-xs font-mono text-gray-500 dark:text-gray-400">{formatValue(land.agent_contact || land.agent_phone)}</span>
-            }
+            // {
+            //     id: 'agent_name',
+            //     header: 'AGENT_NAME',
+            //     render: (land: any) => <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{formatValue(land.agent_name || land.added_by_name)}</span>
+            // },
+            // {
+            //     id: 'agent_contact',
+            //     header: 'AGENT_CONTACT',
+            //     render: (land: any) => <span className="text-xs font-mono text-gray-500 dark:text-gray-400">{formatValue(land.agent_contact || land.agent_phone)}</span>
+            // }
         ];
     }, [lands]);
 
@@ -407,13 +422,15 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                             <thead className="bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-700">
                                 <tr>
                                     {columns.map((col, idx) => (
-                                        <th key={col.id} className={`py-5 ${idx === 0 ? 'pl-8' : 'px-4'} text-[10px] font-black text-gray-400 uppercase tracking-widest text-left`}>
-                                            <div style={{ minWidth: (col as any).minWidth || 'auto' }}>{col.header}</div>
+                                        <th key={col.id} className={`py-5 ${idx === 0 ? 'pl-8' : 'px-4'} text-[10px] font-black text-gray-400 uppercase tracking-widest ${(col as any).align === 'center' ? 'text-center' : 'text-left'}`}>
+                                            <div className={`flex ${(col as any).align === 'center' ? 'justify-center' : 'justify-start'}`} style={{ minWidth: (col as any).minWidth || 'auto' }}>
+                                                {col.header}
+                                            </div>
                                         </th>
                                     ))}
                                     {canApprove && (
-                                        <th className="py-5 pr-8 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
-                                            <div className="min-w-[90px] flex justify-end">ACTIONS</div>
+                                        <th className="py-5 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                                            <div className="min-w-[90px] flex justify-center">ACTIONS</div>
                                         </th>
                                     )}
                                 </tr>
@@ -426,14 +443,14 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                                         className="hover:bg-brand-50/30 dark:hover:bg-brand-900/10 transition-all duration-200 group cursor-pointer"
                                     >
                                         {columns.map((col, colIdx) => (
-                                            <td key={col.id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'}`}>
-                                                {col.render(land, index)}
+                                            <td key={(col as any).id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'} ${(col as any).align === 'center' ? 'text-center' : ''}`}>
+                                                {(col as any).render(land, index)}
                                             </td>
                                         ))}
                                         {canApprove && (
-                                            <td className="py-5 pr-8 text-right align-top" onClick={(e) => e.stopPropagation()}>
+                                            <td className="py-5 px-4 text-center align-top" onClick={(e) => e.stopPropagation()}>
                                                 {remarkingLandId === land.id ? (
-                                                    <div className="flex flex-col gap-2 min-w-[200px]">
+                                                    <div className="flex flex-col items-center gap-2 min-w-[200px]">
                                                         <textarea
                                                             value={tempRemarks}
                                                             onChange={(e) => setTempRemarks(e.target.value)}
@@ -460,7 +477,7 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex flex-col gap-2">
+                                                    <div className="flex flex-col items-center gap-2">
                                                         <button
                                                             onClick={() => handleActionClick(land, 'APPROVE')}
                                                             className="px-3 py-1.5 text-[10px] font-bold uppercase rounded-lg bg-green-50 text-green-600 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30 transition-all border border-green-200/50 dark:border-green-800/50"

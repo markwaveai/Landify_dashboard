@@ -322,6 +322,8 @@ export default function OfficerDetailsPage() {
                     onAddClick={undefined}
                     hideStatus={true}
                     showFarmerCount={true}
+                    hideAction={true}
+                    hideDetailedLocation={true}
                 />
             </div>
         </div>

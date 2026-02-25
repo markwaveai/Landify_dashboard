@@ -155,10 +155,10 @@ const CultivationPage: React.FC = () => {
                 {/* Table Header */}
                 <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50/50 dark:bg-gray-800/30 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-gray-800">
                     <div className="col-span-3">Plot Details</div>
-                    <div className="col-span-3">Cultivation Stage</div>
-                    <div className="col-span-2">Agent</div>
-                    <div className="col-span-2">Status</div>
-                    <div className="col-span-2 text-right">Action</div>
+                    <div className="col-span-3 text-center">Cultivation Stage</div>
+                    <div className="col-span-2 text-center">Agent</div>
+                    <div className="col-span-2 text-center">Status</div>
+                    <div className="col-span-2 text-center">Action</div>
                 </div>
 
                 {/* Table Body */}
@@ -193,18 +193,18 @@ const CultivationPage: React.FC = () => {
                             {/* Cultivation Stage */}
                             <div className="col-span-3">
                                 {batch.alert ? (
-                                    <div className="flex items-center gap-2 text-sm text-gray-500 italic">
+                                    <div className="flex items-center justify-center gap-2 text-sm text-gray-500 italic">
                                         <span className="w-2 h-2 rounded-full bg-gray-300"></span> Inspection Required
                                     </div>
                                 ) : (
                                     <div className="space-y-1">
-                                        <div className="flex justify-between text-xs font-bold uppercase text-green-700">
+                                        <div className="flex justify-between text-xs font-bold uppercase text-green-700 font-mono">
                                             <span>{batch.stage}</span>
                                             <span>{batch.progress}%</span>
                                         </div>
                                         <div className="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
                                             <div
-                                                className="bg-green-600 h-1.5 rounded-full"
+                                                className="bg-green-600 h-1.5 rounded-full shadow-[0_0_8px_rgba(22,163,74,0.4)]"
                                                 style={{ width: `${batch.progress}%` }}
                                             ></div>
                                         </div>
@@ -213,11 +213,11 @@ const CultivationPage: React.FC = () => {
                             </div>
 
                             {/* Agent */}
-                            <div className="col-span-2">
+                            <div className="col-span-2 flex justify-center">
                                 {batch.agent ? (
                                     <div className="flex items-center gap-2">
-                                        <img src={batch.agent.avatar} alt={batch.agent.name} className="w-6 h-6 rounded-full object-cover" />
-                                        <span className="text-sm text-gray-700 dark:text-gray-300">{batch.agent.name}</span>
+                                        <img src={batch.agent.avatar} alt={batch.agent.name} className="w-6 h-6 rounded-full object-cover border border-gray-200 dark:border-gray-700" />
+                                        <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{batch.agent.name}</span>
                                     </div>
                                 ) : (
                                     <span className="text-sm text-gray-400 italic">Unassigned</span>
@@ -225,24 +225,23 @@ const CultivationPage: React.FC = () => {
                             </div>
 
                             {/* Status */}
-                            <div className="col-span-2">
-                                <span className={`inline-flex px-3 py-1 rounded-md text-xs font-bold border ${/**/
-                                    batch.statusType === 'success' ? 'bg-green-50 text-green-700 border-green-100' :
-                                        batch.statusType === 'warning' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
-                                            'bg-blue-50 text-blue-700 border-blue-100'
+                            <div className="col-span-2 flex justify-center">
+                                <span className={`inline-flex px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${batch.statusType === 'success' ? 'bg-green-50 text-green-700 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' :
+                                        batch.statusType === 'warning' ? 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20' :
+                                            'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20'
                                     }`}>
                                     {batch.status}
                                 </span>
                             </div>
 
                             {/* Action */}
-                            <div className="col-span-2 text-right">
+                            <div className="col-span-2 flex justify-center">
                                 {batch.action === 'button' ? (
-                                    <button className="px-3 py-1.5 bg-green-700 hover:bg-green-800 text-white text-xs font-bold rounded uppercase tracking-wide transition-colors">
+                                    <button className="px-4 py-1.5 bg-green-700 hover:bg-green-800 text-white text-[10px] font-black rounded-lg uppercase tracking-widest transition-all hover:shadow-lg shadow-green-900/20 active:scale-95">
                                         Assign Now
                                     </button>
                                 ) : (
-                                    <button className="text-gray-400 hover:text-gray-600">
+                                    <button className="p-2 text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-all">
                                         <HorizontaLDots className="w-5 h-5" />
                                     </button>
                                 )}

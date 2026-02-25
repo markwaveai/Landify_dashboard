@@ -278,14 +278,14 @@ const FodderProcurement: React.FC = () => {
             Scheduled Requests
           </h4>
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-center">
               <thead className="bg-gray-50 dark:bg-gray-800/50 text-xs uppercase text-gray-500">
                 <tr>
-                  <th className="px-6 py-3">Reference ID</th>
-                  <th className="px-6 py-3">Farm</th>
-                  <th className="px-6 py-3">Buffaloes</th>
-                  <th className="px-6 py-3">Start Date</th>
-                  <th className="px-6 py-3 text-right">Action</th>
+                  <th className="px-6 py-3 text-center">Reference ID</th>
+                  <th className="px-6 py-3 text-center">Farm</th>
+                  <th className="px-6 py-3 text-center">Buffaloes</th>
+                  <th className="px-6 py-3 text-center">Start Date</th>
+                  <th className="px-6 py-3 text-center">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
@@ -299,11 +299,11 @@ const FodderProcurement: React.FC = () => {
                     <td className="px-6 py-4 font-semibold text-gray-800 dark:text-white">{req.farm || "-"}</td>
                     <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{req.buffaloes.toLocaleString()}</td>
                     <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{req.startDate}</td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="inline-flex items-center gap-1 text-green-600 font-medium hover:text-green-800">
-                        Open Details
+                    <td className="px-6 py-4">
+                      <div className="flex justify-center items-center gap-1 text-green-600 font-medium hover:text-green-800">
+                        <span>Open Details</span>
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-                      </span>
+                      </div>
                     </td>
                   </tr>
                 ))}

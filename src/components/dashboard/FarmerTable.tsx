@@ -9,8 +9,6 @@ import {
 import { useNavigate } from "react-router";
 import Badge from "../ui/badge/Badge";
 import { ChevronLeftIcon, UserIcon } from "../../icons";
-import { getFarmerLands } from "../../services/landService";
-import { useQuery } from "@tanstack/react-query";
 
 const format = (val: any) => (val === undefined || val === null || val === "" || val === 0) ? "-" : val;
 
@@ -67,28 +65,12 @@ interface FarmerTableProps {
 }
 const ITEMS_PER_PAGE = 5;
 
-const LandCountCell = ({ userId, initialCount, initialAcres }: { userId?: string, initialCount?: number, initialAcres?: number | string }) => {
-    const { data: lands, isLoading } = useQuery({
-        queryKey: ['farmer-lands', userId],
-        queryFn: () => userId ? getFarmerLands(userId) : Promise.resolve([]),
-        enabled: !!userId,
-        staleTime: 300000,
-    });
-
-    if (isLoading && initialCount === undefined) {
-        return <div className="animate-pulse h-4 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>;
-    }
-
-    const landCount = lands?.length ?? initialCount ?? 0;
-    const totalAcres = lands ? lands.reduce((sum: number, land: any) => sum + (Number(land.acres) || 0), 0) : initialAcres || 0;
-
+const LandCountCell = ({ initialCount }: { initialCount?: number }) => {
+    const count = initialCount || 0;
     return (
-        <div className="flex flex-col gap-0.5">
+        <div className="flex items-center">
             <span className="text-sm font-bold text-gray-900 dark:text-white">
-                {landCount} Lands
-            </span>
-            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">
-                {totalAcres} Acres
+                {count} {count === 1 ? 'Land' : 'Lands'}
             </span>
         </div>
     );
@@ -112,9 +94,10 @@ export default function FarmerTable({ title, users, onRowClick, isLoading, curre
                 id: "sno",
                 header: "S.NO",
                 minWidth: "60px",
+                align: "center",
                 show: true,
                 render: (_: Farmer, idx: number) => (
-                    <div className="flex items-center h-12">
+                    <div className="flex items-center justify-center">
                         <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
                             {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
                         </span>
@@ -125,9 +108,10 @@ export default function FarmerTable({ title, users, onRowClick, isLoading, curre
                 id: "name",
                 header: "FARMER NAME",
                 minWidth: "200px",
+                align: "center",
                 show: true,
                 render: (user: Farmer) => (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-start gap-1.5 pl-8">
                         <div className="h-12 w-12 rounded-2xl bg-gray-50 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative group-hover:border-brand-300 transition-colors flex items-center justify-center">
                             {user.user_image_url ? (
                                 <img
@@ -140,8 +124,8 @@ export default function FarmerTable({ title, users, onRowClick, isLoading, curre
                             )}
                             <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-2xl pointer-events-none"></div>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+                        <div className="flex flex-col text-left">
+                            <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors uppercase whitespace-nowrap">
                                 {user.first_name} {user.last_name}
                             </span>
                             <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
@@ -155,9 +139,10 @@ export default function FarmerTable({ title, users, onRowClick, isLoading, curre
                 id: "unique_id",
                 header: "USER ID",
                 minWidth: "120px",
+                align: "center",
                 show: hasData("unique_id"),
                 render: (user: Farmer) => (
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                         <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
                             {format(user.unique_id)}
                         </span>
@@ -168,9 +153,10 @@ export default function FarmerTable({ title, users, onRowClick, isLoading, curre
                 id: "reference_id",
                 header: "REFERENCE ID",
                 minWidth: "120px",
+                align: "center",
                 show: hasData("reference_id"),
                 render: (user: Farmer) => (
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                         <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
                             {format(user.reference_id)}
                         </span>
@@ -181,13 +167,14 @@ export default function FarmerTable({ title, users, onRowClick, isLoading, curre
                 id: "land",
                 header: "LAND",
                 minWidth: "120px",
+                align: "center",
                 show: true,
                 render: (user: Farmer) => (
-                    <LandCountCell
-                        userId={user.unique_id}
-                        initialCount={user.land_count}
-                        initialAcres={user.total_acres}
-                    />
+                    <div className="flex justify-center">
+                        <LandCountCell
+                            initialCount={user.land_count}
+                        />
+                    </div>
                 )
             },
 
@@ -196,28 +183,34 @@ export default function FarmerTable({ title, users, onRowClick, isLoading, curre
                 id: "otp_verified",
                 header: "VERIFIED",
                 minWidth: "120px",
+                align: "center",
                 show: true,
                 render: (user: Farmer) => (
-                    user.otp_verified ? (
-                        <Badge size="sm" color="info">VERIFIED</Badge>
-                    ) : (
-                        <Badge size="sm" color="warning">PENDING</Badge>
-                    )
+                    <div className="flex justify-center">
+                        {user.otp_verified ? (
+                            <Badge size="sm" color="info">VERIFIED</Badge>
+                        ) : (
+                            <Badge size="sm" color="warning">PENDING</Badge>
+                        )}
+                    </div>
                 )
             },
             {
                 id: "status",
                 header: "STATUS",
                 minWidth: "140px",
+                align: "center",
                 show: true,
                 render: (user: Farmer) => {
                     const isActive = user.is_active !== false && (!user.status || !user.status.toLowerCase().includes('pending'));
                     return (
-                        <div className="inline-flex items-center gap-1.5">
-                            <div className={`size-1.5 rounded-full ${isActive ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-yellow-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]'}`}></div>
-                            <span className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
-                                {user.status || (isActive ? 'ACTIVE' : 'PENDING')}
-                            </span>
+                        <div className="flex justify-center">
+                            <div className="inline-flex items-center gap-1.5">
+                                <div className={`size-1.5 rounded-full ${isActive ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-yellow-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]'}`}></div>
+                                <span className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
+                                    {user.status || (isActive ? 'ACTIVE' : 'PENDING')}
+                                </span>
+                            </div>
                         </div>
                     );
                 }
@@ -255,7 +248,7 @@ export default function FarmerTable({ title, users, onRowClick, isLoading, curre
                         <TableHeader className="bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-700">
                             <TableRow>
                                 {columns.map((col, idx) => (
-                                    <TableCell key={col.id} isHeader className={`py-5 ${idx === 0 ? 'pl-8' : 'px-4'} text-[10px] font-black text-gray-400 uppercase tracking-widest text-left`}>
+                                    <TableCell key={col.id} isHeader className={`py-5 ${idx === 0 ? 'pl-8' : 'px-4'} text-[10px] font-black text-gray-400 uppercase tracking-widest ${col.align === 'center' ? 'text-center' : 'text-left'}`}>
                                         <div style={{ minWidth: col.minWidth }}>{col.header}</div>
                                     </TableCell>
                                 ))}
@@ -283,7 +276,7 @@ export default function FarmerTable({ title, users, onRowClick, isLoading, curre
                                         onClick={() => onRowClick ? onRowClick(user) : navigate(`/farmers/${user.unique_id}`)}
                                     >
                                         {columns.map((col, colIdx) => (
-                                            <TableCell key={col.id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'}`}>
+                                            <TableCell key={col.id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'} ${col.align === 'center' ? 'text-center' : ''}`}>
                                                 {col.render(user, index)}
                                             </TableCell>
                                         ))}

@@ -156,10 +156,10 @@ const PaymentsPage: React.FC = () => {
                         <TableHeader className="bg-gray-50 dark:bg-gray-800/50 uppercase text-xs font-semibold text-gray-500">
                             <TableRow>
                                 <TableCell isHeader className="py-4 pl-6 text-left">Farmer Name</TableCell>
-                                <TableCell isHeader className="text-left px-4">Quantity (Tons)</TableCell>
-                                <TableCell isHeader className="text-left px-4">Amount (₹)</TableCell>
-                                <TableCell isHeader className="text-left px-4">Status</TableCell>
-                                <TableCell isHeader className="text-right pr-6">Actions</TableCell>
+                                <TableCell isHeader className="text-center px-4">Quantity (Tons)</TableCell>
+                                <TableCell isHeader className="text-center px-4">Amount (₹)</TableCell>
+                                <TableCell isHeader className="text-center px-4">Status</TableCell>
+                                <TableCell isHeader className="text-center pr-6">Actions</TableCell>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -167,10 +167,10 @@ const PaymentsPage: React.FC = () => {
                                 Array.from({ length: 5 }).map((_, i) => (
                                     <TableRow key={i}>
                                         <TableCell className="py-4 pl-6 text-left"><div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div></TableCell>
-                                        <TableCell className="text-left px-4"><div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div></TableCell>
-                                        <TableCell className="text-left px-4"><div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div></TableCell>
-                                        <TableCell className="text-left px-4"><div className="h-6 bg-gray-200 rounded-full w-24 animate-pulse"></div></TableCell>
-                                        <TableCell className="text-right pr-6"><div className="h-8 bg-gray-200 rounded w-24 ml-auto animate-pulse"></div></TableCell>
+                                        <TableCell className="text-center px-4 flex justify-center"><div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div></TableCell>
+                                        <TableCell className="text-center px-4 flex justify-center"><div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div></TableCell>
+                                        <TableCell className="text-center px-4 flex justify-center"><div className="h-6 bg-gray-200 rounded-full w-24 animate-pulse"></div></TableCell>
+                                        <TableCell className="text-center pr-6 flex justify-center"><div className="h-8 bg-gray-200 rounded w-24 animate-pulse"></div></TableCell>
                                     </TableRow>
                                 ))
                             ) : (
@@ -186,25 +186,29 @@ const PaymentsPage: React.FC = () => {
                                                 <span className="font-semibold text-gray-900 dark:text-white">{payment.farmer_name}</span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="font-medium text-gray-700 dark:text-gray-300 px-4 text-left">{payment.quantity_tons}</TableCell>
-                                        <TableCell className="font-bold text-green-700 px-4 text-left">₹{payment.amount.toLocaleString()}</TableCell>
-                                        <TableCell className="px-4 text-left">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                                                ${payment.status === 'Pending' ? 'bg-orange-100 text-orange-700' :
-                                                    'bg-green-100 text-green-700'}`}>
-                                                {payment.status}
-                                            </span>
+                                        <TableCell className="font-medium text-gray-700 dark:text-gray-300 px-4 text-center">{payment.quantity_tons}</TableCell>
+                                        <TableCell className="font-bold text-green-700 px-4 text-center">₹{payment.amount.toLocaleString()}</TableCell>
+                                        <TableCell className="px-4 text-center">
+                                            <div className="flex justify-center">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                                                    ${payment.status === 'Pending' ? 'bg-orange-100 text-orange-700' :
+                                                        'bg-green-100 text-green-700'}`}>
+                                                    {payment.status}
+                                                </span>
+                                            </div>
                                         </TableCell>
-                                        <TableCell className="text-right pr-6">
-                                            {payment.status === 'Pending' ? (
-                                                <button className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium rounded-lg shadow-sm transition-colors opacity-90 hover:opacity-100">
-                                                    Confirm Payment
-                                                </button>
-                                            ) : (
-                                                <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors opacity-0 group-hover:opacity-100">
-                                                    <HorizontaLDots className="w-5 h-5" />
-                                                </button>
-                                            )}
+                                        <TableCell className="text-center pr-6">
+                                            <div className="flex justify-center">
+                                                {payment.status === 'Pending' ? (
+                                                    <button className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium rounded-lg shadow-sm transition-colors opacity-90 hover:opacity-100">
+                                                        Confirm Payment
+                                                    </button>
+                                                ) : (
+                                                    <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors opacity-0 group-hover:opacity-100">
+                                                        <HorizontaLDots className="w-5 h-5" />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))

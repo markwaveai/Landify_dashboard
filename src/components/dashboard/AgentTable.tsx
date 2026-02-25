@@ -9,14 +9,14 @@ import {
 import { useNavigate } from "react-router";
 import Badge from "../ui/badge/Badge";
 import Button from "../ui/button/Button";
-import { ChevronLeftIcon, UserIcon } from "../../icons";
+import { UserIcon } from "../../icons";
 
 const format = (val: any) => (val === undefined || val === null || val === "" || val === 0) ? "-" : val;
 
 const FarmerCountCell = ({ count }: { count?: number }) => {
     return (
         <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
-            {format(count)}
+            {count || 0}
         </div>
     );
 };
@@ -41,8 +41,6 @@ interface Agent {
     otp_verified?: boolean;
     farmer_count?: number;
     land_count?: number;
-
-    // Extra Details from userService
     aadhar_card_number?: string;
     pan_number?: string;
     bank_name?: string;
@@ -51,15 +49,11 @@ interface Agent {
     bank_branch?: string;
     alternate_phone_number?: string;
     reference_id?: string;
-
-    // Image/Doc URLs
     user_image_url?: string;
     aadhar_image_url?: string;
     pan_image_url?: string;
     bank_passbook_image_url?: string;
     agreement_url?: string;
-
-    // Enriched fields from Page
     assigned_officer_name?: string;
     status_label?: 'ACTIVE' | 'INACTIVE';
 }
@@ -84,7 +78,6 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
     const currentPage = propsPage !== undefined ? propsPage : localPage;
     const setCurrentPage = propsOnPageChange !== undefined ? propsOnPageChange : setLocalPage;
 
-    // Dynamic columns logic
     const columns = useMemo(() => {
         if (!users || users.length === 0) return [];
 
@@ -95,9 +88,10 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                 id: "sno",
                 header: "S.NO",
                 minWidth: "60px",
+                align: "center",
                 show: true,
                 render: (_: Agent, idx: number) => (
-                    <div className="flex items-center h-12">
+                    <div className="flex items-center justify-center">
                         <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
                             {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
                         </span>
@@ -107,10 +101,11 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
             {
                 id: "name",
                 header: "AGENT NAME",
-                minWidth: "200px",
+                minWidth: "250px",
+                align: "center",
                 show: true,
                 render: (user: Agent) => (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-start gap-1.5 pl-8">
                         <div className="h-12 w-12 rounded-2xl bg-gray-50 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative group-hover:border-brand-300 transition-colors flex items-center justify-center">
                             {user.user_image_url ? (
                                 <img
@@ -123,8 +118,8 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                             )}
                             <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-2xl pointer-events-none"></div>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+                        <div className="flex flex-col text-left">
+                            <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors uppercase whitespace-nowrap">
                                 {user.first_name} {user.last_name}
                             </span>
                             <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
@@ -134,132 +129,128 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                     </div>
                 )
             },
-
-
             {
                 id: "role",
                 header: "ROLE",
                 minWidth: "140px",
+                align: "center",
                 show: hasData("role"),
                 render: (user: Agent) => (
-                    <div className="inline-flex items-center text-blue-600 dark:text-blue-400">
-                        <span className="text-[10px] font-bold uppercase tracking-widest">{format(user.role ? user.role.replace(/_/g, " ") : undefined)}</span>
+                    <div className="flex justify-center">
+                        <div className="inline-flex items-center text-blue-600 dark:text-blue-400">
+                            <span className="text-[10px] font-bold uppercase tracking-widest">{format(user.role ? user.role.replace(/_/g, " ") : undefined)}</span>
+                        </div>
                     </div>
                 )
             },
-
-
-
             {
                 id: "unique_id",
-                header: "USER ID",
+                header: "AGENT ID",
                 minWidth: "120px",
+                align: "center",
                 show: hasData("unique_id"),
                 render: (user: Agent) => (
-                    <div className="flex items-center">
+                    <div className="flex justify-center">
                         <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
                             {format(user.unique_id)}
                         </span>
                     </div>
                 )
             },
-
-
             {
                 id: "reference_id",
-                header: "REFERENCE ID",
+                header: "FO ID",
                 minWidth: "120px",
+                align: "center",
                 show: hasData("reference_id"),
                 render: (user: Agent) => (
-                    <div className="flex items-center">
+                    <div className="flex justify-center">
                         <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">
                             {format(user.reference_id)}
                         </span>
                     </div>
                 )
             },
-
-
-
+            {
+                id: "village",
+                header: "VILLAGE",
+                minWidth: "140px",
+                align: "center",
+                show: hasData("village"),
+                render: (user: Agent) => (
+                    <div className="flex justify-center">
+                        <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">
+                            {format(user.village)}
+                        </span>
+                    </div>
+                )
+            },
             {
                 id: "dob",
                 header: "DOB",
                 minWidth: "120px",
+                align: "center",
                 show: hasData("date_of_birth"),
                 render: (user: Agent) => (
-                    <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                    <div className="flex justify-center text-xs font-semibold text-gray-700 dark:text-gray-300">
                         {user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : "-"}
                     </div>
                 )
             },
-
-
-
-            {
-                id: "gender",
-                header: "GENDER",
-                minWidth: "100px",
-                show: hasData("gender"),
-                render: (user: Agent) => (
-                    <div className="text-xs font-bold text-gray-700 dark:text-gray-300 capitalize tracking-wide">
-                        {format(user.gender?.toLowerCase())}
-                    </div>
-                )
-            },
-
-
-
-
             {
                 id: "alt_phone",
                 header: "ALT PHONE",
                 minWidth: "140px",
+                align: "center",
                 show: hasData("alternate_phone_number"),
                 render: (user: Agent) => (
-                    <div className="text-xs font-mono font-bold text-gray-600 dark:text-gray-300">
+                    <div className="flex justify-center text-xs font-mono font-bold text-gray-600 dark:text-gray-300">
                         {format(user.alternate_phone_number)}
                     </div>
-                )
-            },
-
-
-
-
-
-
-            {
-                id: "otp_verified",
-                header: "VERIFIED",
-                minWidth: "120px",
-                show: hasData("otp_verified"),
-                render: (user: Agent) => (
-                    user.otp_verified ? (
-                        <Badge size="sm" color="info">VERIFIED</Badge>
-                    ) : (
-                        <Badge size="sm" color="warning">PENDING</Badge>
-                    )
                 )
             },
             {
                 id: "farmers",
                 header: "FARMERS",
                 minWidth: "150px",
+                align: "center",
                 show: true,
                 render: (user: Agent) => (
-                    <FarmerCountCell count={user.farmer_count} />
+                    <div className="flex justify-center">
+                        <FarmerCountCell count={user.farmer_count} />
+                    </div>
+                )
+            },
+            {
+                id: "otp_verified",
+                header: "VERIFIED",
+                minWidth: "120px",
+                align: "center",
+                show: hasData("otp_verified"),
+                render: (user: Agent) => (
+                    <div className="flex justify-center">
+                        {user.otp_verified ? (
+                            <Badge size="sm" color="info">VERIFIED</Badge>
+                        ) : (
+                            <Badge size="sm" color="warning">PENDING</Badge>
+                        )}
+                    </div>
                 )
             },
             {
                 id: "status",
                 header: "STATUS",
                 minWidth: "120px",
-                show: true, // Always show status as it has action
+                align: "center",
+                show: true,
                 render: (user: Agent) => {
                     const isActive = user.is_active !== false && (user.status_label === 'ACTIVE' || !user.status_label && user.is_active);
                     return (
-                        <div className="inline-flex items-center gap-1.5">
-                            <div className={`size-1.5 rounded-full ${isActive ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]'}`}></div>
-                            <span className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{isActive ? 'ACTIVE' : 'INACTIVE'}</span>
+                        <div className="flex justify-center">
+                            <div className="inline-flex items-center gap-1.5">
+                                <div className={`size-1.5 rounded-full ${isActive ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]'}`}></div>
+                                <span className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{isActive ? 'ACTIVE' : 'INACTIVE'}</span>
+                            </div>
                         </div>
                     );
                 }
@@ -269,12 +260,9 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
         return allPossibleColumns.filter(col => col.show);
     }, [users, currentPage]);
 
-
-    // Calculate pagination values
     const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    const currentUsers = users.slice(startIndex, endIndex);
+    const currentUsers = users.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
@@ -290,7 +278,6 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                         {title}
                     </h3>
                 </div>
-
                 <div className="flex items-center gap-3">
                     {onAddClick && (
                         <Button
@@ -304,20 +291,16 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                 </div>
             </div>
 
-            {/* Main Table Card */}
             <div className="bg-white dark:bg-gray-800 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-2xl shadow-gray-200/40 dark:shadow-none overflow-hidden mt-8">
                 <div className="overflow-x-auto">
                     <Table>
                         <TableHeader className="bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-700">
                             <TableRow>
                                 {columns.map((col, idx) => (
-                                    <TableCell key={col.id} isHeader className={`py-5 ${idx === 0 ? 'pl-8' : 'px-4'} text-[10px] font-black text-gray-400 uppercase tracking-widest text-left`}>
+                                    <TableCell key={col.id} isHeader className={`py-5 ${idx === 0 ? 'pl-8' : 'px-4'} text-[10px] font-black text-gray-400 uppercase tracking-widest ${col.align === 'center' ? 'text-center' : 'text-left'}`}>
                                         <div style={{ minWidth: col.minWidth }}>{col.header}</div>
                                     </TableCell>
                                 ))}
-                                {/* <TableCell isHeader className="py-5 pr-8 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
-                                    <div className="min-w-[90px] flex justify-end">ACTIONS</div>
-                                </TableCell> */}
                             </TableRow>
                         </TableHeader>
 
@@ -342,50 +325,10 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                                         onClick={() => onRowClick ? onRowClick(user) : navigate(`/agents/${user.unique_id}`)}
                                     >
                                         {columns.map((col, colIdx) => (
-                                            <TableCell key={col.id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'}`}>
+                                            <TableCell key={col.id} className={`py-5 align-top ${colIdx === 0 ? 'pl-8' : 'px-4'} ${col.align === 'center' ? 'text-center' : ''}`}>
                                                 {col.render(user, index)}
                                             </TableCell>
                                         ))}
-
-                                        {/* <TableCell className="py-5 pr-8 text-right align-top">
-                                            <div className="min-w-[120px] flex items-center justify-end gap-2.5 transition-opacity ml-auto">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        onRowClick ? onRowClick(user) : navigate(`/agents/${user.phone_number}`)
-                                                    }}
-                                                    className="p-2 text-gray-400 hover:text-brand-600 hover:bg-white dark:hover:bg-gray-700 rounded-xl transition-all shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800"
-                                                    title="View Details"
-                                                >
-                                                    <EyeIcon className="size-4" />
-                                                </button>
-
-                                                
-                                                {onStatusToggle && (
-                                                    user.is_active !== false && (user.status_label === 'ACTIVE' || !user.status_label) ? (
-                                                        <button
-                                                            className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-gray-500 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors min-w-[80px]"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onStatusToggle(user);
-                                                            }}
-                                                        >
-                                                            Deactivate
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors min-w-[80px]"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onStatusToggle(user);
-                                                            }}
-                                                        >
-                                                            Activate
-                                                        </button>
-                                                    )
-                                                )}
-                                            </div>
-                                        </TableCell> */}
                                     </TableRow>
                                 ))
                             )}
@@ -393,58 +336,42 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                     </Table>
                 </div>
 
-                {/* Pagination */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 px-8 bg-gray-50/30 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-300 font-medium">
                         Showing <span className="text-gray-800 dark:text-white font-bold">{users.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}</span> to <span className="text-gray-800 dark:text-white font-bold">{Math.min(currentPage * ITEMS_PER_PAGE, users.length)}</span> of <span className="text-gray-800 dark:text-white font-bold">{users.length}</span> entries
                     </p>
                     <div className="flex items-center gap-2">
                         <button
-                            onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+                            onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                            className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
-                            <ChevronLeftIcon className="w-4 h-4" />
+                            <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                         </button>
-
-                        {(() => {
-                            const pages = [];
-                            if (totalPages <= 7) {
-                                for (let i = 1; i <= totalPages; i++) pages.push(i);
-                            } else {
-                                pages.push(1);
-                                if (currentPage > 3) pages.push("...");
-                                const start = Math.max(2, currentPage - 1);
-                                const end = Math.min(totalPages - 1, currentPage + 1);
-                                for (let i = start; i <= end; i++) {
-                                    if (!pages.includes(i)) pages.push(i);
-                                }
-                                if (currentPage < totalPages - 2) pages.push("...");
-                                pages.push(totalPages);
-                            }
-                            return pages.map((page, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => typeof page === 'number' && handlePageChange(page)}
-                                    disabled={typeof page !== 'number'}
-                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all shadow-sm ${currentPage === page
-                                        ? 'bg-brand-600 text-white border border-brand-600'
-                                        : typeof page === 'number'
-                                            ? 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:bg-gray-50'
-                                            : 'bg-transparent text-gray-400 border-transparent cursor-default'
-                                        }`}
-                                >
-                                    {page}
-                                </button>
-                            ));
-                        })()}
-
+                        <div className="flex items-center gap-1">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                                .map((p, i, arr) => (
+                                    <span key={p} className="flex items-center">
+                                        {i > 0 && arr[i - 1] !== p - 1 && <span className="px-2 text-gray-400">...</span>}
+                                        <button
+                                            onClick={() => handlePageChange(p)}
+                                            className={`min-w-[32px] h-8 rounded-lg text-xs font-bold transition-all ${currentPage === p
+                                                ? 'bg-brand-600 text-white shadow-lg shadow-brand-200 dark:shadow-none'
+                                                : 'text-gray-500 hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700'
+                                                }`}
+                                        >
+                                            {p}
+                                        </button>
+                                    </span>
+                                ))}
+                        </div>
                         <button
-                            onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+                            onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages || totalPages === 0}
-                            className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                            className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
-                            <ChevronLeftIcon className="w-4 h-4 rotate-180" />
+                            <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                         </button>
                     </div>
                 </div>
