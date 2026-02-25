@@ -131,21 +131,21 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
 
     const formatValue = (val: any) => (val === undefined || val === null || val === "" ? "-" : val);
 
-    const IconLink = ({ url, label }: { url?: string; label: string }) => {
-        if (!url || url === "-") return <div className="flex items-center gap-1 text-gray-400 truncate"><span className="text-[10px]">{label}:</span> -</div>;
-        return (
-            <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-green-600 hover:text-green-700 dark:text-green-400 hover:underline truncate"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <FileIcon className="size-3 flex-shrink-0" />
-                <span className="text-[10px] font-bold">{label}</span>
-            </a>
-        );
-    };
+    // const IconLink = ({ url, label }: { url?: string; label: string }) => {
+    //     if (!url || url === "-") return <div className="flex items-center gap-1 text-gray-400 truncate"><span className="text-[10px]">{label}:</span> -</div>;
+    //     return (
+    //         <a
+    //             href={url}
+    //             target="_blank"
+    //             rel="noopener noreferrer"
+    //             className="flex items-center gap-1 text-green-600 hover:text-green-700 dark:text-green-400 hover:underline truncate"
+    //             onClick={(e) => e.stopPropagation()}
+    //         >
+    //             <FileIcon className="size-3 flex-shrink-0" />
+    //             <span className="text-[10px] font-bold">{label}</span>
+    //         </a>
+    //     );
+    // };
 
     // Dynamic columns logic
     const columns = useMemo(() => {
