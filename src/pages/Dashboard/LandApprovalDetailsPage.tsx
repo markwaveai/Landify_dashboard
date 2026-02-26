@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getLandDetails } from "../../services/landService";
+import { getLandDetails, approveLandStage1, approveLandStage2 } from "../../services/landService";
 import { fetchProfile } from "../../services/authService";
 import api from "../../services/api";
 import PageMeta from "../../components/common/PageMeta";
@@ -9,19 +9,28 @@ import {
     UserIcon,
     GridIcon,
     FileIcon,
-    TableIcon
+    TableIcon,
+    CheckCircleIcon,
+    CloseIcon
 } from "../../icons";
 import Badge from "../../components/ui/badge/Badge";
 import DetailCard from "../../components/common/DetailCard";
 import InfoItem from "../../components/common/InfoItem";
 import { ImagePreviewModal } from "../../components/ui/modal/ImagePreviewModal";
 import { useParams, useNavigate, useLocation } from "react-router";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 const LandApprovalDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const location = useLocation();
     const [previewImage, setPreviewImage] = React.useState<{ url: string; title: string } | null>(null);
+    const { user } = useSelector((state: RootState) => state.auth);
+    const { showSnackbar } = useSnackbar();
+    const [actionLoading, setActionLoading] = React.useState<string | null>(null);
+    const [actionRemarks, setActionRemarks] = React.useState("");
 
     const initialLandData = location.state?.land;
 
@@ -39,23 +48,27 @@ const LandApprovalDetailsPage: React.FC = () => {
         queryKey: ["user-profile", land?.user_id],
         queryFn: async () => {
             if (!land?.user_id) return null;
-            // If it's a numeric phone number
             if (/^\d+$/.test(String(land.user_id))) {
                 return fetchProfile(String(land.user_id));
             }
-            // If it's a unique ID (like FR100...)
             try {
                 const response = await api.get(`/users/${land.user_id}`);
-                // Use the same mapping as fetchProfile or mapUser
                 const u = response.data;
                 if (!u) return null;
+
                 return {
                     ...u,
                     first_name: u.name?.split(' ')[0] || u.name || u.first_name || "",
                     last_name: u.name?.split(' ').slice(1).join(' ') || u.last_name || "",
                     phone_number: u.phoneNumber || u.phone_number || "",
                     unique_id: u.userId || u.unique_id,
-                    role: u.role || u.type || "FARMER"
+                    role: u.role || u.type || "FARMER",
+                    user_image_url: u.extra_details?.user_image_url || "",
+                    total_lands: u.total_lands || 0,
+                    total_acres: u.total_acres || 0,
+                    dob: u.dob || "",
+                    land_stats: u.land_stats || {},
+                    aadhar_number: u.extra_details?.aadhar_number || ""
                 };
             } catch (e) {
                 return null;
@@ -88,13 +101,16 @@ const LandApprovalDetailsPage: React.FC = () => {
         );
     }
 
+    const landImages = Array.isArray(land.land_images_url)
+        ? land.land_images_url
+        : (Array.isArray(land.land_urls) ? land.land_urls : (land.land_images_url || land.land_image_url ? [land.land_images_url || land.land_image_url] : []));
+
     const documents = [
-        ...(Array.isArray(land.land_urls)
-            ? land.land_urls.filter(Boolean).map((url: string, i: number) => ({
-                url: String(url), label: `Land Photo ${i + 1}`, icon: <FileIcon className="size-4" />
-            }))
-            : (land.land_image_url || land.land_images_url ? [{ url: String(land.land_image_url || land.land_images_url), label: "Land Photo", icon: <FileIcon className="size-4" /> }] : [])
-        ),
+        ...landImages.filter(Boolean).map((url: any, i: number) => ({
+            url: String(url),
+            label: `Land Photo ${i + 1}`,
+            icon: <FileIcon className="size-4" />
+        })),
         { url: land.passbook_url || land.passbook_image_url, label: "Passbook", icon: <FileIcon className="size-4" /> },
         { url: land.emcumbrance_url || land.ec_certificate_url, label: "EC Certificate", icon: <FileIcon className="size-4" /> },
         { url: land.ror_url || land.ror_1b_url || land.ror1b || land.roe_url, label: "ROR / 1-B", icon: <FileIcon className="size-4" /> },
@@ -111,6 +127,44 @@ const LandApprovalDetailsPage: React.FC = () => {
         : (land.owner_first_name
             ? `${land.surname || ''} ${land.owner_first_name}`.trim()
             : (land.land_holder_name || land.land_holder_aadharName || land.owner_aadharName || land.owner_name || "-"));
+
+    const coords = Array.isArray(land?.land_coordinates) ? land.land_coordinates : [];
+    const formatCoord = (lat: any, lng: any) => {
+        const la = parseFloat(String(lat));
+        const ln = parseFloat(String(lng));
+        return !isNaN(la) && !isNaN(ln) ? `${la.toFixed(6)}, ${ln.toFixed(6)}` : "-";
+    };
+
+    const tf_latlng = formatCoord(coords[0], coords[1]);
+    const bl_latlng = formatCoord(coords[2], coords[3]);
+    const br_latlng = formatCoord(coords[4], coords[5]);
+    const tr_latlng = formatCoord(coords[6], coords[7]);
+
+    const handleAction = async (action: "APPROVE" | "REJECT") => {
+        if (!id || !user?.role) return;
+        if (action === "REJECT" && !actionRemarks.trim()) {
+            showSnackbar("Please provide a reason for rejection in remarks", "error");
+            return;
+        }
+
+        try {
+            setActionLoading(action);
+            const data = { action, reason: actionRemarks };
+            if (user.role === "ADMIN") {
+                await approveLandStage2(id, data);
+            } else if (user.role === "FIELD_OFFICER") {
+                await approveLandStage1(id, data);
+            }
+            showSnackbar(`Land accurately ${action === "APPROVE" ? "Approved" : "Rejected"} Successful!`, "success");
+            setActionRemarks("");
+            navigate(0);
+        } catch (error: any) {
+            console.error("Land action failed:", error);
+            showSnackbar(error.response?.data?.message || `Failed to ${action.toLowerCase()} land`, "error");
+        } finally {
+            setActionLoading(null);
+        }
+    };
 
     return (
         <div className="space-y-6 pb-20 max-w-[1400px] mx-auto px-4 sm:px-6">
@@ -135,10 +189,11 @@ const LandApprovalDetailsPage: React.FC = () => {
                         <p className="text-sm text-gray-500 font-medium">#{land.landId || land.id || id} • Holder: {ownerNameStr}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
+
+                <div className="flex flex-wrap items-center gap-3">
                     <div className="text-right hidden sm:block">
                         <p className="text-[10px] uppercase font-bold text-gray-400">Application Status</p>
-                        <Badge variant="solid" color={String(land.status || '').includes('PENDING') ? 'warning' : String(land.status || '').includes('APPROVED') ? 'success' : 'error'}>
+                        <Badge variant="solid" color={String(land.status || '').includes('PENDING') ? 'warning' : (String(land.status || '').includes('APPROVED') || land.status === 'LAND_ACTIVATED') ? 'success' : 'error'}>
                             {String(land.status || '-')}
                         </Badge>
                     </div>
@@ -146,30 +201,62 @@ const LandApprovalDetailsPage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Left Column: Summary & Owner */}
                 <div className="lg:col-span-4 space-y-6">
                     <DetailCard title="Owner Information">
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 p-4 bg-primary-50/50 dark:bg-primary-500/5 rounded-2xl border border-primary-100 dark:border-primary-800">
-                                <div className="h-12 w-12 rounded-xl bg-primary-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary-500/20">
-                                    {(ownerNameStr === "-" ? (String(land.user_id || "U")) : ownerNameStr).charAt(0).toUpperCase()}
+                                <div className="h-14 w-14 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-primary-600 shadow-sm border border-gray-100 dark:border-gray-700">
+                                    {owner?.user_image_url ? (
+                                        <img src={owner.user_image_url} alt={ownerNameStr} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <UserIcon className="size-8 opacity-40" />
+                                    )}
                                 </div>
-                                <div>
-                                    <h3 className="font-bold text-gray-800 dark:text-white truncate max-w-[200px]">{ownerNameStr}</h3>
-                                    <p className="text-xs text-gray-500 font-medium">{land.owner_ship_type || land.ownership_details || "Private Owner"}</p>
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-bold text-gray-800 dark:text-white truncate">{ownerNameStr}</h3>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant="light" size="sm" color="info">
+                                            {String(owner?.role || "FARMER").replace(/_/g, ' ')}
+                                        </Badge>
+                                        <span className="text-[10px] text-gray-400 font-bold">• ID: {land.user_id}</span>
+                                    </div>
                                 </div>
                             </div>
-                            <InfoItem label="User ID" value={land.user_id || land.userId} icon={<UserIcon className="size-4" />} />
-                            <InfoItem label="Relation" value={land.relation || land.relation_type} icon={<UserIcon className="size-4" />} />
-                            <InfoItem label="DOB" value={land.land_holder_dob || land.owner_dob || "-"} icon={<UserIcon className="size-4" />} />
-                            <InfoItem label="Aadhar Name" value={land.land_holder_aadharName || land.owner_aadharName || "-"} icon={<UserIcon className="size-4" />} />
-                        </div>
-                    </DetailCard>
 
-                    <DetailCard title="Agent Information">
-                        <div className="space-y-3">
-                            <InfoItem label="Assigned Agent" value={land.agent_name || land.added_by_name || "-"} icon={<UserIcon className="size-4" />} />
-                            <InfoItem label="Agent Contact" value={land.agent_contact || land.agent_phone || land.added_by_phone || "-"} icon={<UserIcon className="size-4" />} />
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800 text-center">
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase mb-1 leading-tight">Total Lands</p>
+                                    <p className="text-lg font-bold text-gray-800 dark:text-white leading-none">{owner?.total_lands || 0}</p>
+                                </div>
+                                <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800 text-center">
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase mb-1 leading-tight">Total Acres</p>
+                                    <p className="text-lg font-bold text-gray-800 dark:text-white leading-none">{owner?.total_acres || 0}</p>
+                                </div>
+                            </div>
+
+                            {/* Detailed Land Stats */}
+                            {owner?.land_stats && (
+                                <div className="grid grid-cols-3 gap-2 p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                                    {[
+                                        { label: "Approved", value: owner.land_stats.approved_lands, color: "text-green-500" },
+                                        { label: "Active", value: owner.land_stats.active_lands, color: "text-blue-500" },
+                                        { label: "Harvest Ready", value: owner.land_stats.harvest_ready, color: "text-orange-500" },
+                                        { label: "In Review", value: owner.land_stats.review_lands, color: "text-yellow-500" },
+                                        { label: "Remarks", value: owner.land_stats.remarks_lands, color: "text-gray-500" },
+                                        { label: "Rejected", value: owner.land_stats.rejected_lands, color: "text-red-500" },
+                                    ].map((stat, idx) => (
+                                        <div key={idx} className="text-center">
+                                            <p className={`text-[11px] font-bold ${stat.color}`}>{stat.value || 0}</p>
+                                            <p className="text-[8px] text-gray-400 font-bold uppercase truncate px-1">{stat.label}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                                <InfoItem label="DOB" value={owner?.dob || land.land_holder_dob || land.owner_dob || "-"} icon={<UserIcon className="size-4" />} />
+                                <InfoItem label="Aadhar Number" value={owner?.aadhar_number || land.owner_aadhar_number || "-"} icon={<UserIcon className="size-4" />} />
+                            </div>
                         </div>
                     </DetailCard>
 
@@ -184,21 +271,12 @@ const LandApprovalDetailsPage: React.FC = () => {
                     </DetailCard>
                 </div>
 
-                {/* Right Column: Physical & Documents */}
                 <div className="lg:col-span-8 space-y-6">
                     <DetailCard title="Land Specification">
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl text-center border border-gray-100 dark:border-gray-800">
                                 <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Acres</p>
                                 <p className="text-xl font-bold text-gray-800 dark:text-white">{land.acres ?? "-"}</p>
-                            </div>
-                            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl text-center border border-gray-100 dark:border-gray-800">
-                                <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Guntas</p>
-                                <p className="text-xl font-bold text-gray-800 dark:text-white">{land.gunta ?? land.guntas ?? "-"}</p>
-                            </div>
-                            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl text-center border border-gray-100 dark:border-gray-800">
-                                <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Sents</p>
-                                <p className="text-xl font-bold text-gray-800 dark:text-white">{land.sents ?? land.cents ?? "-"}</p>
                             </div>
                             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl text-center border border-gray-100 dark:border-gray-800">
                                 <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Survey No</p>
@@ -215,19 +293,17 @@ const LandApprovalDetailsPage: React.FC = () => {
                     </DetailCard>
 
                     <DetailCard title="Geospatial Coordinates">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
-                                <p className="text-[10px] text-gray-400 font-bold uppercase mb-2">North-East Points</p>
                                 <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Top Left:</span> {land.tf_latlng || "-"}</div>
-                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Top Right:</span> {land.tr_latlng || "-"}</div>
+                                    <div className="flex justify-between text-[10px] font-mono"><span className="text-gray-400">Top Left:</span> {tf_latlng}</div>
+                                    <div className="flex justify-between text-[10px] font-mono"><span className="text-gray-400">Top Right:</span> {tr_latlng}</div>
                                 </div>
                             </div>
                             <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
-                                <p className="text-[10px] text-gray-400 font-bold uppercase mb-2">South-West Points</p>
                                 <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Bottom Left:</span> {land.bl_latlng || "-"}</div>
-                                    <div className="flex justify-between text-xs font-mono"><span className="text-gray-400">Bottom Right:</span> {land.br_latlng || "-"}</div>
+                                    <div className="flex justify-between text-[10px] font-mono"><span className="text-gray-400">Bottom Left:</span> {bl_latlng}</div>
+                                    <div className="flex justify-between text-[10px] font-mono"><span className="text-gray-400">Bottom Right:</span> {br_latlng}</div>
                                 </div>
                             </div>
                         </div>
@@ -242,7 +318,7 @@ const LandApprovalDetailsPage: React.FC = () => {
                                 <div>
                                     <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Approval Remarks</p>
                                     <p className="text-sm text-gray-700 dark:text-gray-300 italic font-medium">
-                                        "{land.remarks || land.remarks_stage1 || land.remarks_stage2 || "No remarks provided yet."}"
+                                        {land.remarks || land.remarks_stage1 || land.remarks_stage2 || "-"}
                                     </p>
                                 </div>
                             </div>
@@ -283,6 +359,51 @@ const LandApprovalDetailsPage: React.FC = () => {
                     imageUrl={previewImage.url}
                     title={previewImage.title}
                 />
+            )}
+
+            {/* Role Based Review Actions - Bottom Sticky */}
+            {(user?.role === "ADMIN" || user?.role === "FIELD_OFFICER") && land.status && land.status.includes('PENDING') && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-2 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-2xl flex flex-col sm:flex-row items-center gap-2">
+                        <input
+                            type="text"
+                            placeholder="Add final review remarks..."
+                            value={actionRemarks}
+                            onChange={(e) => setActionRemarks(e.target.value)}
+                            className="px-4 py-3 text-sm bg-transparent border-none focus:ring-0 flex-1 placeholder:text-gray-400 font-medium dark:text-white"
+                        />
+                        <div className="flex items-center gap-2 p-1 pr-2 w-full sm:w-auto">
+                            <button
+                                disabled={!!actionLoading || !actionRemarks.trim()}
+                                onClick={() => handleAction("REJECT")}
+                                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm ${actionLoading === "REJECT"
+                                    ? "bg-red-100 text-red-400 cursor-not-allowed"
+                                    : !actionRemarks.trim()
+                                        ? "bg-gray-50 dark:bg-gray-800/50 text-gray-300 dark:text-gray-600 cursor-not-allowed border border-gray-100 dark:border-gray-800"
+                                        : "bg-white dark:bg-gray-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 border border-red-100 dark:border-red-500/20"
+                                    }`}
+                            >
+                                {actionLoading === "REJECT" ? (
+                                    <div className="size-3.5 border-2 border-red-400 border-t-transparent animate-spin rounded-full"></div>
+                                ) : <CloseIcon className="size-4" />}
+                                REJECT
+                            </button>
+                            <button
+                                disabled={!!actionLoading}
+                                onClick={() => handleAction("APPROVE")}
+                                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm ${actionLoading === "APPROVE"
+                                    ? "bg-green-100 text-green-400 cursor-not-allowed"
+                                    : "bg-white dark:bg-gray-800 text-green-600 hover:bg-green-50 dark:hover:bg-green-500/10 border border-green-100 dark:border-green-500/20 shadow-green-500/5"
+                                    }`}
+                            >
+                                {actionLoading === "APPROVE" ? (
+                                    <div className="size-3.5 border-2 border-white border-t-transparent animate-spin rounded-full"></div>
+                                ) : <CheckCircleIcon className="size-4" />}
+                                APPROVE
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

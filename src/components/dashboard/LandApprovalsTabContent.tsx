@@ -72,9 +72,9 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
     // Check if user has permission to approve/reject
     // Actions only valid in 'pending' tabs for respective roles
     const canApprove = (
-        (activeSubTab === 'pending' || activeSubTab === 'admin_pending') && (
+        (activeSubTab === 'pending') && (
             (isAdminView && user?.role === 'ADMIN') ||
-            (!isAdminView && user?.role === 'FIELD_OFFICER' && activeSubTab === 'pending')
+            (!isAdminView && user?.role === 'FIELD_OFFICER')
         )
     );
 
@@ -302,7 +302,7 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                 render: (land: any) => {
                     const statusStr = (land.status || '');
                     const isRejected = statusStr.includes('REJECTED');
-                    const isApproved = statusStr === 'ADMIN_APPROVED' || statusStr === 'FO_APPROVED';
+                    const isApproved = statusStr === 'ADMIN_APPROVED' || statusStr === 'FO_APPROVED' || statusStr === 'LAND_ACTIVATED';
                     let badgeClass = 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800/50';
                     let dotClass = 'bg-gray-500';
 
@@ -499,17 +499,6 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                                                         >
                                                             Reject
                                                         </button>
-                                                        {activeSubTab === 'admin_pending' && (
-                                                            <button
-                                                                onClick={() => {
-                                                                    setRemarkingLandId(land.id);
-                                                                    setTempRemarks(land.remarks || "");
-                                                                }}
-                                                                className="px-3 py-1.5 text-[10px] font-bold uppercase rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-all border border-blue-200/50 dark:border-blue-800/50"
-                                                            >
-                                                                Remarks
-                                                            </button>
-                                                        )}
                                                     </div>
                                                 )}
                                             </td>

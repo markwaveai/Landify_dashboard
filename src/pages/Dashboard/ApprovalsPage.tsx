@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getLands } from "../../services/landService";
 import LandApprovalsTabContent from "../../components/dashboard/LandApprovalsTabContent";
 import PageMeta from "../../components/common/PageMeta";
-import { GroupIcon, FileIcon, UserCircleIcon, LockIcon, CheckCircleIcon } from "../../icons";
+import { GroupIcon, FileIcon, UserCircleIcon, CheckCircleIcon } from "../../icons";
 
 export default function ApprovalsPage() {
     const [activeTab, setActiveTab] = useState<'fo' | 'admin'>(() => {
@@ -94,8 +94,8 @@ export default function ApprovalsPage() {
                                 : "text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
                                 }`}
                         >
-                            <LockIcon className="size-4.5" />
-                            <span>Admin Final</span>
+                            <UserCircleIcon className="size-4.5" />
+                            <span>Admin Review</span>
                         </button>
                     </div>
                 </div>
