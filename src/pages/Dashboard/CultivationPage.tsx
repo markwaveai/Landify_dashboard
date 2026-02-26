@@ -227,8 +227,8 @@ const CultivationPage: React.FC = () => {
                             {/* Status */}
                             <div className="col-span-2 flex justify-center">
                                 <span className={`inline-flex px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${batch.statusType === 'success' ? 'bg-green-50 text-green-700 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' :
-                                        batch.statusType === 'warning' ? 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20' :
-                                            'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20'
+                                    batch.statusType === 'warning' ? 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20' :
+                                        'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20'
                                     }`}>
                                     {batch.status}
                                 </span>
@@ -237,7 +237,7 @@ const CultivationPage: React.FC = () => {
                             {/* Action */}
                             <div className="col-span-2 flex justify-center">
                                 {batch.action === 'button' ? (
-                                    <button className="px-4 py-1.5 bg-green-700 hover:bg-green-800 text-white text-[10px] font-black rounded-lg uppercase tracking-widest transition-all hover:shadow-lg shadow-green-900/20 active:scale-95">
+                                    <button className="px-4 py-1.5 bg-green-700 hover:bg-green-800 text-white text-[10px] font-black rounded-lg uppercase tracking-widest transition-all hover:shadow-md active:scale-95">
                                         Assign Now
                                     </button>
                                 ) : (

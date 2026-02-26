@@ -357,8 +357,8 @@ export default function AgentTable({ title, users, onAddClick, onRowClick, addLa
                                         <button
                                             onClick={() => handlePageChange(p)}
                                             className={`min-w-[32px] h-8 rounded-lg text-xs font-bold transition-all ${currentPage === p
-                                                ? 'bg-brand-600 text-white shadow-lg shadow-brand-200 dark:shadow-none'
-                                                : 'text-gray-500 hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700'
+                                                ? 'bg-brand-600 text-white shadow-sm'
+                                                : 'text-gray-500 hover:bg-white dark:hover:bg-white/5 border border-transparent hover:border-gray-200 dark:hover:border-gray-700'
                                                 }`}
                                         >
                                             {p}

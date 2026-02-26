@@ -142,7 +142,7 @@ const DeleteAccountPage: React.FC = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full py-5 bg-[#2a9d8f] hover:bg-[#238b7e] disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white font-black text-lg rounded-[1.25rem] shadow-xl shadow-green-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-widest"
+                                    className="w-full py-5 bg-[#2a9d8f] hover:bg-[#238b7e] disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white font-black text-lg rounded-[1.25rem] shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-widest"
                                 >
                                     {loading ? (
                                         <>

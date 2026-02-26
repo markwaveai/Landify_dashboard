@@ -225,7 +225,7 @@ export default function SupportPage() {
 
                                 <button
                                     type="submit"
-                                    className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-green-500/30 active:scale-[0.98] mt-2"
+                                    className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-[0.98] mt-2"
                                 >
                                     Send Message
                                 </button>

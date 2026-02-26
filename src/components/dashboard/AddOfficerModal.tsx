@@ -595,15 +595,14 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 <div className="flex gap-8">
                     {/* Side Navigation Bar */}
                     <div className="hidden md:flex flex-col gap-1 w-32 shrink-0 sticky top-0 h-fit pt-4">
-                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-2">Navigation</div>
                         {sections.map((section) => (
                             <button
                                 key={section.id}
                                 type="button"
                                 onClick={() => scrollToSection(section.ref, section.id)}
                                 className={`text-left px-3 py-2 rounded-lg text-xs font-bold transition-all ${activeSection === section.id
-                                        ? "bg-brand-500 text-white shadow-md shadow-brand-500/20 translate-x-1"
-                                        : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                    ? "bg-brand-500 text-white shadow-sm translate-x-1"
+                                    : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
                                     }`}
                             >
                                 {section.label}

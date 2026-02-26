@@ -396,7 +396,7 @@ const UserProfile: React.FC = () => {
                             Reset Changes
                         </Button>
                         <Button
-                            className="px-8 shadow-lg shadow-green-600/20"
+                            className="px-8 shadow-md"
                             onClick={handleSave}
                             disabled={isUpdating}
                         >

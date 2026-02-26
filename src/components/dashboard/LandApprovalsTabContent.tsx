@@ -313,13 +313,13 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                     let dotClass = 'bg-gray-500';
 
                     if (isRejected) {
-                        dotClass = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]';
+                        dotClass = 'bg-red-500';
                         badgeClass = 'text-red-600 dark:text-red-400';
                     } else if (isApproved) {
-                        dotClass = 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]';
+                        dotClass = 'bg-green-500';
                         badgeClass = 'text-green-600 dark:text-green-400';
                     } else if (statusStr.includes('PENDING')) {
-                        dotClass = 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]';
+                        dotClass = 'bg-amber-500';
                         badgeClass = 'text-amber-600 dark:text-amber-400';
                     }
 
@@ -568,9 +568,9 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                             </button>
                             <button
                                 onClick={handleConfirmAction}
-                                className={`flex-[1.5] px-4 py-2.5 text-sm font-bold text-white rounded-xl shadow-lg transition-all active:scale-95 ${selectedLand?.action === 'APPROVE'
-                                    ? 'bg-green-600 hover:bg-green-700 shadow-green-500/20'
-                                    : 'bg-red-600 hover:bg-red-700 shadow-red-500/20'}`}
+                                className={`flex-[1.5] px-4 py-2.5 text-sm font-bold text-white rounded-xl shadow-md transition-all active:scale-95 ${selectedLand?.action === 'APPROVE'
+                                    ? 'bg-green-600 hover:bg-green-700'
+                                    : 'bg-red-600 hover:bg-red-700'}`}
                             >
                                 Confirm {selectedLand?.action === 'APPROVE' ? 'Approve' : 'Reject'}
                             </button>
