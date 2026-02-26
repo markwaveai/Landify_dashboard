@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { useSelector } from 'react-redux';
-import { getLands, approveLandStage1, approveLandStage2, updateLand } from '../../services/landService';
+import { getLands, getLandsByReference, approveLandStage1, approveLandStage2, updateLand } from '../../services/landService';
 import { CheckCircleIcon, FileIcon, UserIcon } from '../../icons';
 import { RootState } from '../../store/store';
 import { useSnackbar } from "../../context/SnackbarContext";
@@ -32,12 +32,18 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
 
     // Dynamically fetch lands based on tab and view
     const { data: allLandsFromQuery, isLoading: queryLoading } = useQuery({
-        queryKey: ['lands'],
-        queryFn: getLands,
+        queryKey: ['lands', user?.reference_id, user?.unique_id],
+        queryFn: () => {
+            const adminId = user?.reference_id || user?.unique_id;
+            if (adminId) {
+                return getLandsByReference(adminId);
+            }
+            return getLands();
+        },
         enabled: !isControlled,
         staleTime: Infinity,
         refetchOnWindowFocus: false,
-        refetchOnMount: false,
+        refetchOnMount: true,
     });
 
     const allLands = initialLands || allLandsFromQuery;

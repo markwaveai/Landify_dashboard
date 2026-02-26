@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { useQuery } from "@tanstack/react-query";
-import { getAgents } from "../../services/userService";
+import { getAgents, getAgentsByReference } from "../../services/userService";
 import AgentTable from "../../components/dashboard/AgentTable";
 import LandApprovalsTabContent from "../../components/dashboard/LandApprovalsTabContent";
 import PageMeta from "../../components/common/PageMeta";
@@ -40,9 +40,15 @@ export default function AgentsPage() {
     const searchQuery = searchParams.get("q") || "";
 
     const { data: agents, isLoading: isLoadingAgents } = useQuery({
-        queryKey: ['agents'],
-        queryFn: getAgents,
-        enabled: user?.role === 'ADMIN' || user?.role === 'FIELD_OFFICER'
+        queryKey: ['agents', user?.role, user?.unique_id, user?.reference_id],
+        queryFn: () => {
+            const adminId = user?.reference_id || user?.unique_id;
+            if (user?.role === 'ADMIN' && adminId) {
+                return getAgentsByReference(adminId);
+            }
+            return getAgents();
+        },
+        enabled: !!user && (user?.role === 'ADMIN' || user?.role === 'FIELD_OFFICER')
     });
 
     const handlePageChange = (page: number) => {

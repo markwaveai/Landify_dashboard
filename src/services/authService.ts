@@ -35,6 +35,7 @@ export const fetchProfile = async (phoneNumber: string) => {
         last_name: u.name?.split(' ').slice(1).join(' ') || "",
         phone_number: u.phoneNumber || "",
         unique_id: u.userId,
+        reference_id: u.referenceId || u.reference_id || u.ref_id || u.extra_details?.reference_id || "",
         village: u.address?.village || "",
         mandal: u.address?.mandal || "",
         district: u.address?.district || "",
@@ -48,6 +49,14 @@ export const fetchProfile = async (phoneNumber: string) => {
         total_acres: u.no_of_acres || 0,
         officer_count: u.extra_details?.no_of_aos || 0,
         agent_count: u.extra_details?.no_of_agents || 0,
+        land_stats: u.land_stats || {
+            active_lands: 0,
+            harvest_ready: 0,
+            remarks_lands: 0,
+            rejected_lands: 0,
+            approved_lands: 0,
+            review_lands: 0
+        },
         role: u.role === 'FIELD_OFFICER' ? 'FIELD_OFFICER' : u.role
     };
 };

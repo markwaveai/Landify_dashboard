@@ -106,10 +106,12 @@ export default function OfficerDetailsPage() {
     // Aggregate statistics from assigned agents
     const totalLandCount = assignedAgents.reduce((sum: number, agent: any) => sum + (agent.land_count || 0), 0);
     const totalAcresCount = assignedAgents.reduce((sum: number, agent: any) => sum + (agent.total_acres || 0), 0);
+    const totalFarmerCount = assignedAgents.reduce((sum: number, agent: any) => sum + (agent.farmer_count || 0), 0);
 
     // Use profile values as primary, but fallback to aggregated totals if they seem more accurate (greater than zero)
     const displayLandCount = Math.max(profile.land_count || 0, totalLandCount);
-    const displayTotalAcres = Math.max(profile.total_acres || 0, totalAcresCount);
+    const displayTotalAcres = Math.max(profile.total_acres || 0, totalAcresCount).toFixed(2);
+    const displayFarmerCount = Math.max(profile.farmer_count || 0, totalFarmerCount);
 
     return (
         <div className="space-y-8 pb-20 max-w-[1400px] mx-auto font-outfit">
@@ -126,10 +128,39 @@ export default function OfficerDetailsPage() {
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
                         FO Profile
-
                     </h1>
                 </div>
             </div>
+
+            {/* Land Stats Quick Breakdown */}
+            {profile.land_stats && (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div className="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/50">
+                        <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Active</p>
+                        <h4 className="text-xl font-bold text-emerald-900 dark:text-emerald-100">{profile.land_stats.active_lands || 0}</h4>
+                    </div>
+                    <div className="bg-orange-50 dark:bg-orange-900/10 p-4 rounded-2xl border border-orange-100 dark:border-orange-800/50">
+                        <p className="text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-1">Harvest Ready</p>
+                        <h4 className="text-xl font-bold text-orange-900 dark:text-orange-100">{profile.land_stats.harvest_ready || 0}</h4>
+                    </div>
+                    <div className="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-2xl border border-purple-100 dark:border-purple-800/50">
+                        <p className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1">Approved</p>
+                        <h4 className="text-xl font-bold text-purple-900 dark:text-purple-100">{profile.land_stats.approved_lands || 0}</h4>
+                    </div>
+                    <div className="bg-yellow-50 dark:bg-yellow-900/10 p-4 rounded-2xl border border-yellow-100 dark:border-yellow-800/50">
+                        <p className="text-[10px] font-black text-yellow-600 dark:text-yellow-400 uppercase tracking-widest mb-1">Review</p>
+                        <h4 className="text-xl font-bold text-yellow-900 dark:text-yellow-100">{profile.land_stats.review_lands || 0}</h4>
+                    </div>
+                    <div className="bg-rose-50 dark:bg-rose-900/10 p-4 rounded-2xl border border-rose-100 dark:border-rose-800/50">
+                        <p className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1">Remarks</p>
+                        <h4 className="text-xl font-bold text-rose-900 dark:text-rose-100">{profile.land_stats.remarks_lands || 0}</h4>
+                    </div>
+                    <div className="bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl border border-red-100 dark:border-red-800/50">
+                        <p className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-widest mb-1">Rejected</p>
+                        <h4 className="text-xl font-bold text-red-900 dark:text-red-100">{profile.land_stats.rejected_lands || 0}</h4>
+                    </div>
+                </div>
+            )}
 
             {/* Profile Header Card */}
             <div className="bg-white dark:bg-gray-800 rounded-[2rem] border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
@@ -184,6 +215,12 @@ export default function OfficerDetailsPage() {
                                         icon={<UserIcon className="size-6" />}
                                     />
                                     <StatCard
+                                        label="Farmers"
+                                        value={displayFarmerCount}
+                                        colorClass="text-orange-600 bg-orange-500"
+                                        icon={<UserCircleIcon className="size-6" />}
+                                    />
+                                    <StatCard
                                         label="Land Count"
                                         value={displayLandCount}
                                         colorClass="text-emerald-600 bg-emerald-500"
@@ -191,7 +228,7 @@ export default function OfficerDetailsPage() {
                                     />
                                     <StatCard
                                         label="Total Acres"
-                                        value={typeof displayTotalAcres === 'number' ? displayTotalAcres.toFixed(1) : displayTotalAcres}
+                                        value={displayTotalAcres}
                                         colorClass="text-purple-600 bg-purple-500"
                                         icon={<BoxIcon className="size-6" />}
                                     />

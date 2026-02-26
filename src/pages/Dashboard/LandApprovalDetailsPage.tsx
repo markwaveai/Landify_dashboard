@@ -1,8 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getLandDetails, approveLandStage1, approveLandStage2 } from "../../services/landService";
-import { fetchProfile } from "../../services/authService";
-import api from "../../services/api";
+import { getFarmerFullDetails } from "../../services/userService";
 import PageMeta from "../../components/common/PageMeta";
 import {
     AngleLeftIcon,
@@ -48,31 +47,7 @@ const LandApprovalDetailsPage: React.FC = () => {
         queryKey: ["user-profile", land?.user_id],
         queryFn: async () => {
             if (!land?.user_id) return null;
-            if (/^\d+$/.test(String(land.user_id))) {
-                return fetchProfile(String(land.user_id));
-            }
-            try {
-                const response = await api.get(`/users/${land.user_id}`);
-                const u = response.data;
-                if (!u) return null;
-
-                return {
-                    ...u,
-                    first_name: u.name?.split(' ')[0] || u.name || u.first_name || "",
-                    last_name: u.name?.split(' ').slice(1).join(' ') || u.last_name || "",
-                    phone_number: u.phoneNumber || u.phone_number || "",
-                    unique_id: u.userId || u.unique_id,
-                    role: u.role || u.type || "FARMER",
-                    user_image_url: u.extra_details?.user_image_url || "",
-                    total_lands: u.total_lands || 0,
-                    total_acres: u.total_acres || 0,
-                    dob: u.dob || "",
-                    land_stats: u.land_stats || {},
-                    aadhar_number: u.extra_details?.aadhar_number || ""
-                };
-            } catch (e) {
-                return null;
-            }
+            return getFarmerFullDetails(String(land.user_id));
         },
         enabled: !!land?.user_id,
     });
@@ -105,12 +80,13 @@ const LandApprovalDetailsPage: React.FC = () => {
         ? land.land_images_url
         : (Array.isArray(land.land_urls) ? land.land_urls : (land.land_images_url || land.land_image_url ? [land.land_images_url || land.land_image_url] : []));
 
-    const documents = [
-        ...landImages.filter(Boolean).map((url: any, i: number) => ({
-            url: String(url),
-            label: `Land Photo ${i + 1}`,
-            icon: <FileIcon className="size-4" />
-        })),
+    const landPhotos = landImages.filter(Boolean).map((url: any, i: number) => ({
+        url: String(url),
+        label: `Land Photo ${i + 1}`,
+        icon: <FileIcon className="size-4" />
+    })).filter((doc: any) => typeof doc.url === 'string' && doc.url.startsWith('http'));
+
+    const legalDocuments = [
         { url: land.passbook_url || land.passbook_image_url, label: "Passbook", icon: <FileIcon className="size-4" /> },
         { url: land.emcumbrance_url || land.ec_certificate_url, label: "EC Certificate", icon: <FileIcon className="size-4" /> },
         { url: land.ror_url || land.ror_1b_url || land.ror1b || land.roe_url, label: "ROR / 1-B", icon: <FileIcon className="size-4" /> },
@@ -121,6 +97,15 @@ const LandApprovalDetailsPage: React.FC = () => {
         { url: land.lpm_url, label: "LPM", icon: <FileIcon className="size-4" /> },
         { url: land.user_image_url, label: "User Photo", icon: <UserIcon className="size-4" /> },
     ].filter(doc => doc && typeof doc.url === 'string' && doc.url.startsWith('http'));
+
+    const farmerDocuments = [
+        { url: owner?.user_image_url, label: "User Photo", icon: <UserIcon className="size-4" /> },
+        { url: owner?.aadhar_image_url, label: "Aadhar Front", icon: <UserIcon className="size-4" /> },
+        { url: owner?.aadhar_back_image_url, label: "Aadhar Back", icon: <UserIcon className="size-4" /> },
+        { url: owner?.pan_image_url, label: "PAN Card", icon: <FileIcon className="size-4" /> },
+        { url: owner?.bank_passbook_image_url, label: "Bank Passbook", icon: <FileIcon className="size-4" /> },
+        { url: owner?.agreement_url, label: "Agreement", icon: <FileIcon className="size-4" /> },
+    ];
 
     const ownerNameStr = owner
         ? `${owner.surname || ''} ${owner.first_name || ''}`.trim()
@@ -202,7 +187,7 @@ const LandApprovalDetailsPage: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-4 space-y-6">
-                    <DetailCard title="Owner Information">
+                    <DetailCard title="Farmer Information">
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 p-4 bg-primary-50/50 dark:bg-primary-500/5 rounded-2xl border border-primary-100 dark:border-primary-800">
                                 <div className="h-14 w-14 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-primary-600 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -254,21 +239,53 @@ const LandApprovalDetailsPage: React.FC = () => {
                             )}
 
                             <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
-                                <InfoItem label="DOB" value={owner?.dob || land.land_holder_dob || land.owner_dob || "-"} icon={<UserIcon className="size-4" />} />
-                                <InfoItem label="Aadhar Number" value={owner?.aadhar_number || land.owner_aadhar_number || "-"} icon={<UserIcon className="size-4" />} />
+                                <InfoItem label="Phone Number" value={owner?.phone_number || "-"} icon={<UserIcon className="size-4" />} />
+                                <InfoItem label="Reference ID" value={owner?.reference_id || "-"} icon={<UserIcon className="size-4" />} />
+                                <InfoItem label="Alternate Phone" value={owner?.alternate_phone_number || "-"} icon={<UserIcon className="size-4" />} />
+                                <InfoItem label="DOB" value={owner?.date_of_birth || owner?.dob || land.land_holder_dob || "-"} icon={<UserIcon className="size-4" />} />
+                                <InfoItem label="Aadhar Number" value={owner?.aadhar_card_number || land.owner_aadhar_number || "-"} icon={<UserIcon className="size-4" />} />
+                                <InfoItem label="Pan Number" value={owner?.pan_number || "-"} icon={<FileIcon className="size-4" />} />
+                                <InfoItem label="Village" value={owner?.village || "-"} icon={<GridIcon className="size-4" />} />
+                                <InfoItem label="Mandal" value={owner?.mandal || "-"} icon={<GridIcon className="size-4" />} />
+
+                                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Banking Details</p>
+                                    <div className="space-y-2">
+                                        <InfoItem label="Account Number" value={owner?.account_number || "-"} icon={<FileIcon className="size-4" />} />
+                                        <InfoItem label="Bank Name" value={owner?.bank_name || "-"} icon={<FileIcon className="size-4" />} />
+                                        <InfoItem label="IFSC Code" value={owner?.ifsc_code || "-"} icon={<FileIcon className="size-4" />} />
+                                        <InfoItem label="Branch Name" value={owner?.bank_branch || "-"} icon={<FileIcon className="size-4" />} />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </DetailCard>
 
-                    <DetailCard title="Location Details">
-                        <div className="space-y-3">
-                            <InfoItem label="State" value={land.state || land.land_address?.state || "-"} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="District" value={land.district || land.land_address?.district || "-"} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="Mandal" value={land.mandal || land.land_address?.mandal || "-"} icon={<GridIcon className="size-4" />} />
-                            <InfoItem label="Village" value={land.village || land.land_address?.village || "-"} icon={<GridIcon className="size-4" />} />
-                            {land.division && <InfoItem label="Division" value={land.division} icon={<GridIcon className="size-4" />} />}
-                        </div>
-                    </DetailCard>
+
+
+                    {String(land.owner_ship_type || '').toUpperCase() === 'LEASE' && (
+                        <DetailCard title="Owner Information (Lease)">
+                            <div className="space-y-4">
+                                <InfoItem label="Land Holder Name" value={land.land_holder_name || land.owner_aadharName || "Not Provided"} icon={<UserIcon className="size-4" />} />
+                                <InfoItem label="Owner Aadhar Name" value={land.owner_aadharName || "Not Provided"} icon={<UserIcon className="size-4" />} />
+                                <InfoItem label="Land Holder DOB" value={land.land_holder_dob || "Not Provided"} icon={<UserIcon className="size-4" />} />
+                                <InfoItem label="Passbook Number" value={land.passbookNo || land.passbook_no || "Not Provided"} icon={<FileIcon className="size-4" />} />
+                                <InfoItem label="Ownership Type" value={land.owner_ship_type || "Not Provided"} icon={<GridIcon className="size-4" />} />
+
+                                <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Owner Address</p>
+                                    <div className="space-y-2">
+                                        <InfoItem label="State" value={land.land_address?.state || "Not Provided"} icon={<GridIcon className="size-3.5 opacity-50" />} />
+                                        <InfoItem label="District" value={land.land_address?.district || "Not Provided"} icon={<GridIcon className="size-3.5 opacity-50" />} />
+                                        <InfoItem label="Mandal" value={land.land_address?.mandal || "Not Provided"} icon={<GridIcon className="size-3.5 opacity-50" />} />
+                                        <InfoItem label="Village" value={land.land_address?.village || "Not Provided"} icon={<GridIcon className="size-3.5 opacity-50" />} />
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </DetailCard>
+                    )}
                 </div>
 
                 <div className="lg:col-span-8 space-y-6">
@@ -325,15 +342,41 @@ const LandApprovalDetailsPage: React.FC = () => {
                         </div>
                     </DetailCard>
 
-                    <DetailCard title="Verification Proofs">
-                        {documents.length === 0 ? (
+                    <DetailCard title="Farmer Verification Proofs">
+                        <div className="grid grid-cols-2 sm:grid-cols-6 gap-4">
+                            {farmerDocuments.map((doc, idx) => {
+                                const hasUrl = typeof doc.url === 'string' && doc.url.startsWith('http');
+                                return (
+                                    <div key={idx} onClick={() => hasUrl && setPreviewImage({ url: doc.url as string, title: doc.label })} className={`group ${hasUrl ? 'cursor-pointer' : 'cursor-default'}`}>
+                                        <div className={`aspect-[4/3] rounded-2xl overflow-hidden shadow-sm border transition-all ${hasUrl
+                                            ? 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 group-hover:ring-2 group-hover:ring-primary-500'
+                                            : 'bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800 border-dashed'
+                                            }`}>
+                                            {hasUrl ? (
+                                                <img src={doc.url as string} alt={doc.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                            ) : (
+                                                <div className="w-full h-full flex flex-col items-center justify-center gap-2 opacity-40">
+                                                    {doc.icon}
+                                                    <span className="text-[9px] font-bold uppercase tracking-wider text-center px-2">Not Uploaded</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className={`mt-2 text-[10px] text-center font-bold uppercase tracking-tighter truncate ${hasUrl ? 'text-gray-500 group-hover:text-primary-600' : 'text-gray-300'}`}>{doc.label}</p>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </DetailCard>
+
+                    <DetailCard title="Legal Documentation">
+                        {legalDocuments.length === 0 ? (
                             <div className="py-10 text-center bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
                                 <FileIcon className="size-10 mx-auto text-gray-300 mb-2" />
-                                <p className="text-sm text-gray-500 italic">No verification documents found for this record.</p>
+                                <p className="text-sm text-gray-500 italic">No legal documents found for this record.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                {documents.map((doc, idx) => (
+                                {legalDocuments.map((doc: any, idx: number) => (
                                     <div key={idx} onClick={() => setPreviewImage({ url: doc.url, title: doc.label })} className="group cursor-pointer">
                                         <div className="aspect-[4/3] rounded-2xl bg-gray-100 dark:bg-gray-800 overflow-hidden border border-gray-200 dark:border-gray-700 group-hover:ring-2 group-hover:ring-primary-500 transition-all shadow-sm">
                                             {(doc.url.toLowerCase().endsWith('.pdf') || doc.url.toLowerCase().includes('pdf')) ? (
@@ -342,6 +385,26 @@ const LandApprovalDetailsPage: React.FC = () => {
                                                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">PDF Document</span>
                                                 </div>
                                             ) : <img src={doc.url} alt={doc.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />}
+                                        </div>
+                                        <p className="mt-2 text-[10px] text-center font-bold text-gray-500 group-hover:text-primary-600 uppercase tracking-tighter truncate">{doc.label}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </DetailCard>
+
+                    <DetailCard title="Land Photos">
+                        {landPhotos.length === 0 ? (
+                            <div className="py-10 text-center bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                                <FileIcon className="size-10 mx-auto text-gray-300 mb-2" />
+                                <p className="text-sm text-gray-500 italic">No land photos uploaded.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                {landPhotos.map((doc: any, idx: number) => (
+                                    <div key={idx} onClick={() => setPreviewImage({ url: doc.url, title: doc.label })} className="group cursor-pointer">
+                                        <div className="aspect-[4/3] rounded-2xl bg-gray-100 dark:bg-gray-800 overflow-hidden border border-gray-200 dark:border-gray-700 group-hover:ring-2 group-hover:ring-primary-500 transition-all shadow-sm">
+                                            <img src={doc.url} alt={doc.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                         </div>
                                         <p className="mt-2 text-[10px] text-center font-bold text-gray-500 group-hover:text-primary-600 uppercase tracking-tighter truncate">{doc.label}</p>
                                     </div>

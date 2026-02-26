@@ -57,7 +57,16 @@ export default function SignInForm() {
 
       console.log("Attempting login for:", sanitizedPhone, "with OTP:", sanitizedOtp);
 
-      await verifyOTP(sanitizedPhone, sanitizedOtp);
+      const response = await verifyOTP(sanitizedPhone, sanitizedOtp);
+      console.log("Verify OTP Response:", response);
+      const token = response?.token || response?.access_token || response?.data?.token || response?.data?.access_token;
+      if (token) {
+        console.log("Token captured and stored");
+        localStorage.setItem('auth_token', token);
+      } else {
+        console.warn("No token found in response");
+      }
+
       localStorage.setItem('user_phone', sanitizedPhone);
       const user = await fetchProfile(sanitizedPhone);
       dispatch(setCredentials({ user }));

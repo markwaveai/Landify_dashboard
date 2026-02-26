@@ -148,6 +148,11 @@ export const getLandApprovals = async (status: string) => {
     return lands;
 };
 
+export const getLandsByReference = async (referenceId: string) => {
+    const response = await api.get(`/users/land-details-by-reference/${referenceId}`);
+    return (response.data || []).map(mapLand);
+};
+
 export const approveLandStage1 = async (landId: string | number, data: { action: 'APPROVE' | 'REJECT'; reason?: string }) => {
     const status = data.action === 'APPROVE' ? 'FO_APPROVED' : 'FO_REJECTED';
     const land_status = data.action === 'APPROVE' ? 'INACTIVE' : 'INACTIVE'; // Remains inactive until Admin

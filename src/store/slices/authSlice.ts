@@ -7,6 +7,7 @@ interface User {
   email: string;
   role: 'ADMIN' | 'FIELD_OFFICER' | 'AGENT' | 'FARMER';
   unique_id?: string;
+  reference_id?: string;
   surname?: string;
   gender?: string;
   date_of_birth?: string | Date;
@@ -26,6 +27,14 @@ interface User {
   farmer_aadhar_back?: string;
   farmer_aadhar_card_number?: string;
   aadhar_card_number?: string;
+  land_stats?: {
+    active_lands: number;
+    harvest_ready: number;
+    remarks_lands: number;
+    rejected_lands: number;
+    approved_lands: number;
+    review_lands: number;
+  };
 }
 
 interface AuthState {
@@ -57,6 +66,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       localStorage.removeItem('user_phone');
       localStorage.removeItem('user');
+      localStorage.removeItem('auth_token');
     },
   },
 });

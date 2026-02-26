@@ -1,7 +1,9 @@
 import { useMemo } from "react";
 import { useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getFarmers } from "../../services/userService";
+import { getFarmers, getFarmersByReference } from "../../services/userService";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 import FarmerTable from "../../components/dashboard/FarmerTable";
 import PageMeta from "../../components/common/PageMeta";
 import { UserIcon } from "../../icons";
@@ -19,9 +21,16 @@ export default function FarmersPage() {
     const currentPage = parseInt(searchParams.get("page") || "1");
     const searchQuery = searchParams.get("q") || "";
 
+    const { user } = useSelector((state: RootState) => state.auth);
     const { data: farmers, isLoading: isLoadingFarmers } = useQuery({
-        queryKey: ['farmers'],
-        queryFn: getFarmers,
+        queryKey: ['farmers', user?.reference_id, user?.unique_id],
+        queryFn: () => {
+            const adminId = user?.reference_id || user?.unique_id;
+            if (adminId) {
+                return getFarmersByReference(adminId);
+            }
+            return getFarmers();
+        },
     });
 
     const handlePageChange = (page: number) => {

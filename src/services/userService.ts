@@ -51,18 +51,21 @@ const mapUser = (u: any) => {
         date_of_birth: u.dob || "",
         // Extra details mapping
         aadhar_card_number: u.extra_details?.aadhar_number || u.aadhar_number || "",
-        pan_number: u.extra_details?.pan_number || u.pan_number || "",
+        pan_number: u.pan_number || u.panNumber || u.pan_card_number || u.extra_details?.pan_number || u.extra_details?.panNumber || u.extra_details?.pan_card_number || "",
         bank_name: u.extra_details?.bank_name || u.bank_name || "",
         account_number: u.extra_details?.bank_account_number || u.account_number || "",
         ifsc_code: u.extra_details?.bank_ifsc_code || u.ifsc_code || "",
         bank_branch: u.extra_details?.bank_branch_name || u.bank_branch || "",
-        alternate_phone_number: u.extra_details?.alternate_phone_number || u.alternate_phone_number || "",
+        account_holder: u.bank_account_name || u.extra_details?.bank_account_name || u.account_holder || u.name || "",
+        alternate_phone_number: u.alternate_phone_number || u.alternatePhoneNumber || u.extra_details?.alternate_phone_number || u.extra_details?.alternatePhoneNumber || "",
         reference_id: u.referenceId || u.reference_id || u.ref_id || u.extra_details?.reference_id || "",
+        village_id: u.villageId || u.village_id || u.address?.village_id || u.extra_details?.village_id || "",
         // Image URLs with robust mapping and "string" placeholder check
-        user_image_url: (u.user_image_url || u.extra_details?.user_image_url) === "string" ? "" : (u.user_image_url || u.extra_details?.user_image_url || ""),
-        aadhar_image_url: (u.aadhar_image_url || u.extra_details?.aadhar_image_url || u.extra_details?.aadhar_images_url) === "string" ? "" : (u.aadhar_image_url || u.extra_details?.aadhar_image_url || u.extra_details?.aadhar_images_url || ""),
-        pan_image_url: (u.pan_image_url || u.extra_details?.pan_image_url || u.extra_details?.pan_url) === "string" ? "" : (u.pan_image_url || u.extra_details?.pan_image_url || u.extra_details?.pan_url || ""),
-        bank_passbook_image_url: (u.bank_passbook_image_url || u.extra_details?.bank_passbook_image_url) === "string" ? "" : (u.bank_passbook_image_url || u.extra_details?.bank_passbook_image_url || ""),
+        user_image_url: (u.user_image_url || u.user_photo_url || u.extra_details?.user_image_url || u.extra_details?.user_photo_url) === "string" ? "" : (u.user_image_url || u.user_photo_url || u.extra_details?.user_image_url || u.extra_details?.user_photo_url || ""),
+        aadhar_image_url: (u.aadhar_image_url?.front || u.aadhar_images_url?.front || u.aadhar_front || u.extra_details?.aadhar_front || u.extra_details?.aadhar_images_url?.front || ""),
+        aadhar_back_image_url: (u.aadhar_image_url?.back || u.aadhar_images_url?.back || u.aadhar_back || u.extra_details?.aadhar_back || u.extra_details?.aadhar_images_url?.back || ""),
+        pan_image_url: (u.pan_image_url || u.pan_url || u.extra_details?.pan_image_url || u.extra_details?.pan_url || ""),
+        bank_passbook_image_url: (u.bank_passbook_image_url || u.bank_passbook_url || u.extra_details?.bank_passbook_image_url || u.extra_details?.bank_passbook_url || ""),
         agreement_url: (u.agreement_url || u.extra_details?.agreement_url) === "string" ? "" : (u.agreement_url || u.extra_details?.agreement_url || ""),
         // Stats mapping
         farmer_count: u.total_farmers || u.extra_details?.no_of_farmers || 0,
@@ -74,6 +77,14 @@ const mapUser = (u: any) => {
         rejected_lands: u.land_stats?.rejected_lands || 0,
         approved_lands: u.land_stats?.approved_lands || 0,
         review_lands: u.land_stats?.review_lands || 0,
+        land_stats: u.land_stats || {
+            active_lands: 0,
+            harvest_ready: 0,
+            remarks_lands: 0,
+            rejected_lands: 0,
+            approved_lands: 0,
+            review_lands: 0
+        },
         total_acres: u.total_acres || u.totalAcres || u.no_of_acres || u.land_stats?.total_acres || u.extra_details?.total_acres || u.extra_details?.no_of_acres || 0,
         role: u.role || u.type || "",
         gender: u.gender || "",
@@ -261,7 +272,12 @@ export const getAgentFarmers = async (userId: string) => {
 };
 
 export const getFarmersByReference = async (referenceId: string) => {
-    const response = await api.get(`/users/land-details-by-reference/${referenceId}`);
+    const response = await api.get(`/users/farmers-by-reference/${referenceId}`);
+    return (response.data || []).map(mapUser);
+};
+
+export const getAgentsByReference = async (referenceId: string) => {
+    const response = await api.get(`/users/agents-by-reference/${referenceId}`);
     return (response.data || []).map(mapUser);
 };
 

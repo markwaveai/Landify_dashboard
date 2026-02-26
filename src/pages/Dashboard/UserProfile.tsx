@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
 import {
-    UserCircleIcon, GroupIcon, UserIcon, PencilIcon, LogoutIcon
+    UserCircleIcon, GroupIcon, UserIcon, PencilIcon, LogoutIcon, GridIcon
 } from "../../icons";
 import { logout } from "../../store/slices/authSlice";
 import { fetchProfile, updateProfile } from "../../services/authService";
@@ -146,9 +146,17 @@ const UserProfile: React.FC = () => {
             );
         }
         if (user.role === "FIELD_OFFICER") {
+            const stats = user.land_stats || {
+                active_lands: 0,
+                harvest_ready: 0,
+                remarks_lands: 0,
+                rejected_lands: 0,
+                approved_lands: 0,
+                review_lands: 0
+            };
             return (
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="p-6 bg-blue-500 rounded-2xl text-white col-span-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="p-6 bg-blue-500 rounded-2xl text-white">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm opacity-80">Total Agents</p>
@@ -159,22 +167,52 @@ const UserProfile: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="p-4 bg-purple-500 rounded-2xl text-white">
-                        <p className="text-xs opacity-80">Total Farmers</p>
-                        <h4 className="text-2xl font-bold mt-1">{user.farmer_count ?? 0}</h4>
-                    </div>
-                    <div className="p-4 bg-emerald-500 rounded-2xl text-white">
-                        <p className="text-xs opacity-80">Total Farms</p>
-                        <h4 className="text-2xl font-bold mt-1">{user.land_count ?? 0}</h4>
-                    </div>
-                    <div className="p-4 bg-orange-500 rounded-2xl text-white col-span-2">
+
+                    <div className="p-6 bg-purple-600 rounded-2xl text-white">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm opacity-80">Total Acres</p>
-                                <h4 className="text-3xl font-bold mt-1">{user.total_acres ?? 0}</h4>
+                                <p className="text-sm opacity-80">Total Farmers</p>
+                                <h4 className="text-3xl font-bold mt-1">{user.farmer_count ?? 0}</h4>
                             </div>
                             <div className="p-3 bg-white/20 rounded-xl">
-                                <span className="text-xl font-bold">Ac</span>
+                                <UserIcon className="size-8" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-4 bg-emerald-500 rounded-2xl text-white">
+                        <p className="text-xs opacity-80 uppercase font-black tracking-widest">Active Lands</p>
+                        <h4 className="text-2xl font-bold mt-1">{stats.active_lands ?? 0}</h4>
+                    </div>
+                    <div className="p-4 bg-orange-500 rounded-2xl text-white">
+                        <p className="text-xs opacity-80 uppercase font-black tracking-widest">Harvest Ready</p>
+                        <h4 className="text-2xl font-bold mt-1">{stats.harvest_ready ?? 0}</h4>
+                    </div>
+                    <div className="p-4 bg-purple-500 rounded-2xl text-white">
+                        <p className="text-xs opacity-80 uppercase font-black tracking-widest">Approved Lands</p>
+                        <h4 className="text-2xl font-bold mt-1">{stats.approved_lands ?? 0}</h4>
+                    </div>
+                    <div className="p-4 bg-yellow-500 rounded-2xl text-white">
+                        <p className="text-xs opacity-80 uppercase font-black tracking-widest">In Review</p>
+                        <h4 className="text-2xl font-bold mt-1">{stats.review_lands ?? 0}</h4>
+                    </div>
+                    <div className="p-4 bg-rose-500 rounded-2xl text-white">
+                        <p className="text-xs opacity-80 uppercase font-black tracking-widest">Remarks/Issues</p>
+                        <h4 className="text-2xl font-bold mt-1">{stats.remarks_lands ?? 0}</h4>
+                    </div>
+                    <div className="p-4 bg-red-600 rounded-2xl text-white">
+                        <p className="text-xs opacity-80 uppercase font-black tracking-widest">Rejected</p>
+                        <h4 className="text-2xl font-bold mt-1">{stats.rejected_lands ?? 0}</h4>
+                    </div>
+
+                    <div className="p-4 bg-gray-800 rounded-2xl text-white col-span-full">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm opacity-80">Total Agriculture Acres Managed</p>
+                                <h4 className="text-3xl font-bold mt-1">{Number(user.total_acres || 0).toFixed(2)} <span className="text-lg opacity-60">Acres</span></h4>
+                            </div>
+                            <div className="p-3 bg-white/10 rounded-xl">
+                                <GridIcon className="size-8" />
                             </div>
                         </div>
                     </div>

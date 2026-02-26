@@ -1,11 +1,14 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getLands } from "../../services/landService";
+import { getLands, getLandsByReference } from "../../services/landService";
 import LandApprovalsTabContent from "../../components/dashboard/LandApprovalsTabContent";
 import PageMeta from "../../components/common/PageMeta";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 import { GroupIcon, FileIcon, UserCircleIcon, CheckCircleIcon } from "../../icons";
 
 export default function ApprovalsPage() {
+    const { user } = useSelector((state: RootState) => state.auth);
     const [activeTab, setActiveTab] = useState<'fo' | 'admin'>(() => {
         return (localStorage.getItem('approvals_page_tab') as any) || 'fo';
     });
@@ -16,11 +19,18 @@ export default function ApprovalsPage() {
     };
 
     const { data: lands, isLoading } = useQuery({
-        queryKey: ['lands'],
-        queryFn: getLands,
-        staleTime: Infinity, // Keep data fresh until explicitly invalidated
+        queryKey: ['lands', activeTab, user?.reference_id, user?.unique_id],
+        queryFn: () => {
+            const adminId = user?.reference_id || user?.unique_id;
+            // Fetch dynamically based on Admin ID if available
+            if (adminId) {
+                return getLandsByReference(adminId);
+            }
+            return getLands();
+        },
+        staleTime: Infinity,
         refetchOnWindowFocus: false,
-        refetchOnMount: false,
+        refetchOnMount: true,
         refetchOnReconnect: false,
     });
 

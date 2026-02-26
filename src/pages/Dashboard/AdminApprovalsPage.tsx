@@ -1,15 +1,24 @@
 import { useMemo } from "react";
+import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
-import { getLands } from "../../services/landService";
+import { RootState } from "../../store/store";
+import { getLands, getLandsByReference } from "../../services/landService";
 import LandApprovalsTabContent from "../../components/dashboard/LandApprovalsTabContent";
 import PageMeta from "../../components/common/PageMeta";
 import { CheckCircleIcon } from "../../icons";
 
 export default function AdminApprovalsPage() {
+    const { user } = useSelector((state: RootState) => state.auth);
     const { data: lands, isLoading } = useQuery({
-        queryKey: ['lands'],
-        queryFn: getLands,
-        staleTime: Infinity,
+        queryKey: ['lands', user?.reference_id, user?.unique_id],
+        queryFn: () => {
+            const adminId = user?.reference_id || user?.unique_id;
+            if (adminId) {
+                return getLandsByReference(adminId);
+            }
+            return getLands();
+        },
+        staleTime: 10000,
         refetchOnWindowFocus: false,
     });
 
