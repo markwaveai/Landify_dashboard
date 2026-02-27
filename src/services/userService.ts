@@ -157,7 +157,8 @@ export const createAO = async (data: any) => {
         bank_passbook_image_url: data.bank_passbook_image_url || "",
         user_image_url: data.user_image_url || "",
 
-        status: data.status || "ACTIVE"
+        status: data.status || "ACTIVE",
+        alternatePhoneNumber: data.alternate_phone_number || ""
     };
 
     const response = await api.post('/users/register', payload);
@@ -211,7 +212,8 @@ export const updateAO = async (userId: string, data: any) => {
         bank_name: data.bank_name,
         bank_ifsc_code: data.bank_ifsc_code,
         bank_branch_name: data.bank_branch_name,
-        bank_passbook_image_url: data.bank_passbook_image_url || ""
+        bank_passbook_image_url: data.bank_passbook_image_url || "",
+        alternatePhoneNumber: data.alternate_phone_number || ""
     };
     const response = await api.put(`/users/${userId}`, payload);
     return mapUser(response.data);

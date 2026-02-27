@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
     Table,
     TableBody,
@@ -8,7 +9,7 @@ import {
 import { Link, useNavigate } from "react-router";
 import Badge from "../ui/badge/Badge";
 import Button from "../ui/button/Button";
-import { EyeIcon, UserIcon } from "../../icons";
+import { ChevronLeftIcon, EyeIcon, UserIcon } from "../../icons";
 
 interface User {
     first_name: string;
@@ -45,10 +46,26 @@ interface UserTableProps {
     hideDetailedLocation?: boolean;
     hideLocation?: boolean;
     centerAlignName?: boolean;
+    itemsPerPage?: number;
 }
 
-export default function UserTable({ title, users, onAddClick, onRowClick, addLabel, isLoading, hideStatus, showFarmerCount, hideAction, hideDetailedLocation, hideLocation, centerAlignName }: UserTableProps) {
+export default function UserTable({
+    title,
+    users,
+    onAddClick,
+    onRowClick,
+    addLabel,
+    isLoading,
+    hideStatus,
+    showFarmerCount,
+    hideAction,
+    hideDetailedLocation,
+    hideLocation,
+    centerAlignName,
+    itemsPerPage = 10
+}: UserTableProps) {
     const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
 
     const getStatusBadge = (user: User) => {
         if (user.role === 'FARMER') {
@@ -73,6 +90,17 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
             }
         }
         return <Badge size="sm" color="success">Active</Badge>;
+    };
+
+    // Pagination logic
+    const totalPages = Math.ceil(users.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentUsers = users.slice(startIndex, startIndex + itemsPerPage);
+
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
     };
 
     return (
@@ -161,9 +189,9 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                     </TableHeader>
 
                     <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                        {users.map((user, index) => (
+                        {currentUsers.map((user, index) => (
                             <TableRow
-                                key={index}
+                                key={startIndex + index}
                                 onClick={() => {
                                     if (onRowClick) {
                                         onRowClick(user);
@@ -180,7 +208,7 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                             >
                                 <TableCell className="px-5 py-4 align-middle text-center">
                                     <div className="flex items-center justify-center h-10">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{index + 1}</span>
+                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{startIndex + index + 1}</span>
                                     </div>
                                 </TableCell>
                                 <TableCell className={`px-5 py-4 align-middle ${centerAlignName ? "text-center" : "text-start"}`}>
@@ -293,20 +321,78 @@ export default function UserTable({ title, users, onAddClick, onRowClick, addLab
                         {isLoading && (
                             <TableRow>
                                 <TableCell className="px-5 py-4 text-center" colSpan={16}>
-                                    <div className="flex items-center justify-center h-10 text-gray-400 font-medium">Loading agents data...</div>
+                                    <div className="flex items-center justify-center h-10 text-gray-400 font-medium">Loading data...</div>
                                 </TableCell>
                             </TableRow>
                         )}
                         {!isLoading && users.length === 0 && (
                             <TableRow>
                                 <TableCell className="px-5 py-4 text-center" colSpan={16}>
-                                    <div className="flex items-center justify-center h-10 text-gray-400 font-medium">No agents discovered yet.</div>
+                                    <div className="flex items-center justify-center h-10 text-gray-400 font-medium">No results found.</div>
                                 </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Pagination UI */}
+            {!isLoading && users.length > itemsPerPage && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-2 border-t border-gray-100 dark:border-gray-800 mt-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                        Showing <span className="text-gray-800 dark:text-white font-bold">{startIndex + 1}</span> to <span className="text-gray-800 dark:text-white font-bold">{Math.min(startIndex + itemsPerPage, users.length)}</span> of <span className="text-gray-800 dark:text-white font-bold">{users.length}</span> entries
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                        >
+                            <ChevronLeftIcon className="w-4 h-4" />
+                        </button>
+
+                        {(() => {
+                            const pages = [];
+                            if (totalPages <= 7) {
+                                for (let i = 1; i <= totalPages; i++) pages.push(i);
+                            } else {
+                                pages.push(1);
+                                if (currentPage > 3) pages.push("...");
+                                const start = Math.max(2, currentPage - 1);
+                                const end = Math.min(totalPages - 1, currentPage + 1);
+                                for (let i = start; i <= end; i++) {
+                                    if (!pages.includes(i)) pages.push(i);
+                                }
+                                if (currentPage < totalPages - 2) pages.push("...");
+                                pages.push(totalPages);
+                            }
+                            return pages.map((page, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => typeof page === 'number' && handlePageChange(page)}
+                                    disabled={typeof page !== 'number'}
+                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all shadow-sm ${currentPage === page
+                                        ? 'bg-brand-600 text-white border border-brand-600'
+                                        : typeof page === 'number'
+                                            ? 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:bg-gray-50'
+                                            : 'bg-transparent text-gray-400 border-transparent cursor-default'
+                                        }`}
+                                >
+                                    {page}
+                                </button>
+                            ));
+                        })()}
+
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                        >
+                            <ChevronLeftIcon className="w-4 h-4 rotate-180" />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

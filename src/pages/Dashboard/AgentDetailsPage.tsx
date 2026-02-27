@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAgentProfile, getAgentFarmers } from "../../services/userService";
@@ -8,6 +8,8 @@ import PageMeta from "../../components/common/PageMeta";
 import UserTable from "../../components/dashboard/UserTable";
 import DetailCard from "../../components/common/DetailCard";
 import InfoItem from "../../components/common/InfoItem";
+import { getFarmerLands } from "../../services/landService";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 const PhoneIcon = UserIcon;
 const LocationIcon = GridIcon;
@@ -16,6 +18,17 @@ export default function AgentDetailsPage() {
     const { userId } = useParams<{ userId: string }>();
     const navigate = useNavigate();
     const [previewImage, setPreviewImage] = useState<{ url: string, label: string } | null>(null);
+
+    useEffect(() => {
+        if (previewImage) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [previewImage]);
 
     const { data: profile, isLoading: isLoadingProfile } = useQuery({
         queryKey: ['agentProfile', userId],
@@ -28,6 +41,22 @@ export default function AgentDetailsPage() {
         queryFn: () => getAgentFarmers(profile?.unique_id!),
         enabled: !!profile?.unique_id
     });
+
+    const { showSnackbar } = useSnackbar();
+    const handleFarmerClick = async (farmer: any) => {
+        try {
+            const lands = await getFarmerLands(farmer.unique_id);
+            if (lands && lands.length > 0) {
+                navigate(`/land-approvals/${lands[0].id}`);
+            } else {
+                showSnackbar("No lands found for this farmer, opening profile...", "info");
+                navigate(`/farmers/${farmer.unique_id}`);
+            }
+        } catch (error) {
+            console.error("Error fetching farmer lands:", error);
+            navigate(`/farmers/${farmer.unique_id}`);
+        }
+    };
 
     const { displayLandCount, displayTotalAcres } = useMemo(() => {
         const totalLands = farmers?.reduce((sum: number, f: any) => sum + (f.land_count || 0), 0) || 0;
@@ -68,35 +97,6 @@ export default function AgentDetailsPage() {
                 </div>
             </div>
 
-            {/* Land Stats Quick Breakdown */}
-            {profile.land_stats && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    <div className="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/50">
-                        <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Active</p>
-                        <h4 className="text-xl font-bold text-emerald-900 dark:text-emerald-100">{profile.land_stats.active_lands || 0}</h4>
-                    </div>
-                    <div className="bg-orange-50 dark:bg-orange-900/10 p-4 rounded-2xl border border-orange-100 dark:border-orange-800/50">
-                        <p className="text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-1">Harvest Ready</p>
-                        <h4 className="text-xl font-bold text-orange-900 dark:text-orange-100">{profile.land_stats.harvest_ready || 0}</h4>
-                    </div>
-                    <div className="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-2xl border border-purple-100 dark:border-purple-800/50">
-                        <p className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1">Approved</p>
-                        <h4 className="text-xl font-bold text-purple-900 dark:text-purple-100">{profile.land_stats.approved_lands || 0}</h4>
-                    </div>
-                    <div className="bg-yellow-50 dark:bg-yellow-900/10 p-4 rounded-2xl border border-yellow-100 dark:border-yellow-800/50">
-                        <p className="text-[10px] font-black text-yellow-600 dark:text-yellow-400 uppercase tracking-widest mb-1">Review</p>
-                        <h4 className="text-xl font-bold text-yellow-900 dark:text-yellow-100">{profile.land_stats.review_lands || 0}</h4>
-                    </div>
-                    <div className="bg-rose-50 dark:bg-rose-900/10 p-4 rounded-2xl border border-rose-100 dark:border-rose-800/50">
-                        <p className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1">Remarks</p>
-                        <h4 className="text-xl font-bold text-rose-900 dark:text-rose-100">{profile.land_stats.remarks_lands || 0}</h4>
-                    </div>
-                    <div className="bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl border border-red-100 dark:border-red-800/50">
-                        <p className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-widest mb-1">Rejected</p>
-                        <h4 className="text-xl font-bold text-red-900 dark:text-red-100">{profile.land_stats.rejected_lands || 0}</h4>
-                    </div>
-                </div>
-            )}
 
             {/* Profile Overview Card */}
             <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
@@ -210,21 +210,17 @@ export default function AgentDetailsPage() {
                                         : 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-800 border-dashed opacity-70'
                                         }`}
                                 >
-                                    <div className="h-40 bg-gray-100 dark:bg-gray-800/80 relative flex items-center justify-center overflow-hidden">
+                                    <div
+                                        className={`h-40 bg-gray-100 dark:bg-gray-800/80 relative flex items-center justify-center overflow-hidden ${doc.url ? 'cursor-pointer' : ''}`}
+                                        onClick={() => doc.url && setPreviewImage({ url: doc.url, label: doc.label })}
+                                    >
                                         {doc.url ? (
                                             <img src={doc.url} alt={doc.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                         ) : (
                                             <DocsIcon className="size-12 text-gray-300 dark:text-gray-600" />
                                         )}
                                         {doc.url && (
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-sm">
-                                                <button
-                                                    onClick={() => setPreviewImage({ url: doc.url!, label: doc.label })}
-                                                    className="p-2.5 bg-white rounded-full text-brand-600 hover:scale-110 transition-transform shadow-lg"
-                                                >
-                                                    <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                                </button>
-                                            </div>
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center" />
                                         )}
                                     </div>
                                     <div className="p-4">
@@ -248,6 +244,42 @@ export default function AgentDetailsPage() {
                 </div>
             </div>
 
+            {/* Land Statistics Section */}
+            {profile.land_stats && (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-bold text-gray-800 dark:text-white">Land Approval Statistics</h3>
+                        <div className="h-px bg-gray-200 dark:bg-gray-700 flex-1 ml-2"></div>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div className="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/50">
+                            <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Active</p>
+                            <h4 className="text-xl font-bold text-emerald-900 dark:text-emerald-100">{profile.land_stats.active_lands || 0}</h4>
+                        </div>
+                        <div className="bg-orange-50 dark:bg-orange-900/10 p-4 rounded-2xl border border-orange-100 dark:border-orange-800/50">
+                            <p className="text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-1">Harvest Ready</p>
+                            <h4 className="text-xl font-bold text-orange-900 dark:text-orange-100">{profile.land_stats.harvest_ready || 0}</h4>
+                        </div>
+                        <div className="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-2xl border border-purple-100 dark:border-purple-800/50">
+                            <p className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1">Approved</p>
+                            <h4 className="text-xl font-bold text-purple-900 dark:text-purple-100">{profile.land_stats.approved_lands || 0}</h4>
+                        </div>
+                        <div className="bg-yellow-50 dark:bg-yellow-900/10 p-4 rounded-2xl border border-yellow-100 dark:border-yellow-800/50">
+                            <p className="text-[10px] font-black text-yellow-600 dark:text-yellow-400 uppercase tracking-widest mb-1">Review</p>
+                            <h4 className="text-xl font-bold text-yellow-900 dark:text-yellow-100">{profile.land_stats.review_lands || 0}</h4>
+                        </div>
+                        <div className="bg-rose-50 dark:bg-rose-900/10 p-4 rounded-2xl border border-rose-100 dark:border-rose-800/50">
+                            <p className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1">Remarks</p>
+                            <h4 className="text-xl font-bold text-rose-900 dark:text-rose-100">{profile.land_stats.remarks_lands || 0}</h4>
+                        </div>
+                        <div className="bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl border border-red-100 dark:border-red-800/50">
+                            <p className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-widest mb-1">Rejected</p>
+                            <h4 className="text-xl font-bold text-red-900 dark:text-red-100">{profile.land_stats.rejected_lands || 0}</h4>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Farmers ListSection */}
             <div className="space-y-4">
                 <div className="flex flex-col gap-1">
@@ -259,10 +291,12 @@ export default function AgentDetailsPage() {
                     users={farmers || []}
                     isLoading={isLoadingFarmers}
                     onAddClick={undefined}
+                    onRowClick={handleFarmerClick}
                     hideStatus={true}
                     hideAction={true}
                     hideLocation={true}
                     centerAlignName={true}
+                    itemsPerPage={5}
                 />
             </div>
             {/* Image Preview Modal */}

@@ -35,6 +35,7 @@ interface User {
     approved_lands: number;
     review_lands: number;
   };
+  user_image_url?: string;
 }
 
 interface AuthState {

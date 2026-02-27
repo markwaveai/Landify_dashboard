@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { useSelector } from 'react-redux';
 import { getLands, getLandsByReference, approveLandStage1, approveLandStage2, updateLand } from '../../services/landService';
-import { CheckCircleIcon, FileIcon, UserIcon } from '../../icons';
+import { CheckCircleIcon, FileIcon, UserIcon, ChevronLeftIcon } from '../../icons';
 import { RootState } from '../../store/store';
 import { useSnackbar } from "../../context/SnackbarContext";
 
@@ -29,6 +29,15 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
     };
     const navigate = useNavigate();
     const { showSnackbar } = useSnackbar();
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    // Reset page when tab changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [activeSubTab, isAdminView]);
 
     // Dynamically fetch lands based on tab and view
     const { data: allLandsFromQuery, isLoading: queryLoading } = useQuery({
@@ -78,10 +87,7 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
     // Check if user has permission to approve/reject
     // Actions only valid in 'pending' tabs for respective roles
     const canApprove = (
-        (activeSubTab === 'pending') && (
-            (isAdminView && user?.role === 'ADMIN') ||
-            (!isAdminView && user?.role === 'FIELD_OFFICER')
-        )
+        user?.role === 'ADMIN' && isAdminView && activeSubTab === 'admin_pending'
     );
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -174,7 +180,7 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                 render: (_: any, idx: number) => (
                     <div className="flex items-center justify-center">
                         <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                            {idx + 1}
+                            {startIndex + idx + 1}
                         </span>
                     </div>
                 )
@@ -382,7 +388,17 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
             //     render: (land: any) => <span className="text-xs font-mono text-gray-500 dark:text-gray-400">{formatValue(land.agent_contact || land.agent_phone)}</span>
             // }
         ];
-    }, [lands]);
+    }, [lands, startIndex]);
+
+    const totalPages = Math.ceil(lands.length / itemsPerPage);
+    const currentLands = lands.slice(startIndex, startIndex + itemsPerPage);
+
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
 
     const getTabLabel = (tab: 'pending' | 'admin_pending' | 'approved' | 'active_land' | 'rejected') => {
         if (isAdminView) {
@@ -451,7 +467,7 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50 dark:divide-gray-700/50">
-                                {lands.map((land: any, index: number) => (
+                                {currentLands.map((land: any, index: number) => (
                                     <tr
                                         key={land.id}
                                         onClick={() => handleRowClick(land)}
@@ -514,6 +530,65 @@ export default function LandApprovalsTabContent(props: LandApprovalsTabContentPr
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Pagination UI */}
+                    {lands.length > itemsPerPage && (
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-8 border-t border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-800/30">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                Showing <span className="text-gray-800 dark:text-white font-bold">{startIndex + 1}</span> to <span className="text-gray-800 dark:text-white font-bold">{Math.min(startIndex + itemsPerPage, lands.length)}</span> of <span className="text-gray-800 dark:text-white font-bold">{lands.length}</span> entries
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                                >
+                                    <ChevronLeftIcon className="w-4 h-4" />
+                                </button>
+
+                                {(() => {
+                                    const pages = [];
+                                    if (totalPages <= 7) {
+                                        for (let i = 1; i <= totalPages; i++) pages.push(i);
+                                    } else {
+                                        pages.push(1);
+                                        if (currentPage > 3) pages.push("...");
+                                        const start = Math.max(2, currentPage - 1);
+                                        const end = Math.min(totalPages - 1, currentPage + 1);
+                                        for (let i = start; i <= end; i++) {
+                                            if (!pages.includes(i)) pages.push(i);
+                                        }
+                                        if (currentPage < totalPages - 2) pages.push("...");
+                                        pages.push(totalPages);
+                                    }
+                                    return pages.map((page, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => typeof page === 'number' && handlePageChange(page)}
+                                            disabled={typeof page !== 'number'}
+                                            className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all shadow-sm ${currentPage === page
+                                                ? 'bg-green-600 text-white border border-green-600'
+                                                : typeof page === 'number'
+                                                    ? 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:bg-gray-50'
+                                                    : 'bg-transparent text-gray-400 border-transparent cursor-default'
+                                                }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    ));
+                                })()}
+
+                                <button
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                                >
+                                    <ChevronLeftIcon className="w-4 h-4 rotate-180" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                 </div>
             )}
 

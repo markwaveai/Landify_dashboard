@@ -59,11 +59,12 @@ const FarmerDetailsPage: React.FC = () => {
     // Comprehensive list of verification documents
     const documents = [
         { url: profile.user_image_url, label: "Profile Photo", icon: <UserIcon className="size-4" /> },
-        { url: profile.aadhar_image_url, label: "Aadhar Image", icon: <CheckCircleIcon className="size-4" /> },
+        { url: profile.aadhar_image_url, label: "Aadhar Front", icon: <UserIcon className="size-4" /> },
+        { url: profile.aadhar_back_image_url, label: "Aadhar Back", icon: <UserIcon className="size-4" /> },
         { url: profile.pan_image_url, label: "PAN Card", icon: <FileIcon className="size-4" /> },
-        { url: profile.bank_passbook_image_url, label: "Bank Passbook", icon: <TableIcon className="size-4" /> },
+        { url: profile.bank_passbook_image_url, label: "Bank Passbook", icon: <FileIcon className="size-4" /> },
         { url: profile.agreement_url, label: "Agreement Document", icon: <FileIcon className="size-4" /> },
-    ].filter(doc => doc.url);
+    ];
 
     return (
         <div className="space-y-6 pb-20 max-w-[1400px] mx-auto px-4 sm:px-6">
@@ -220,30 +221,45 @@ const FarmerDetailsPage: React.FC = () => {
                                 <p className="text-sm text-gray-500 font-medium">No verification documents uploaded yet.</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 lg:gap-6">
-                                {documents.map((doc, idx) => (
-                                    <div
-                                        key={idx}
-                                        onClick={() => setPreviewImage({ url: doc.url!, title: doc.label })}
-                                        className="group cursor-pointer"
-                                    >
-                                        <div className="relative aspect-square rounded-2xl bg-white dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm group-hover:shadow-md group-hover:border-primary-400 transition-all duration-300">
-                                            <img
-                                                src={doc.url}
-                                                alt={doc.label}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
-                                            />
-                                            <div className="absolute inset-0 bg-primary-600/0 group-hover:bg-primary-600/10 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                                <div className="bg-white px-3 py-1.5 rounded-lg text-primary-600 text-[10px] font-black shadow-xl uppercase tracking-widest">
-                                                    Preview
-                                                </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 lg:gap-6">
+                                {documents.map((doc, idx) => {
+                                    const hasUrl = typeof doc.url === 'string' && doc.url.startsWith('http');
+                                    return (
+                                        <div
+                                            key={idx}
+                                            onClick={() => hasUrl && setPreviewImage({ url: doc.url!, title: doc.label })}
+                                            className={`group ${hasUrl ? 'cursor-pointer' : 'cursor-default'}`}
+                                        >
+                                            <div className={`relative aspect-square rounded-2xl flex items-center justify-center border transition-all duration-300 overflow-hidden shadow-sm ${hasUrl
+                                                ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 group-hover:shadow-md group-hover:border-primary-400'
+                                                : 'bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800 border-dashed'
+                                                }`}>
+                                                {hasUrl ? (
+                                                    <>
+                                                        <img
+                                                            src={doc.url}
+                                                            alt={doc.label}
+                                                            className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
+                                                        />
+                                                        <div className="absolute inset-0 bg-primary-600/0 group-hover:bg-primary-600/10 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                            <div className="bg-white px-3 py-1.5 rounded-lg text-primary-600 text-[10px] font-black shadow-xl uppercase tracking-widest">
+                                                                Preview
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center gap-2 opacity-30 text-gray-400">
+                                                        {doc.icon}
+                                                        <span className="text-[9px] font-bold uppercase tracking-wider text-center px-2">Not Uploaded</span>
+                                                    </div>
+                                                )}
                                             </div>
+                                            <p className={`mt-2 text-[10px] text-center font-bold uppercase tracking-widest truncate px-1 ${hasUrl ? 'text-gray-500 dark:text-gray-400' : 'text-gray-300'}`}>
+                                                {doc.label}
+                                            </p>
                                         </div>
-                                        <p className="mt-2 text-[10px] text-center font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest truncate px-1">
-                                            {doc.label}
-                                        </p>
-                                    </div>
-                                ))}
+                                    )
+                                })}
                             </div>
                         )}
                     </DetailCard>

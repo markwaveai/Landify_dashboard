@@ -7,6 +7,9 @@ import { RootState } from "../../store/store";
 import FarmerTable from "../../components/dashboard/FarmerTable";
 import PageMeta from "../../components/common/PageMeta";
 import { UserIcon } from "../../icons";
+import { getFarmerLands } from "../../services/landService";
+import { useSnackbar } from "../../context/SnackbarContext";
+import { useNavigate } from "react-router";
 
 // Simple Search Icon Component
 const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -32,6 +35,25 @@ export default function FarmersPage() {
             return getFarmers();
         },
     });
+
+    const navigate = useNavigate();
+    const { showSnackbar } = useSnackbar();
+    const handleRowClick = async (farmer: any) => {
+        try {
+            const lands = await getFarmerLands(farmer.unique_id);
+            if (lands && lands.length > 0) {
+                // Navigate to the first land's detail view as requested
+                navigate(`/land-approvals/${lands[0].id}`);
+            } else {
+                // Fallback to profile if no lands found, but inform the user
+                showSnackbar("No lands found for this farmer, opening profile...", "info");
+                navigate(`/farmers/${farmer.unique_id}`);
+            }
+        } catch (error) {
+            console.error("Error fetching farmer lands:", error);
+            navigate(`/farmers/${farmer.unique_id}`);
+        }
+    };
 
     const handlePageChange = (page: number) => {
         const newParams = new URLSearchParams(searchParams);
@@ -124,6 +146,7 @@ export default function FarmersPage() {
                     isLoading={isLoadingFarmers}
                     currentPage={currentPage}
                     onPageChange={handlePageChange}
+                    onRowClick={handleRowClick}
                 />
             </div>
         </>

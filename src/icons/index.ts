@@ -43,6 +43,7 @@ import { ReactComponent as Lock } from "./lock.svg?react";
 import { ReactComponent as Logout } from "./logout.svg?react";
 import { ReactComponent as User } from "./user.svg?react";
 import { ReactComponent as PencilSvg } from "./pencil.svg?react";
+import { ReactComponent as RupeeLine } from "./rupee-line.svg?react";
 
 export {
   AlertHexa as AlertHexaIcon,
@@ -89,6 +90,7 @@ export {
   Logout as LogoutIcon,
   User as UserIconComponent,
   PencilSvg as PencilIcon,
+  RupeeLine as RupeeLineIconSvg,
 };
 
 // Aliases and Fallbacks
@@ -98,7 +100,7 @@ export const UserIcon = User;
 export const TractorIcon = BoxCube;
 export const VideoIcon = Audio;
 export const PlusIcon = CheckLine;
-export const RupeeLineIcon = DollarLine;
+export const RupeeLineIcon = RupeeLine;
 export const MoreDotIcon = HorizontaLDotsIcon;
 export const BoxIconLine = BoxLine;
 export const UserCircleIconLine = User;

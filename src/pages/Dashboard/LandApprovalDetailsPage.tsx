@@ -425,7 +425,7 @@ const LandApprovalDetailsPage: React.FC = () => {
             )}
 
             {/* Role Based Review Actions - Bottom Sticky */}
-            {(user?.role === "ADMIN" || user?.role === "FIELD_OFFICER") && land.status && land.status.includes('PENDING') && (
+            {user?.role === "ADMIN" && land.status === "ADMIN_PENDING" && (
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-2 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-2xl flex flex-col sm:flex-row items-center gap-2">
                         <input

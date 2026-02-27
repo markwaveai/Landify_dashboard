@@ -33,8 +33,16 @@ export default function UserDropdown() {
         onClick={toggleDropdown}
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-200"
       >
-        <span className="mr-3 flex items-center justify-center rounded-full h-11 w-11 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
-          <UserIcon className="size-6 text-gray-400" />
+        <span className="mr-3 flex items-center justify-center rounded-full h-11 w-11 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+          {user?.user_image_url ? (
+            <img
+              src={user.user_image_url}
+              alt="Profile"
+              className="size-full object-cover"
+            />
+          ) : (
+            <UserIcon className="size-6 text-gray-400" />
+          )}
         </span>
 
         <span className="block mr-1 font-medium text-theme-sm">

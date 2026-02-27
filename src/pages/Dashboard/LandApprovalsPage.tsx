@@ -15,6 +15,8 @@ export default function LandApprovalsPage() {
     const [viewLand, setViewLand] = useState<any>(null); // For Viewing Details (Modal)
     const [action, setAction] = useState<'APPROVE' | 'REJECT' | null>(null);
     const [reason, setReason] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
     const queryClient = useQueryClient();
 
     const { data: lands, isLoading } = useQuery({
@@ -104,13 +106,15 @@ export default function LandApprovalsPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                {lands?.map((land: any) => (
+                                {lands?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((land: any, index: number) => (
                                     <tr
                                         key={land.id}
                                         className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] cursor-pointer"
                                         onClick={() => setViewLand(land)}
                                     >
-                                        <td className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">#{land.id}</td>
+                                        <td className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                            <span className="text-xs font-bold font-mono">{(currentPage - 1) * itemsPerPage + index + 1}</span>
+                                        </td>
                                         <td className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{land.survey_no}</td>
                                         <td className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{land.area_in_acres} ac</td>
                                         <td className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{land.land_type || '-'}</td>
@@ -157,6 +161,33 @@ export default function LandApprovalsPage() {
                         </table>
                     </div>
                 </div>
+
+                {/* Pagination UI */}
+                {lands && lands.length > itemsPerPage && (
+                    <div className="flex items-center justify-between mt-4 px-2">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, lands.length)} of {lands.length}
+                        </p>
+                        <div className="flex gap-2">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                            >
+                                Previous
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(lands.length / itemsPerPage)))}
+                                disabled={currentPage >= Math.ceil(lands.length / itemsPerPage)}
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {selectedLand && (

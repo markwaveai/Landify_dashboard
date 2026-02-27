@@ -43,6 +43,8 @@ export const fetchProfile = async (phoneNumber: string) => {
         pincode: u.address?.pincode || "",
         gender: u.gender || "",
         date_of_birth: u.dob || "",
+        // Image mapping
+        user_image_url: (u.user_image_url || u.user_photo_url || u.extra_details?.user_image_url || u.extra_details?.user_photo_url) === "string" ? "" : (u.user_image_url || u.user_photo_url || u.extra_details?.user_image_url || u.extra_details?.user_photo_url || ""),
         // Stats mapping
         farmer_count: u.extra_details?.no_of_farmers || 0,
         land_count: u.land_stats?.approved_lands || u.no_of_lands || 0,

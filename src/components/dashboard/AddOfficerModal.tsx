@@ -40,6 +40,7 @@ interface OfficerData {
     is_active?: boolean;
     status?: string;
     user_image_url?: string;
+    alternate_phone_number?: string;
 }
 
 interface AddOfficerModalProps {
@@ -138,6 +139,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
         is_active: true,
         status: "ACTIVE",
         user_image_url: "",
+        alternate_phone_number: "",
     });
 
     const [aadharFile, setAadharFile] = useState<File | null>(null);
@@ -190,6 +192,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 is_active: user.is_active ?? true,
                 status: user.status || "ACTIVE",
                 user_image_url: user.user_image_url || "",
+                alternate_phone_number: user.alternate_phone_number || "",
             });
             setAadharFile(null);
             setPanFile(null);
@@ -225,6 +228,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 is_active: true,
                 status: "ACTIVE",
                 user_image_url: "",
+                alternate_phone_number: "",
             });
             setAadharFile(null);
             setPanFile(null);
@@ -425,6 +429,10 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
             newErrors.phone_number = "Must be 10 digits";
         }
 
+        if (formData.alternate_phone_number && formData.alternate_phone_number.trim() && !/^\d{10}$/.test(formData.alternate_phone_number)) {
+            newErrors.alternate_phone_number = "Must be 10 digits";
+        }
+
         if (!formData.email.trim()) {
             newErrors.email = "Required";
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -524,8 +532,8 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
-        if (name === "phone_number" || name === "pincode" || name === "aadhar_card_number" || name === "bank_account_number") {
-            const maxLength = name === "phone_number" ? 10 : name === "pincode" ? 6 : name === "aadhar_card_number" ? 12 : 20;
+        if (name === "phone_number" || name === "alternate_phone_number" || name === "pincode" || name === "aadhar_card_number" || name === "bank_account_number") {
+            const maxLength = (name === "phone_number" || name === "alternate_phone_number") ? 10 : name === "pincode" ? 6 : name === "aadhar_card_number" ? 12 : 20;
             const numericValue = value.replace(/\D/g, "").slice(0, maxLength);
             setFormData(prev => ({ ...prev, [name]: numericValue }));
         } else if (name === "first_name" || name === "last_name" || name === "bank_account_name") {
@@ -676,6 +684,17 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                                         placeholder="10-digit number"
                                         error={!!errors.phone_number}
                                         hint={errors.phone_number}
+                                    />
+                                </div>
+                                <div>
+                                    <Label>Alternate Phone Number <span className="text-gray-400 text-[10px] font-normal ml-1">(Optional)</span></Label>
+                                    <Input
+                                        name="alternate_phone_number"
+                                        value={formData.alternate_phone_number}
+                                        onChange={handleChange}
+                                        placeholder="Optional number"
+                                        error={!!errors.alternate_phone_number}
+                                        hint={errors.alternate_phone_number}
                                     />
                                 </div>
                                 <div>

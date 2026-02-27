@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
 import {
-    UserCircleIcon, GroupIcon, UserIcon, PencilIcon, LogoutIcon, GridIcon
+    UserCircleIcon, GroupIcon, UserIcon, LogoutIcon, GridIcon
 } from "../../icons";
 import { logout } from "../../store/slices/authSlice";
 import { fetchProfile, updateProfile } from "../../services/authService";
@@ -282,15 +282,18 @@ const UserProfile: React.FC = () => {
                         {/* Overlapping Avatar */}
                         <div className="relative inline-block">
                             <div className="size-32 sm:size-40 rounded-full border-8 border-white dark:border-gray-800 shadow-2xl overflow-hidden bg-white">
-                                <img
-                                    src={formData.user_image_url || "/images/user/owner.jpg"}
-                                    alt="Profile"
-                                    className="size-full object-cover"
-                                    onError={(e) => (e.currentTarget.src = "/images/user/owner.jpg")}
-                                />
-                            </div>
-                            <div className="absolute bottom-4 right-4 bg-green-600 text-white p-2.5 rounded-full border-4 border-white dark:border-gray-800 shadow-lg cursor-pointer transform hover:scale-110 transition-transform">
-                                <PencilIcon className="size-4" />
+                                {formData.user_image_url ? (
+                                    <img
+                                        src={formData.user_image_url}
+                                        alt="Profile"
+                                        className="size-full object-cover"
+                                        onError={() => setFormData((prev: any) => ({ ...prev, user_image_url: "" }))}
+                                    />
+                                ) : (
+                                    <div className="size-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-300">
+                                        <UserIcon className="size-1/2" />
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -406,11 +409,7 @@ const UserProfile: React.FC = () => {
                 </div>
             </div>
 
-            {/* Account Overview - Moved outside main card as requested before */}
-            <div className="mt-8">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Account Overview</h3>
-                {renderStats()}
-            </div>
+
 
             {/* Fodder Procurement Section - Button only for navigation */}
             <div className="mt-8">
