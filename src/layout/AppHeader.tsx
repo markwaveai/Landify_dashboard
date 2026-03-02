@@ -72,7 +72,7 @@ const AppHeader: React.FC = () => {
               className="w-8 h-8 rounded-lg object-cover"
             />
             <span className="text-lg font-bold text-gray-800 dark:text-white font-satoshi">
-              Landify
+              Landify Dashboard
             </span>
           </Link>
 

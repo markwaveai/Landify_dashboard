@@ -19,7 +19,7 @@ export default function AuthLayout({
                 alt="Landify Logo"
               />
             </div>
-            <h1 className="text-4xl font-bold mb-4 tracking-tight">Landify Systems</h1>
+            <h1 className="text-4xl font-bold mb-4 tracking-tight">Landify Dashboard</h1>
             <p className="text-white/80 text-lg leading-relaxed max-w-[280px]">
               Advanced grass cultivation and harvesting management for professional agricultural operations.
             </p>

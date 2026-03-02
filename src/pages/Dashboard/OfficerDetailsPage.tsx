@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getOfficerProfile, getAgentFarmers } from "../../services/userService";
@@ -9,11 +10,12 @@ import {
     UserCircleIcon,
     BoxIcon,
     CheckCircleIcon,
-    RupeeLineIcon
+    BankIcon
 } from "../../icons";
 import Badge from "../../components/ui/badge/Badge";
 import PageMeta from "../../components/common/PageMeta";
 import UserTable from "../../components/dashboard/UserTable";
+import { ImagePreviewModal } from "../../components/ui/modal/ImagePreviewModal";
 
 // Custom Info Card Component
 const InfoCard = ({ title, icon, children }: { title: string, icon?: React.ReactNode, children: React.ReactNode }) => (
@@ -62,6 +64,8 @@ const StatCard = ({ label, value, colorClass, icon }: { label: string, value: st
 export default function OfficerDetailsPage() {
     const { userId } = useParams();
     const navigate = useNavigate();
+
+    const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
     const { data: profile, isLoading: isLoadingProfile } = useQuery({
         queryKey: ['officerProfile', userId],
@@ -136,7 +140,10 @@ export default function OfficerDetailsPage() {
                 <div className="px-8 py-8">
                     <div className="flex flex-col lg:flex-row gap-8 items-start">
                         {/* Profile Image */}
-                        <div className="relative group">
+                        <div
+                            className="relative group cursor-pointer"
+                            onClick={() => profile.user_image_url && setPreviewImage({ url: profile.user_image_url, title: 'Officer Profile Photo' })}
+                        >
                             <div className="size-36 rounded-[2rem] border-[6px] border-white dark:border-gray-800 overflow-hidden bg-white shadow-xl shadow-gray-200/50 dark:shadow-none">
                                 {profile.user_image_url ? (
                                     <img
@@ -151,6 +158,11 @@ export default function OfficerDetailsPage() {
                                     </div>
                                 )}
                             </div>
+                            {profile.user_image_url && (
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-[2rem]">
+                                    <span className="text-white text-xs font-bold uppercase">View</span>
+                                </div>
+                            )}
                             <div className={`absolute bottom-4 right-4 size-5 rounded-full border-4 border-white dark:border-gray-800 ${profile.is_active !== false ? 'bg-green-500' : 'bg-red-500'}`}></div>
                         </div>
 
@@ -159,7 +171,7 @@ export default function OfficerDetailsPage() {
                             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                                 <div>
                                     <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">
-                                        {profile.first_name} <span className="text-gray-400 dark:text-gray-500">{profile.last_name}</span>
+                                        {profile.first_name} <span className="text-gray-900 dark:text-gray-100">{profile.last_name}</span>
                                     </h2>
                                     <div className="flex flex-wrap items-center gap-3">
                                         <Badge color="success" size="md">FIELD OFFICER</Badge>
@@ -243,7 +255,7 @@ export default function OfficerDetailsPage() {
                 </InfoCard>
 
                 {/* Bank Information */}
-                <InfoCard title="Financial Details" icon={<RupeeLineIcon className="size-5" />}>
+                <InfoCard title="Bank Details" icon={<BankIcon className="size-5" />}>
                     <Field label="Account Holder Name" value={profile.account_name || profile.first_name + " " + profile.last_name} />
                     <Field label="Bank Name" value={profile.bank_name} />
                     <Field label="Account Number" value={profile.account_number} />
@@ -266,7 +278,6 @@ export default function OfficerDetailsPage() {
                         { label: "Aadhar Card", url: profile.aadhar_image_url, type: 'ID Proof' },
                         { label: "PAN Card", url: profile.pan_image_url, type: 'ID Proof' },
                         { label: "Bank Passbook", url: profile.bank_passbook_image_url, type: 'Financial' },
-                        { label: "User Photo", url: profile.user_image_url, type: 'Personal' },
                         { label: "Agreement", url: profile.agreement_url, type: 'Legal' },
                     ].map((doc, i) => (
                         <div
@@ -283,10 +294,14 @@ export default function OfficerDetailsPage() {
                                     <DocsIcon className="size-10 text-gray-300" />
                                 )}
                                 {doc.url && (
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-sm">
-                                        <a href={doc.url} target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-brand-600 hover:scale-110 transition-transform">
+                                    <div
+                                        onClick={() => setPreviewImage({ url: doc.url, title: doc.label })}
+                                        className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-sm cursor-pointer"
+                                    >
+                                        <div className="p-2 bg-white rounded-full text-brand-600 hover:scale-110 transition-transform">
                                             <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                        </a>
+                                        </div>
+                                        <span className="text-white text-[10px] font-bold uppercase tracking-wider">Click to view</span>
                                     </div>
                                 )}
                             </div>
@@ -326,6 +341,14 @@ export default function OfficerDetailsPage() {
                     hideDetailedLocation={true}
                 />
             </div>
+
+            {/* Image Preview Modal */}
+            <ImagePreviewModal
+                isOpen={!!previewImage}
+                onClose={() => setPreviewImage(null)}
+                imageUrl={previewImage?.url || ""}
+                title={previewImage?.title}
+            />
         </div>
     );
 }

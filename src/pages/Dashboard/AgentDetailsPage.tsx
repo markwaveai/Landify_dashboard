@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAgentProfile, getAgentFarmers } from "../../services/userService";
@@ -8,6 +8,7 @@ import PageMeta from "../../components/common/PageMeta";
 import UserTable from "../../components/dashboard/UserTable";
 import DetailCard from "../../components/common/DetailCard";
 import InfoItem from "../../components/common/InfoItem";
+import { ImagePreviewModal } from "../../components/ui/modal/ImagePreviewModal";
 
 const PhoneIcon = UserIcon;
 const LocationIcon = GridIcon;
@@ -15,6 +16,8 @@ const LocationIcon = GridIcon;
 export default function AgentDetailsPage() {
     const { userId } = useParams<{ userId: string }>();
     const navigate = useNavigate();
+
+    const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
     const { data: profile, isLoading: isLoadingProfile } = useQuery({
         queryKey: ['agentProfile', userId],
@@ -70,7 +73,10 @@ export default function AgentDetailsPage() {
             <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
                 <div className="px-8 py-8">
                     <div className="flex flex-col md:flex-row gap-6 items-start mb-6">
-                        <div className="size-32 rounded-3xl border-4 border-white dark:border-gray-900 overflow-hidden bg-white shadow-xl min-w-[120px]">
+                        <div
+                            className="size-32 rounded-3xl border-4 border-white dark:border-gray-900 overflow-hidden bg-white shadow-xl min-w-[120px] cursor-pointer relative group"
+                            onClick={() => (profile.user_image_url || profile.user_photo_url) && setPreviewImage({ url: profile.user_image_url || profile.user_photo_url, title: 'Profile Photo' })}
+                        >
                             {(profile.user_image_url || profile.user_photo_url) ? (
                                 <img
                                     src={profile.user_image_url || profile.user_photo_url}
@@ -83,9 +89,14 @@ export default function AgentDetailsPage() {
                                     {profile.first_name?.[0]}
                                 </div>
                             )}
+                            {(profile.user_image_url || profile.user_photo_url) && (
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <span className="text-white text-[10px] font-bold uppercase">View</span>
+                                </div>
+                            )}
                         </div>
                         <div className="flex-1 pb-2 md:mt-15">
-                            <h2 className="text-2xl font-black text-gray-800 dark:text-white uppercase tracking-tight">
+                            <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
                                 {profile.surname}  {profile.first_name} {profile.last_name}
                             </h2>
                             <div className="flex flex-wrap items-center gap-3 mt-2">
@@ -125,6 +136,7 @@ export default function AgentDetailsPage() {
                         <DetailCard title="Personal Details">
                             <div className="grid grid-cols-1 gap-3">
                                 <InfoItem label="Phone Number" value={profile.phone_number} icon={<PhoneIcon className="size-4" />} />
+                                <InfoItem label="Alternate Phone" value={profile.alternate_phone_number} icon={<PhoneIcon className="size-4" />} />
                                 <InfoItem label="Email Address" value={profile.email} icon={<EnvelopeIcon className="size-4" />} />
                                 <InfoItem label="Gender" value={profile.gender} icon={<UserIcon className="size-4" />} />
                                 <InfoItem label="Date of Birth" value={profile.date_of_birth} icon={<CalendarIcon className="size-4" />} />
@@ -136,22 +148,103 @@ export default function AgentDetailsPage() {
                             <div className="grid grid-cols-1 gap-3">
                                 <InfoItem label="Reference ID" value={profile.reference_id} />
                                 <InfoItem label="Aadhar Number" value={profile.aadhar_card_number} />
-                                <InfoItem label="Pincode" value={profile.pincode} />
-                                <InfoItem label="Mandal" value={profile.mandal} />
-                                <InfoItem label="State" value={profile.state} />
+                                <InfoItem label="PAN Number" value={profile.pan_number} />
+                                <InfoItem
+                                    label="Full Address"
+                                    value={[
+                                        profile.village,
+                                        profile.mandal,
+                                        profile.district,
+                                        profile.state,
+                                        profile.pincode
+                                    ].filter(Boolean).join(', ')}
+                                />
                             </div>
                         </DetailCard>
 
 
                         {/* Section 3: Bank Details */}
-                        <DetailCard title="Bank Information">
+                        <DetailCard title="Bank Details">
                             <div className="grid grid-cols-1 gap-3">
                                 <InfoItem label="Account Holder" value={profile.account_holder} />
                                 <InfoItem label="Account Number" value={profile.account_number} />
                                 <InfoItem label="IFSC Code" value={profile.ifsc_code} />
                                 <InfoItem label="Bank Name" value={profile.bank_name} />
+                                <InfoItem label="Branch Name" value={profile.bank_branch} />
                             </div>
                         </DetailCard>
+                    </div>
+
+                    {/* Documents Section */}
+                    <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800">
+                        <h3 className="text-lg font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
+                            <span className="w-1.5 h-6 bg-brand-500 rounded-full"></span>
+                            Documents & KYC
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                            {/* Aadhar Images */}
+                            {Array.isArray(profile.aadhar_image_url) ? (
+                                profile.aadhar_image_url.map((url: string, index: number) => (
+                                    <div key={index} className="space-y-2">
+                                        <p className="text-xs font-bold text-gray-500 uppercase">Aadhar {index === 0 ? 'Front' : 'Back'}</p>
+                                        <div
+                                            onClick={() => setPreviewImage({ url, title: `Aadhar ${index === 0 ? 'Front' : 'Back'}` })}
+                                            className="relative aspect-[3/2] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 flex items-center justify-center cursor-pointer group"
+                                        >
+                                            <img src={url} alt={`Aadhar ${index}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <span className="text-white text-xs font-bold font-sans">Click to view</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : profile.aadhar_image_url ? (
+                                <div className="space-y-2">
+                                    <p className="text-xs font-bold text-gray-500 uppercase">Aadhar Card</p>
+                                    <div
+                                        onClick={() => setPreviewImage({ url: profile.aadhar_image_url, title: 'Aadhar Card' })}
+                                        className="relative aspect-[3/2] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 flex items-center justify-center cursor-pointer group"
+                                    >
+                                        <img src={profile.aadhar_image_url} alt="Aadhar" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <span className="text-white text-xs font-bold font-sans">Click to view</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : null}
+
+                            {/* PAN Image */}
+                            {profile.pan_image_url && (
+                                <div className="space-y-2">
+                                    <p className="text-xs font-bold text-gray-500 uppercase">PAN Card</p>
+                                    <div
+                                        onClick={() => setPreviewImage({ url: profile.pan_image_url, title: 'PAN Card' })}
+                                        className="relative aspect-[3/2] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 flex items-center justify-center cursor-pointer group"
+                                    >
+                                        <img src={profile.pan_image_url} alt="PAN Card" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <span className="text-white text-xs font-bold font-sans">Click to view</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Bank Passbook Image */}
+                            {profile.bank_passbook_image_url && (
+                                <div className="space-y-2">
+                                    <p className="text-xs font-bold text-gray-500 uppercase">Bank Passbook</p>
+                                    <div
+                                        onClick={() => setPreviewImage({ url: profile.bank_passbook_image_url, title: 'Bank Passbook' })}
+                                        className="relative aspect-[3/2] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 flex items-center justify-center cursor-pointer group"
+                                    >
+                                        <img src={profile.bank_passbook_image_url} alt="Bank Passbook" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <span className="text-white text-xs font-bold font-sans">Click to view</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -173,6 +266,14 @@ export default function AgentDetailsPage() {
                     centerAlignName={true}
                 />
             </div>
+
+            {/* Image Preview Modal */}
+            <ImagePreviewModal
+                isOpen={!!previewImage}
+                onClose={() => setPreviewImage(null)}
+                imageUrl={previewImage?.url || ""}
+                title={previewImage?.title}
+            />
         </div>
     );
 }

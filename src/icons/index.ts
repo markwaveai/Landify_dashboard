@@ -42,6 +42,7 @@ import { ReactComponent as List } from "./list.svg?react";
 import { ReactComponent as Lock } from "./lock.svg?react";
 import { ReactComponent as Logout } from "./logout.svg?react";
 import { ReactComponent as User } from "./user.svg?react";
+import { ReactComponent as Bank } from "./bank.svg?react";
 import { ReactComponent as PencilSvg } from "./pencil.svg?react";
 
 export {
@@ -55,6 +56,7 @@ export {
   ArrowRight as ArrowRightIcon,
   ArrowUp as ArrowUpIcon,
   Audio as AudioIcon,
+  Bank as BankIcon,
   Bolt as BoltIcon,
   BoxCube as BoxCubeIcon,
   BoxLine as BoxLineIcon,

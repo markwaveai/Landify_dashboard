@@ -323,8 +323,8 @@ const AppSidebar: React.FC = () => {
                 alt="Landify"
                 className="w-10 h-10 rounded-lg object-cover"
               />
-              <span className="text-2xl font-bold text-white font-satoshi">
-                Landify
+              <span className="text-xl font-bold text-white font-satoshi">
+                Landify Dashboard
               </span>
             </div>
           ) : (

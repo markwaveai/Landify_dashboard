@@ -56,10 +56,10 @@ const mapUser = (u: any) => {
         account_number: u.extra_details?.bank_account_number || u.account_number || "",
         ifsc_code: u.extra_details?.bank_ifsc_code || u.ifsc_code || "",
         bank_branch: u.extra_details?.bank_branch_name || u.bank_branch || "",
-        alternate_phone_number: u.extra_details?.alternate_phone_number || u.alternate_phone_number || "",
+        alternate_phone_number: u.extra_details?.alternate_phone_number || u.extra_details?.alternatePhoneNumber || u.alternate_phone_number || u.alternatePhoneNumber || "",
         reference_id: u.referenceId || u.reference_id || u.ref_id || u.extra_details?.reference_id || "",
         // Image URLs with robust mapping and "string" placeholder check
-        user_image_url: (u.user_image_url || u.extra_details?.user_image_url) === "string" ? "" : (u.user_image_url || u.extra_details?.user_image_url || ""),
+        user_image_url: (u.user_image_url || u.extra_details?.user_image_url || u.user_photo_url || u.extra_details?.user_photo_url) === "string" ? "" : (u.user_image_url || u.extra_details?.user_image_url || u.user_photo_url || u.extra_details?.user_photo_url || ""),
         aadhar_image_url: (u.aadhar_image_url || u.extra_details?.aadhar_image_url || u.extra_details?.aadhar_images_url) === "string" ? "" : (u.aadhar_image_url || u.extra_details?.aadhar_image_url || u.extra_details?.aadhar_images_url || ""),
         pan_image_url: (u.pan_image_url || u.extra_details?.pan_image_url || u.extra_details?.pan_url) === "string" ? "" : (u.pan_image_url || u.extra_details?.pan_image_url || u.extra_details?.pan_url || ""),
         bank_passbook_image_url: (u.bank_passbook_image_url || u.extra_details?.bank_passbook_image_url) === "string" ? "" : (u.bank_passbook_image_url || u.extra_details?.bank_passbook_image_url || ""),

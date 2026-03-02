@@ -213,7 +213,7 @@ const LandApprovalDetailsPage: React.FC = () => {
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-gray-800 dark:text-white truncate">{ownerNameStr}</h3>
+                                    <h3 className="font-bold text-gray-900 dark:text-white truncate">{ownerNameStr}</h3>
                                     <div className="flex items-center gap-2">
                                         <Badge variant="light" size="sm" color="info">
                                             {String(owner?.role || "FARMER").replace(/_/g, ' ')}
