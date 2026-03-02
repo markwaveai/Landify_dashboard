@@ -41,6 +41,7 @@ interface OfficerData {
     status?: string;
     user_image_url?: string;
     alternate_phone_number?: string;
+    agreement_url?: string;
 }
 
 interface AddOfficerModalProps {
@@ -140,6 +141,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
         status: "ACTIVE",
         user_image_url: "",
         alternate_phone_number: "",
+        agreement_url: "",
     });
 
     const [aadharFile, setAadharFile] = useState<File | null>(null);
@@ -148,6 +150,8 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
     const [panPreview, setPanPreview] = useState<string | null>(null);
     const [passbookFile, setPassbookFile] = useState<File | null>(null);
     const [passbookPreview, setPassbookPreview] = useState<string | null>(null);
+    const [agreementFile, setAgreementFile] = useState<File | null>(null);
+    const [agreementPreview, setAgreementPreview] = useState<string | null>(null);
     const [userImageFile, setUserImageFile] = useState<File | null>(null);
     const [userImagePreview, setUserImagePreview] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
@@ -193,12 +197,14 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 status: user.status || "ACTIVE",
                 user_image_url: user.user_image_url || "",
                 alternate_phone_number: user.alternate_phone_number || "",
+                agreement_url: user.agreement_url || "",
             });
             setAadharFile(null);
             setPanFile(null);
             setAadharPreview(user.aadhar_image_url || null);
             setPanPreview(user.pan_image_url || null);
             setPassbookPreview(user.bank_passbook_image_url || null);
+            setAgreementPreview(user.agreement_url || null);
             setUserImagePreview(user.user_image_url || null);
         } else if (!user && isOpen) {
             setFormData({
@@ -229,14 +235,17 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 status: "ACTIVE",
                 user_image_url: "",
                 alternate_phone_number: "",
+                agreement_url: "",
             });
             setAadharFile(null);
             setPanFile(null);
             setPassbookFile(null);
+            setAgreementFile(null);
             setUserImageFile(null);
             setAadharPreview(null);
             setPanPreview(null);
             setPassbookPreview(null);
+            setAgreementPreview(null);
             setUserImagePreview(null);
             setSelectedStateId("");
             setSelectedDistrictId("");
@@ -387,6 +396,14 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
     }, [passbookFile]);
 
     useEffect(() => {
+        if (agreementFile) {
+            const objectUrl = URL.createObjectURL(agreementFile);
+            setAgreementPreview(objectUrl);
+            return () => URL.revokeObjectURL(objectUrl);
+        }
+    }, [agreementFile]);
+
+    useEffect(() => {
         if (userImageFile) {
             const objectUrl = URL.createObjectURL(userImageFile);
             setUserImagePreview(objectUrl);
@@ -498,6 +515,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 let aadharUrl = formData.aadhar_image_url;
                 let panUrl = formData.pan_image_url;
                 let passbookUrl = formData.bank_passbook_image_url;
+                let agreementUrl = formData.agreement_url;
                 let userImageUrl = formData.user_image_url;
 
                 if (aadharFile) {
@@ -509,6 +527,9 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                 if (passbookFile) {
                     passbookUrl = await uploadFile(passbookFile, 'passbook', formData.phone_number);
                 }
+                if (agreementFile) {
+                    agreementUrl = await uploadFile(agreementFile, 'agreement', formData.phone_number);
+                }
                 if (userImageFile) {
                     userImageUrl = await uploadFile(userImageFile, 'profile_image', formData.phone_number);
                 }
@@ -518,6 +539,7 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                     aadhar_image_url: aadharUrl,
                     pan_image_url: panUrl,
                     bank_passbook_image_url: passbookUrl,
+                    agreement_url: agreementUrl,
                     user_image_url: userImageUrl
                 });
             } catch (error: unknown) {
@@ -1044,6 +1066,44 @@ export default function AddOfficerModal({ isOpen, onClose, user }: AddOfficerMod
                                                     type="file"
                                                     accept="image/*,.pdf"
                                                     onChange={(e) => setPassbookFile(e.target.files?.[0] || null)}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Section 5: Agreement Details */}
+                        <div className="scroll-mt-4">
+                            <SectionTitle title="Agreement Details" />
+                            <div className="grid grid-cols-1 gap-5">
+                                <div className="md:col-span-2">
+                                    <Label>Agreement Document</Label>
+                                    <div className="mt-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50 dark:bg-gray-800/30">
+                                        {(agreementPreview || formData.agreement_url) ? (
+                                            <div className="relative group rounded-lg overflow-hidden h-32 bg-gray-100 dark:bg-gray-800 border-2 border-transparent hover:border-brand-500 transition-colors">
+                                                <img src={agreementPreview || formData.agreement_url} alt="Agreement" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => { e.preventDefault(); setAgreementFile(null); setAgreementPreview(null); setFormData(prev => ({ ...prev, agreement_url: "" })); }}
+                                                        className="bg-red-500 text-white p-2 rounded-lg text-xs font-semibold hover:bg-red-600 shadow-lg flex items-center gap-1"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg h-32 flex flex-col items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                                <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                                <span className="text-gray-500 text-sm font-medium">Click to upload image</span>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*,.pdf"
+                                                    onChange={(e) => setAgreementFile(e.target.files?.[0] || null)}
                                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                                 />
                                             </div>

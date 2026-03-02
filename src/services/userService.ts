@@ -136,29 +136,24 @@ export const createAO = async (data: any) => {
         aadhar_number: data.aadhar_card_number,
         pan_number: data.pan_card_number,
 
-        bank_account_name: data.bank_account_name,
         bank_account_number: data.bank_account_number,
         bank_name: data.bank_name,
         bank_ifsc_code: data.bank_ifsc_code,
         bank_branch_name: data.bank_branch_name,
+        bank_account_holder_name: data.bank_account_name || "",
 
-        // ✅ IMPORTANT
-        address: {
-            village: data.village,
-            mandal: data.mandal,
-            mandal_id: data.mandal_id,
-            district: data.district,
-            state: data.state,
-            pincode: data.pincode
-        },
+        address: `${data.village}, ${data.mandal}, ${data.district}, ${data.state} - ${data.pincode}`,
+        village: data.village,
+        mandal: data.mandal,
+        alternatePhoneNumber: data.alternate_phone_number || "",
 
+        user_image_url: data.user_image_url || "",
         aadhar_images_url: data.aadhar_image_url || "",
         pan_url: data.pan_image_url || "",
         bank_passbook_image_url: data.bank_passbook_image_url || "",
-        user_image_url: data.user_image_url || "",
+        agreement_url: data.agreement_url || "",
 
-        status: data.status || "ACTIVE",
-        alternatePhoneNumber: data.alternate_phone_number || ""
+        status: data.status || "ACTIVE"
     };
 
     const response = await api.post('/users/register', payload);
@@ -188,32 +183,34 @@ export const updateAO = async (userId: string, data: any) => {
     const payload = {
         name: `${data.first_name} ${data.last_name}`,
         phoneNumber: data.phone_number,
+        role: 'FIELD_OFFICER',
         email: data.email,
         dob: data.date_of_birth,
         gender: data.gender,
         isActive: data.is_active !== undefined ? data.is_active : true,
-        status: data.status || "ACTIVE",
-        user_image_url: data.user_image_url || "",
-        address: {
-            village: data.village,
-            mandal: data.mandal,
-            mandal_id: data.mandal_id,
-            district: data.district,
-            state: data.state,
-            pincode: data.pincode
-        },
-        aadhar_images_url: data.aadhar_image_url || "",
-        pan_url: data.pan_image_url || "",
-        referenceId: data.reference_id || "",
+
+        reference_id: data.reference_id || data.referenceId || "",
         aadhar_number: data.aadhar_card_number,
         pan_number: data.pan_card_number,
-        bank_account_name: data.bank_account_name,
+
         bank_account_number: data.bank_account_number,
         bank_name: data.bank_name,
         bank_ifsc_code: data.bank_ifsc_code,
         bank_branch_name: data.bank_branch_name,
+        bank_account_holder_name: data.bank_account_name || "",
+
+        address: `${data.village}, ${data.mandal}, ${data.district}, ${data.state} - ${data.pincode}`,
+        village: data.village,
+        mandal: data.mandal,
+        alternatePhoneNumber: data.alternate_phone_number || "",
+
+        user_image_url: data.user_image_url || "",
+        aadhar_images_url: data.aadhar_image_url || "",
+        pan_url: data.pan_image_url || "",
         bank_passbook_image_url: data.bank_passbook_image_url || "",
-        alternatePhoneNumber: data.alternate_phone_number || ""
+        agreement_url: data.agreement_url || "",
+
+        status: data.status || "ACTIVE"
     };
     const response = await api.put(`/users/${userId}`, payload);
     return mapUser(response.data);
